@@ -27,7 +27,7 @@ def main():
     print("=" * 60)
     print("STEP 1 — Generating synthetic medical records …")
     print("=" * 60)
-    records_list = generate_records(n=5000, output_path=CSV_PATH)
+    records_list = generate_records(n=50000, output_path=CSV_PATH)
     import pandas as pd
     df = pd.read_csv(CSV_PATH)
     print(f"  ✔ {len(df)} records saved to {CSV_PATH}")

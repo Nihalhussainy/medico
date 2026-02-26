@@ -96,6 +96,15 @@ RISK_PRECAUTIONS = {
         ],
         "advice": "Cognitive behavioral therapy (CBT) is highly effective. Consider mindfulness meditation.",
     },
+    "Anxiety Disorder": {
+        "precautions": [
+            "Practice daily relaxation and breathing exercises",
+            "Limit caffeine and stimulant intake",
+            "Maintain consistent sleep schedule",
+            "Engage in regular physical activity",
+        ],
+        "advice": "CBT is the gold standard treatment. Mindfulness meditation reduces symptoms by 30-40%.",
+    },
     "Type 2 Diabetes": {
         "precautions": [
             "Monitor blood glucose regularly (fasting + post-meal)",
@@ -163,6 +172,335 @@ RISK_PRECAUTIONS = {
             "Avoid trigger foods (spicy, fatty, acidic)",
         ],
         "advice": "Maintain healthy weight. Loose clothing can reduce abdominal pressure.",
+    },
+    # ─── EXPANDED PRECAUTIONS ─────────────────────────────────────
+    "Coronary Artery Disease": {
+        "precautions": [
+            "Take Aspirin and Statin as prescribed daily",
+            "Regular stress tests and ECGs",
+            "Monitor cholesterol and triglycerides every 3 months",
+            "Avoid strenuous exertion without medical clearance",
+        ],
+        "advice": "Cardiac rehabilitation improves survival by 20-25%. Follow Mediterranean diet strictly.",
+    },
+    "Heart Failure": {
+        "precautions": [
+            "Weigh yourself daily — report 2+ lb gain in 24 hours",
+            "Limit fluid intake to 1.5-2 liters/day",
+            "Restrict sodium to under 2g/day",
+            "Take all medications exactly as prescribed",
+        ],
+        "advice": "Avoid NSAIDs which worsen fluid retention. Report increased shortness of breath immediately.",
+    },
+    "Heart Failure (CHF)": {
+        "precautions": [
+            "Daily weight monitoring — notify doctor for >1kg gain overnight",
+            "Strict sodium restriction (<2g/day)",
+            "Fluid restriction (1.5-2L/day)",
+            "Never miss doses of heart failure medications",
+        ],
+        "advice": "Cardiac rehabilitation significantly improves exercise tolerance and quality of life.",
+    },
+    "Atrial Fibrillation": {
+        "precautions": [
+            "Take anticoagulant medication on time daily",
+            "Check pulse regularly for irregularity",
+            "Monitor INR if on Warfarin (target 2-3)",
+            "Report any unusual bleeding immediately",
+        ],
+        "advice": "Avoid excessive caffeine and alcohol which trigger episodes. Maintain healthy weight.",
+    },
+    "Hyperlipidemia": {
+        "precautions": [
+            "Annual lipid panel testing",
+            "Take statins at bedtime for maximum effect",
+            "Reduce saturated fat intake to <7% of calories",
+            "Limit dietary cholesterol to <200mg/day",
+        ],
+        "advice": "Omega-3 fatty acids (fish oil) lower triglycerides. Exercise 150 min/week raises HDL.",
+    },
+    "Bronchitis": {
+        "precautions": [
+            "Avoid smoking and secondhand smoke",
+            "Practice good respiratory hygiene",
+            "Complete prescribed antibiotics if bacterial",
+        ],
+        "advice": "Stay well-hydrated. Use humidifier for symptom relief. Get annual flu vaccine.",
+    },
+    "Asthma": {
+        "precautions": [
+            "Always carry rescue inhaler",
+            "Identify and avoid personal triggers",
+            "Use peak flow meter to monitor control",
+            "Get annual flu vaccination",
+        ],
+        "advice": "Preventive inhalers must be used daily even when feeling well. Avoid cold air exposure.",
+    },
+    "Liver Damage": {
+        "precautions": [
+            "Complete alcohol abstinence",
+            "Avoid Paracetamol (use alternatives)",
+            "Regular liver function tests every 3 months",
+            "Hepatitis vaccination if not immune",
+        ],
+        "advice": "High-protein diet supports liver regeneration. Silymarin (milk thistle) may help.",
+    },
+    "Liver Cirrhosis": {
+        "precautions": [
+            "Absolute alcohol abstinence",
+            "Regular liver ultrasound every 6 months",
+            "Monitor for signs of portal hypertension",
+            "Hepatitis B/C screening and treatment",
+        ],
+        "advice": "Low-sodium diet prevents ascites. Protein intake 1-1.5g/kg/day unless encephalopathy present.",
+    },
+    "Kidney Stones": {
+        "precautions": [
+            "Drink 2.5-3 liters of water daily",
+            "Limit oxalate-rich foods (spinach, nuts, chocolate)",
+            "Reduce sodium intake",
+            "Moderate protein consumption",
+        ],
+        "advice": "Lemon juice (citrate) helps prevent calcium stones. 24-hour urine analysis guides prevention.",
+    },
+    "Sinusitis": {
+        "precautions": [
+            "Use saline nasal irrigation daily",
+            "Avoid allergens and irritants",
+            "Treat underlying allergies",
+        ],
+        "advice": "Steam inhalation helps drainage. Complete antibiotic courses to prevent chronic sinusitis.",
+    },
+    "Chronic Sinusitis": {
+        "precautions": [
+            "Daily saline nasal rinse",
+            "Allergy testing and treatment",
+            "Avoid smoking and air pollutants",
+            "Consider nasal corticosteroid spray long-term",
+        ],
+        "advice": "ENT referral if symptoms persist >12 weeks. Surgery may be needed for structural issues.",
+    },
+    "IBS": {
+        "precautions": [
+            "Identify trigger foods (keep food diary)",
+            "Eat regular, smaller meals",
+            "Manage stress through relaxation techniques",
+            "Increase soluble fiber gradually",
+        ],
+        "advice": "Low FODMAP diet reduces symptoms in 70% of patients. Probiotics may help.",
+    },
+    "Barrett's Esophagus": {
+        "precautions": [
+            "Endoscopy surveillance every 1-3 years",
+            "Continue PPI therapy as prescribed",
+            "Aggressive GERD management",
+        ],
+        "advice": "Small but real cancer risk — regular surveillance is essential.",
+    },
+    "Sepsis": {
+        "precautions": [
+            "Seek immediate emergency care for suspected infection with confusion/rapid breathing",
+            "Complete all prescribed antibiotic courses",
+            "Vaccinations as recommended",
+        ],
+        "advice": "Early recognition saves lives. Remember TIME: Temperature, Infection, Mental decline, Extremely ill.",
+    },
+    "Anemia": {
+        "precautions": [
+            "Regular CBC blood tests",
+            "Iron-rich diet (red meat, spinach, lentils, fortified cereals)",
+            "Vitamin C with iron supplements to boost absorption",
+            "Avoid tea/coffee with meals (inhibits iron absorption)",
+        ],
+        "advice": "Identify and treat underlying cause. B12 and folate levels should also be checked.",
+    },
+    "Dehydration": {
+        "precautions": [
+            "Drink at least 2-3 liters of fluids daily",
+            "Monitor urine color (pale yellow = hydrated)",
+            "Use ORS during illness",
+            "Increase fluids during hot weather and exercise",
+        ],
+        "advice": "Watermelon, cucumber, and soups count toward fluid intake. Avoid sugary drinks.",
+    },
+    "Lung Fibrosis": {
+        "precautions": [
+            "Avoid respiratory irritants and dust",
+            "Oxygen therapy as prescribed",
+            "Pulmonary rehabilitation program",
+            "Annual flu and pneumonia vaccination",
+        ],
+        "advice": "Early referral to lung transplant center if progressive. Anti-fibrotic drugs may slow progression.",
+    },
+    "Lung Cancer": {
+        "precautions": [
+            "Annual low-dose CT scan if high-risk",
+            "Immediate smoking cessation",
+            "Avoid occupational carcinogens (asbestos, radon)",
+        ],
+        "advice": "Early detection dramatically improves survival. Report persistent cough or hemoptysis.",
+    },
+    "Gastric Cancer": {
+        "precautions": [
+            "H. pylori eradication if positive",
+            "Endoscopic surveillance for high-risk patients",
+            "Reduce processed/smoked food consumption",
+        ],
+        "advice": "Fresh fruits and vegetables are protective. Report unexplained weight loss early.",
+    },
+    "Disc Herniation": {
+        "precautions": [
+            "Avoid heavy lifting and bending",
+            "Core strengthening exercises",
+            "Maintain good posture",
+            "Ergonomic workplace setup",
+        ],
+        "advice": "Physical therapy is effective in 80% of cases without surgery. Swimming is ideal exercise.",
+    },
+    "Sciatica": {
+        "precautions": [
+            "Avoid prolonged sitting",
+            "Gentle stretching exercises daily",
+            "Apply ice/heat alternately for pain",
+            "Strengthen core muscles",
+        ],
+        "advice": "Most cases resolve in 6-12 weeks. Seek urgent care if bladder/bowel control is affected.",
+    },
+    "Chronic Pain Syndrome": {
+        "precautions": [
+            "Multidisciplinary pain management approach",
+            "Regular physical therapy",
+            "Psychological support (CBT for pain)",
+            "Avoid opioid dependence",
+        ],
+        "advice": "Mindfulness-based stress reduction reduces chronic pain by 30-40%. Stay active within limits.",
+    },
+    "Cognitive Decline": {
+        "precautions": [
+            "Mental stimulation (puzzles, reading, learning)",
+            "Regular physical exercise",
+            "Social engagement",
+            "Mediterranean diet",
+        ],
+        "advice": "Control cardiovascular risk factors — they are linked to 40% of dementia cases.",
+    },
+    "Substance Abuse": {
+        "precautions": [
+            "Seek professional addiction counseling",
+            "Support groups (AA, NA) attendance",
+            "Remove access to substances",
+            "Address underlying mental health issues",
+        ],
+        "advice": "Recovery is possible. Medication-assisted treatment improves success rates significantly.",
+    },
+    "Postpartum Depression": {
+        "precautions": [
+            "Screen with Edinburgh Postnatal Depression Scale",
+            "Ensure adequate sleep and support",
+            "Maintain social connections",
+        ],
+        "advice": "Affects 1 in 7 mothers. Early treatment with therapy/medication is highly effective.",
+    },
+    "Shingles": {
+        "precautions": [
+            "Shingrix vaccine for adults >50",
+            "Keep rash clean and covered",
+            "Avoid contact with immunocompromised individuals",
+        ],
+        "advice": "Early antiviral treatment (within 72 hours) reduces postherpetic neuralgia risk.",
+    },
+    "Hip Fracture": {
+        "precautions": [
+            "Fall prevention — remove tripping hazards at home",
+            "Bone density screening",
+            "Calcium and Vitamin D supplementation",
+            "Balance and strength exercises",
+        ],
+        "advice": "Hip protectors reduce fracture risk in high-risk elderly. Post-surgery rehab is critical.",
+    },
+    "Vertebral Fracture": {
+        "precautions": [
+            "Avoid heavy lifting and twisting",
+            "Bone density treatment (bisphosphonates)",
+            "Fall prevention measures",
+        ],
+        "advice": "Back braces may help during healing. Physical therapy restores function.",
+    },
+    "Pulmonary Edema": {
+        "precautions": [
+            "Strict fluid and sodium restriction",
+            "Take diuretics exactly as prescribed",
+            "Seek emergency care for sudden breathlessness",
+        ],
+        "advice": "Sleep with head elevated. Monitor weight daily for fluid accumulation signs.",
+    },
+    "GI Bleeding": {
+        "precautions": [
+            "Avoid NSAIDs and Aspirin (unless cardiologist-prescribed)",
+            "Seek emergency care for black/bloody stools",
+            "Use PPIs if on anticoagulants",
+        ],
+        "advice": "Iron supplementation may be needed. Endoscopy can identify and treat the bleeding source.",
+    },
+    "Esophageal Stricture": {
+        "precautions": [
+            "Aggressive GERD treatment with PPIs",
+            "Eat slowly and chew thoroughly",
+            "Report progressive difficulty swallowing",
+        ],
+        "advice": "Endoscopic dilation is safe and effective. Maintain lifelong PPI therapy.",
+    },
+    "Syncope": {
+        "precautions": [
+            "Avoid prolonged standing",
+            "Increase salt and fluid intake if appropriate",
+            "Rise slowly from sitting/lying position",
+        ],
+        "advice": "Tilt-table testing can identify the cause. Counter-pressure maneuvers prevent episodes.",
+    },
+    "Obesity": {
+        "precautions": [
+            "Caloric deficit of 500-750 kcal/day for safe weight loss",
+            "Regular physical activity (150-300 min/week)",
+            "Behavioral counseling",
+            "Avoid crash diets",
+        ],
+        "advice": "Even 5-10% weight loss dramatically improves metabolic health. Structured programs work best.",
+    },
+    "Liver Disease (Fatty Liver / NAFLD)": {
+        "precautions": [
+            "Weight loss of 7-10% reduces liver fat by 80%",
+            "Avoid alcohol completely",
+            "Regular liver enzyme monitoring",
+            "Control diabetes and cholesterol",
+        ],
+        "advice": "There is no approved drug for NAFLD. Lifestyle changes are the primary treatment.",
+    },
+    "Intestinal Perforation": {
+        "precautions": [
+            "Seek immediate emergency care for sudden severe abdominal pain",
+            "Post-surgical wound care and monitoring",
+            "Gradual return to normal diet",
+        ],
+        "advice": "This is a surgical emergency. Early diagnosis and treatment saves lives.",
+    },
+    "Eczema": {
+        "precautions": [
+            "Moisturize 2-3 times daily with fragrance-free emollients",
+            "Avoid harsh soaps and detergents",
+            "Identify and avoid triggers",
+            "Keep nails short to prevent scratching damage",
+        ],
+        "advice": "Cotton clothing is least irritating. Wet wrap therapy helps severe flares.",
+    },
+    "Falls/Fractures": {
+        "precautions": [
+            "Remove home hazards (loose rugs, poor lighting)",
+            "Balance and strength exercises",
+            "Vision correction and hearing aids if needed",
+            "Review medications that cause dizziness",
+        ],
+        "advice": "Tai Chi reduces fall risk by 40% in elderly. Install grab bars in bathroom.",
     },
 }
 
