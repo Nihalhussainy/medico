@@ -1,0 +1,6 @@
+type: specs.openrewrite.org/v1beta/recipe
+name: io.medico.java21upgrade
+displayName: Upgrade to Java 21
+description: Upgrade to Java 21 LTS
+recipeList:
+  - org.openrewrite.java.migrate.UpgradeToJava21
