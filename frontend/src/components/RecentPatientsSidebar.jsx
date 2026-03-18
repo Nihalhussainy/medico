@@ -1,16 +1,18 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { getRecentPatients, isConsentValid, clearRecentPatients } from "../services/recentPatientsManager.js";
 import { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext.jsx";
 
 export default function RecentPatientsSidebar() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const [patients, setPatients] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
     loadRecents();
-  }, [location]);
+  }, [location, user?.email, user?.phoneNumber, user?.id]);
 
   const loadRecents = () => {
     const recents = getRecentPatients();
@@ -47,25 +49,25 @@ export default function RecentPatientsSidebar() {
       {/* Sidebar */}
       <div className="h-full pointer-events-auto">
         <div
-          className={`h-full bg-slate-900 text-white transition-all duration-300 overflow-y-auto flex flex-col ${
+          className={`h-full bg-gray-900 text-white transition-all duration-300 overflow-y-auto flex flex-col ${
             isExpanded ? "w-72" : "w-16"
           }`}
           style={{
-            boxShadow: isExpanded ? "2px 0 8px rgba(0,0,0,0.3)" : "none"
+            boxShadow: isExpanded ? "2px 0 8px rgba(0,0,0,0.2)" : "none"
           }}
         >
           {/* Toggle Button */}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="h-16 flex items-center justify-center hover:bg-slate-800 transition-colors border-b border-slate-700 flex-shrink-0"
+            className="h-16 flex items-center justify-center hover:bg-gray-800 transition-colors border-b border-gray-700 flex-shrink-0"
             title="Toggle sidebar"
           >
             {isExpanded ? (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
             ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             )}
@@ -74,10 +76,10 @@ export default function RecentPatientsSidebar() {
           {isExpanded && (
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-slate-300 uppercase tracking-wider">Today's Patients</h3>
+                <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Today's Patients</h3>
                 <button
                   onClick={loadRecents}
-                  className="text-slate-400 hover:text-white transition-colors"
+                  className="text-gray-400 hover:text-white transition-colors"
                   title="Refresh"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -98,21 +100,23 @@ export default function RecentPatientsSidebar() {
                     <button
                       key={patient.phoneNumber}
                       onClick={() => handleNavigate(patient.phoneNumber)}
-                      className={`w-full text-left p-3 rounded-lg transition-all ${
+                      className={`w-full text-left p-3 rounded-lg transition-colors ${
                         isValid
-                          ? "bg-emerald-900/30 hover:bg-emerald-900/50 border border-emerald-700/50"
-                          : "bg-slate-800/50 hover:bg-slate-800 border border-slate-700/50"
+                          ? "bg-green-900/30 hover:bg-green-900/50 border border-green-700/50"
+                          : "bg-gray-800 hover:bg-gray-700 border border-gray-700"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-white truncate">{patient.fullName}</p>
-                          <p className="text-xs text-slate-400 mt-1">{patient.phoneNumber}</p>
-                          <p className="text-xs text-slate-500 mt-1">{formatTime(patient.lastAccessed)}</p>
+                          <p className="text-xs text-gray-400 mt-1">{patient.phoneNumber}</p>
+                          <p className="text-xs text-gray-500 mt-1">{formatTime(patient.lastAccessed)}</p>
                         </div>
                         {isValid && (
                           <div className="mt-1 flex-shrink-0">
-                            <span className="inline-block w-2 h-2 bg-emerald-400 rounded-full"></span>
+                            <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
                           </div>
                         )}
                       </div>
@@ -126,7 +130,7 @@ export default function RecentPatientsSidebar() {
           {/* Collapsed state - show patient count */}
           {!isExpanded && patients.length > 0 && (
             <div className="flex-shrink-0 flex justify-center py-3">
-              <div className="text-xs font-semibold text-emerald-400 whitespace-nowrap px-2 py-1 bg-emerald-900/30 rounded">
+              <div className="text-xs font-semibold text-green-400 whitespace-nowrap px-2 py-1 bg-green-900/30 rounded">
                 {patients.length}
               </div>
             </div>
@@ -139,7 +143,7 @@ export default function RecentPatientsSidebar() {
                 clearRecentPatients();
                 setPatients([]);
               }}
-              className="text-xs text-slate-400 hover:text-slate-200 py-3 border-t border-slate-700 transition-colors flex-shrink-0"
+              className="text-xs text-gray-400 hover:text-gray-200 py-3 border-t border-gray-700 transition-colors flex-shrink-0"
             >
               Clear history
             </button>

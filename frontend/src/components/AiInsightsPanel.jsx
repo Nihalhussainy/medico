@@ -2,7 +2,44 @@ import { useState, useEffect, useCallback } from "react";
 import api from "../services/api.js";
 import Spinner from "./Spinner.jsx";
 
-/* ─── colour helpers ────────────────────────────────────────────── */
+/* SVG Icons */
+const PillIcon = () => (
+  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+const AlertIcon = () => (
+  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+  </svg>
+);
+
+const FlaskIcon = () => (
+  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+  </svg>
+);
+
+const CheckCircleIcon = () => (
+  <svg className="h-6 w-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+  </svg>
+);
+
+const WarningIcon = () => (
+  <svg className="h-4 w-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+  </svg>
+);
+
+const AiIcon = () => (
+  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+  </svg>
+);
+
+/* Colour helpers */
 const riskColour = {
   HIGH:     { bg: "bg-red-50",    border: "border-red-200",    text: "text-red-700",    badge: "bg-red-500"    },
   MODERATE: { bg: "bg-amber-50",  border: "border-amber-200",  text: "text-amber-700",  badge: "bg-amber-500"  },
@@ -14,8 +51,6 @@ const sevColour = {
   MODERATE: { bg: "bg-amber-100",  text: "text-amber-800",  dot: "bg-amber-500"  },
   MILD:     { bg: "bg-emerald-100",text: "text-emerald-800",dot: "bg-emerald-500"},
 };
-
-/* ────────────────────────────────────────────────────────────────── */
 
 export default function AiInsightsPanel({ patient, history }) {
   const [activeTab, setActiveTab] = useState("recommend");
@@ -45,7 +80,7 @@ export default function AiInsightsPanel({ patient, history }) {
     api.get("/ml/health").then(r => setMlOnline(r.data?.status === "ok")).catch(() => setMlOnline(false));
   }, []);
 
-  /* ── Medicine Recommendation ────────────────────────────────── */
+  /* Medicine Recommendation */
   const fetchRecommendations = useCallback(async () => {
     if (!recDisease.trim()) return;
     setRecLoading(true); setRecError(null); setRecs(null);
@@ -53,7 +88,7 @@ export default function AiInsightsPanel({ patient, history }) {
       const age = patient?.age ?? 30;
       const gender = patient?.gender === "Female" ? "Female" : "Male";
       const bloodGroup = patient?.bloodGroup || "O+";
-      const allergies = []; // could parse from patient data
+      const allergies = [];
       const { data } = await api.post("/ml/recommend", {
         disease: recDisease.trim(),
         age, gender, bloodGroup, allergies, topK: 6
@@ -64,7 +99,7 @@ export default function AiInsightsPanel({ patient, history }) {
     } finally { setRecLoading(false); }
   }, [recDisease, patient]);
 
-  /* ── Risk Prediction ────────────────────────────────────────── */
+  /* Risk Prediction */
   const fetchRisks = useCallback(async () => {
     if (!history || history.length === 0) { setRiskError("No medical history available"); return; }
     setRiskLoading(true); setRiskError(null); setRisks(null);
@@ -91,7 +126,7 @@ export default function AiInsightsPanel({ patient, history }) {
     } finally { setRiskLoading(false); }
   }, [history, patient]);
 
-  /* ── Drug Interaction ───────────────────────────────────────── */
+  /* Drug Interaction */
   const fetchInteractions = useCallback(async () => {
     const meds = intMeds.split(",").map(m => m.trim()).filter(Boolean);
     if (meds.length < 2) { setIntError("Enter at least 2 medicines separated by commas"); return; }
@@ -104,7 +139,7 @@ export default function AiInsightsPanel({ patient, history }) {
     } finally { setIntLoading(false); }
   }, [intMeds]);
 
-  /* ── Vitals parsers (best-effort) ──────────────────────────── */
+  /* Vitals parsers */
   function parseBP(v, part) {
     if (!v) return null;
     const m = v.match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
@@ -117,32 +152,36 @@ export default function AiInsightsPanel({ patient, history }) {
     return m ? +m[1] : null;
   }
 
-  /* ─────────────────────────── Render ─────────────────────────── */
-  if (mlOnline === null) return null; // still checking
+  /* Render */
+  if (mlOnline === null) return null;
 
   const tabs = [
-    { id: "recommend",    label: "Medicine AI",       icon: "💊" },
-    { id: "risks",        label: "Risk Prediction",   icon: "⚠️" },
-    { id: "interactions", label: "Drug Interactions",  icon: "🔬" },
+    { id: "recommend",    label: "Medicine AI",       icon: <PillIcon /> },
+    { id: "risks",        label: "Risk Prediction",   icon: <AlertIcon /> },
+    { id: "interactions", label: "Drug Interactions", icon: <FlaskIcon /> },
   ];
 
   return (
-    <div className="card fade-up overflow-hidden border-2 border-violet-200 bg-gradient-to-br from-violet-50/60 to-white">
+    <div className="card fade-up overflow-hidden border border-gray-200 bg-white">
       {/* Header */}
       <button onClick={() => setCollapsed(c => !c)} className="flex w-full items-center justify-between text-left">
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500 text-white text-sm">AI</span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-600 text-white">
+            <AiIcon />
+          </span>
           <div>
-            <h2 className="text-lg font-semibold text-violet-900">AI Medical Insights</h2>
-            <p className="text-xs text-violet-600">
-              ML-powered recommendations &bull; Trained on 5,000+ medical records
+            <h2 className="text-lg font-semibold tracking-tight text-gray-900">AI Medical Insights</h2>
+            <p className="text-xs text-gray-500">
+              ML-powered recommendations - Trained on 5,000+ medical records
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${mlOnline ? "bg-emerald-400" : "bg-red-400"}`} />
-          <span className="text-xs text-slate-500">{mlOnline ? "Online" : "Offline"}</span>
-          <svg className={`h-5 w-5 text-slate-400 transition-transform ${collapsed ? "-rotate-90" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+          <span className="text-xs text-gray-500">{mlOnline ? "Online" : "Offline"}</span>
+          <svg className={`h-5 w-5 text-gray-400 transition-transform ${collapsed ? "-rotate-90" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
         </div>
       </button>
 
@@ -155,26 +194,27 @@ export default function AiInsightsPanel({ patient, history }) {
           )}
 
           {/* Tab bar */}
-          <div className="flex gap-1 rounded-lg bg-violet-100 p-1">
+          <div className="flex gap-1 rounded-lg bg-gray-100 p-1">
             {tabs.map(t => (
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
-                className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-all ${
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-all ${
                   activeTab === t.id
-                    ? "bg-white text-violet-700 shadow-sm"
-                    : "text-violet-600 hover:bg-violet-50"
+                    ? "bg-white text-gray-800 shadow-sm"
+                    : "text-gray-600 hover:bg-gray-50"
                 }`}
               >
-                <span className="mr-1">{t.icon}</span>{t.label}
+                {t.icon}
+                <span>{t.label}</span>
               </button>
             ))}
           </div>
 
-          {/* ── Tab: Medicine Recommendation ────────────────────── */}
+          {/* Tab: Medicine Recommendation */}
           {activeTab === "recommend" && (
             <div className="space-y-3">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-gray-600">
                 Enter a diagnosis to get AI-recommended medicines based on similar past cases, patient age, and treatment outcomes.
               </p>
               <div className="flex gap-2">
@@ -199,18 +239,18 @@ export default function AiInsightsPanel({ patient, history }) {
 
               {recommendations && !recLoading && (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
                     <span>Analyzed <strong>{recommendations.similar_cases || 0}</strong> similar cases</span>
-                    <span>&bull;</span>
+                    <span>-</span>
                     <span>Age-matched: <strong>{recommendations.age_matched_cases || 0}</strong></span>
                   </div>
 
                   {recommendations.recommendations?.length > 0 ? (
                     <div className="grid gap-2 sm:grid-cols-2">
                       {recommendations.recommendations.map((med, i) => (
-                        <div key={i} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                        <div key={i} className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
                           <div className="flex items-start justify-between">
-                            <h4 className="font-semibold text-slate-800">{med.medicine}</h4>
+                            <h4 className="font-semibold text-gray-800">{med.medicine}</h4>
                             <span className={`rounded-full px-2 py-0.5 text-xs font-bold text-white ${
                               med.success_rate >= 80 ? "bg-emerald-500" :
                               med.success_rate >= 60 ? "bg-amber-500" : "bg-red-500"
@@ -218,14 +258,16 @@ export default function AiInsightsPanel({ patient, history }) {
                               {med.success_rate}%
                             </span>
                           </div>
-                          <p className="mt-1 text-xs text-slate-500">
-                            {med.cases_used} cases &bull; {med.cured_count} cured &bull; {med.improved_count} improved
+                          <p className="mt-1 text-xs text-gray-500">
+                            {med.cases_used} cases - {med.cured_count} cured - {med.improved_count} improved
                           </p>
                           {med.allergy_warning && (
-                            <p className="mt-1 text-xs font-medium text-red-600">⚠ Allergy conflict detected</p>
+                            <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
+                              <WarningIcon /> Allergy conflict detected
+                            </p>
                           )}
                           {/* Success bar */}
-                          <div className="mt-2 h-1.5 w-full rounded-full bg-slate-100">
+                          <div className="mt-2 h-1.5 w-full rounded-full bg-gray-100">
                             <div
                               className={`h-full rounded-full transition-all ${
                                 med.success_rate >= 80 ? "bg-emerald-400" :
@@ -238,17 +280,17 @@ export default function AiInsightsPanel({ patient, history }) {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-slate-500 italic">No recommendations found for this diagnosis.</p>
+                    <p className="text-sm text-gray-500 italic">No recommendations found for this diagnosis.</p>
                   )}
                 </div>
               )}
             </div>
           )}
 
-          {/* ── Tab: Risk Prediction ────────────────────────────── */}
+          {/* Tab: Risk Prediction */}
           {activeTab === "risks" && (
             <div className="space-y-3">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-gray-600">
                 Analyzes the patient's complete medical history to predict future health risks with precautions.
               </p>
               <button
@@ -267,7 +309,7 @@ export default function AiInsightsPanel({ patient, history }) {
 
               {risks && !riskLoading && (
                 <div className="space-y-3">
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-gray-500">
                     {risks.history_records_analyzed || 0} records analyzed for {risks.patient_gender}, age {risks.patient_age}
                   </p>
 
@@ -275,7 +317,7 @@ export default function AiInsightsPanel({ patient, history }) {
                     risks.risks.map((r, i) => {
                       const c = riskColour[r.risk_level] || riskColour.LOW;
                       return (
-                        <div key={i} className={`rounded-xl border p-4 ${c.bg} ${c.border}`}>
+                        <div key={i} className={`rounded-lg border p-4 ${c.bg} ${c.border}`}>
                           <div className="flex items-center justify-between">
                             <h4 className={`font-semibold ${c.text}`}>{r.disease}</h4>
                             <div className="flex items-center gap-2">
@@ -296,18 +338,18 @@ export default function AiInsightsPanel({ patient, history }) {
 
                           {/* Precautions */}
                           <div className="mt-3">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Precautions</p>
+                            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Precautions</p>
                             <ul className="mt-1 space-y-0.5">
                               {r.precautions?.map((p, j) => (
-                                <li key={j} className="flex items-start gap-1.5 text-sm text-slate-700">
-                                  <span className="mt-1 text-xs">•</span>{p}
+                                <li key={j} className="flex items-start gap-1.5 text-sm text-gray-700">
+                                  <span className="mt-1 text-xs">-</span>{p}
                                 </li>
                               ))}
                             </ul>
                           </div>
 
                           {r.advice && (
-                            <div className="mt-2 rounded-lg bg-white/50 p-2 text-sm text-slate-700">
+                            <div className="mt-2 rounded-lg bg-white/50 p-2 text-sm text-gray-700">
                               <strong>Advice:</strong> {r.advice}
                             </div>
                           )}
@@ -316,7 +358,9 @@ export default function AiInsightsPanel({ patient, history }) {
                     })
                   ) : (
                     <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center">
-                      <span className="text-2xl">✅</span>
+                      <div className="flex justify-center">
+                        <CheckCircleIcon />
+                      </div>
                       <p className="mt-1 font-medium text-emerald-700">No significant risks detected</p>
                       <p className="text-sm text-emerald-600">Continue regular checkups and healthy lifestyle.</p>
                     </div>
@@ -326,10 +370,10 @@ export default function AiInsightsPanel({ patient, history }) {
             </div>
           )}
 
-          {/* ── Tab: Drug Interactions ──────────────────────────── */}
+          {/* Tab: Drug Interactions */}
           {activeTab === "interactions" && (
             <div className="space-y-3">
-              <p className="text-sm text-slate-600">
+              <p className="text-sm text-gray-600">
                 Check if a combination of medicines has any known dangerous interactions.
               </p>
               <div className="flex gap-2">
@@ -356,10 +400,12 @@ export default function AiInsightsPanel({ patient, history }) {
                 <div className="space-y-3">
                   {interactions.safe ? (
                     <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center">
-                      <span className="text-2xl">✅</span>
+                      <div className="flex justify-center">
+                        <CheckCircleIcon />
+                      </div>
                       <p className="mt-1 font-medium text-emerald-700">No interactions found</p>
                       <p className="text-sm text-emerald-600">
-                        {interactions.pairs_checked} pairs checked &mdash; all safe.
+                        {interactions.pairs_checked} pairs checked - all safe.
                       </p>
                     </div>
                   ) : (
@@ -386,17 +432,17 @@ export default function AiInsightsPanel({ patient, history }) {
                       {interactions.interactions.map((ix, i) => {
                         const c = sevColour[ix.severity] || sevColour.MILD;
                         return (
-                          <div key={i} className={`rounded-xl border border-slate-200 p-4 ${c.bg}`}>
+                          <div key={i} className={`rounded-lg border border-gray-200 p-4 ${c.bg}`}>
                             <div className="flex items-center gap-2">
                               <span className={`h-2.5 w-2.5 rounded-full ${c.dot}`} />
                               <span className={`text-xs font-bold uppercase ${c.text}`}>{ix.severity}</span>
                             </div>
-                            <h4 className="mt-1 font-semibold text-slate-800">
+                            <h4 className="mt-1 font-semibold text-gray-800">
                               {ix.drug_a} + {ix.drug_b}
                             </h4>
-                            <p className="mt-1 text-sm text-slate-700">{ix.effect}</p>
-                            <p className="mt-1 text-xs text-slate-500"><strong>Mechanism:</strong> {ix.mechanism}</p>
-                            <div className="mt-2 rounded-lg bg-white/70 p-2 text-sm text-slate-700">
+                            <p className="mt-1 text-sm text-gray-700">{ix.effect}</p>
+                            <p className="mt-1 text-xs text-gray-500"><strong>Mechanism:</strong> {ix.mechanism}</p>
+                            <div className="mt-2 rounded-lg bg-white/80 p-2 text-sm text-gray-700">
                               <strong>Recommendation:</strong> {ix.recommendation}
                             </div>
                           </div>

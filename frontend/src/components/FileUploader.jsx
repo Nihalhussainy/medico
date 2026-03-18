@@ -37,7 +37,7 @@ export default function FileUploader({ onUpload }) {
         <input
           type="file"
           accept="application/pdf,image/png,image/jpeg"
-          className="mt-1 block w-full text-sm text-slate-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 file:cursor-pointer file:transition-colors"
+          className="mt-1 block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 file:cursor-pointer file:transition-colors"
           onChange={(event) => setFile(event.target.files[0])}
         />
       </div>

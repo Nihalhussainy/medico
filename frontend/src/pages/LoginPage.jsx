@@ -35,80 +35,108 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-[1.2fr_1fr]">
-      <div className="card fade-up space-y-6">
-        <div>
-          <div className="pill">Secure access</div>
-          <h1 className="mt-4 text-3xl font-semibold">Welcome back</h1>
-          <p className="text-sm text-slate-600">Enter the secure record vault with a verified identity.</p>
-        </div>
-        <form onSubmit={onSubmit} className="space-y-4">
-          {sessionExpired && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-              You have been logged out. Please log in again.
+    <div className="min-h-[calc(100vh-12rem)] flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <div className="card fade-up">
+          {/* Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-teal-600 text-xl font-bold text-white mb-4">
+              M
             </div>
-          )}
-          <div>
-            <label className="label">Email</label>
-            <input
-              className="input"
-              placeholder="you@example.com"
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-            />
+            <h1 className="text-2xl font-semibold text-gray-900">Welcome back</h1>
+            <p className="mt-2 text-sm text-gray-500">
+              Sign in to access your healthcare portal
+            </p>
           </div>
-          <div>
-            <label className="label">Password</label>
-            <input
-              className="input"
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </div>
-          {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 fade-in">
-              {error}
+
+          {/* Form */}
+          <form onSubmit={onSubmit} className="space-y-5">
+            {sessionExpired && (
+              <div className="alert alert-warning">
+                <div className="flex items-center gap-2">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  <span>Your session expired. Please sign in again.</span>
+                </div>
+              </div>
+            )}
+
+            <div>
+              <label className="label">Email address</label>
+              <input
+                className="input"
+                placeholder="you@example.com"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                autoComplete="email"
+              />
             </div>
-          )}
-          <button className="button w-full" type="submit" disabled={isLoading}>
-            {isLoading && <span className="spinner" />}
-            {isLoading ? "Signing in..." : "Login"}
-          </button>
-        </form>
-        <div className="text-sm text-slate-600">
-          New here?{" "}
-          <Link to="/register" className="font-medium text-emerald-700 hover:text-emerald-800 transition-colors">
-            Create an account
-          </Link>
+
+            <div>
+              <label className="label">Password</label>
+              <input
+                className="input"
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                autoComplete="current-password"
+              />
+            </div>
+
+            {error && (
+              <div className="alert alert-error fade-in">
+                <div className="flex items-center gap-2">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>{error}</span>
+                </div>
+              </div>
+            )}
+
+            <button className="button w-full justify-center" type="submit" disabled={isLoading}>
+              {isLoading && <span className="spinner" />}
+              {isLoading ? "Signing in..." : "Sign in"}
+            </button>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              Don't have an account?{" "}
+              <Link to="/register" className="font-medium text-teal-600 hover:text-teal-700 transition-colors">
+                Create one
+              </Link>
+            </p>
+          </div>
         </div>
-      </div>
-      <div className="glass fade-up-delay-1 space-y-6 border border-emerald-500/20 p-8">
-        <h2 className="text-xl font-semibold">Why Medico Cloud</h2>
-        <ul className="space-y-4 text-sm text-slate-700">
-          <li className="flex items-start gap-3">
-            <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] text-emerald-600">✓</span>
-            OTP-gated access with consent trails.
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] text-emerald-600">✓</span>
-            Encrypted JWT sessions and role policies.
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="mt-0.5 inline-flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[10px] text-emerald-600">✓</span>
-            Timeline view of all clinical updates.
-          </li>
-        </ul>
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-5">
-          <p className="text-xs uppercase tracking-[0.3em] text-emerald-700">System status</p>
-          <p className="mt-3 text-2xl font-semibold">Operational</p>
-          <div className="mt-2 flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs text-emerald-600">All systems normal</span>
+
+        {/* Features List */}
+        <div className="mt-8 fade-up-delay-1">
+          <div className="flex items-center justify-center gap-6 text-sm text-gray-500">
+            <div className="flex items-center gap-2">
+              <svg className="h-4 w-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span>Secure</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="h-4 w-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span>Encrypted</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <svg className="h-4 w-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+              <span>HIPAA Ready</span>
+            </div>
           </div>
         </div>
       </div>

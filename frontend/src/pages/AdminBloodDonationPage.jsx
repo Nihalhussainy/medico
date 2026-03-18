@@ -5,6 +5,19 @@ import BackButton from "../components/BackButton.jsx";
 import Spinner from "../components/Spinner.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 
+// SVG Icons
+const BloodDropIcon = () => (
+  <svg className="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M12 2c-5.33 8-8 11.5-8 15a8 8 0 1016 0c0-3.5-2.67-7-8-15zm0 19c-3.31 0-6-2.69-6-6 0-2.5 2-5.5 6-11.25C16 9.5 18 12.5 18 15c0 3.31-2.69 6-6 6z"/>
+  </svg>
+);
+
+const CloseIcon = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
 export default function AdminBloodDonationPage() {
   const toast = useToast();
   const [requests, setRequests] = useState([]);
@@ -141,7 +154,7 @@ export default function AdminBloodDonationPage() {
           <div>
             <div className="pill">Blood Management</div>
             <h1 className="mt-4 text-2xl font-semibold">Blood Donation Requests</h1>
-            <p className="text-slate-700">Create urgent blood requests and track donor responses</p>
+            <p className="text-gray-700">Create urgent blood requests and track donor responses</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
@@ -166,23 +179,26 @@ export default function AdminBloodDonationPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-semibold">🩸 {request.bloodGroup}</h3>
+                    <div className="flex items-center gap-2">
+                      <BloodDropIcon />
+                      <h3 className="text-lg font-semibold">{request.bloodGroup}</h3>
+                    </div>
                     <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getUrgencyColor(request.urgency)}`}>
                       {request.urgency}
                     </span>
                   </div>
-                  <p className="text-sm text-slate-600 mt-2">
+                  <p className="text-sm text-gray-600 mt-2">
                     <span className="font-medium">Patient:</span> {request.patientName}, {request.patientGender}{request.patientAge && `, Age ${request.patientAge}`}
                   </p>
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-gray-600">
                     <span className="font-medium">Hospital:</span> {request.hospitalName}
                   </p>
                   {request.reason && (
-                    <p className="text-sm text-slate-600">
+                    <p className="text-sm text-gray-600">
                       <span className="font-medium">Reason:</span> {request.reason}
                     </p>
                   )}
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-gray-600">
                     <span className="font-medium">Contact:</span> {request.contactNumber}
                   </p>
                   <div className="mt-4 flex gap-3 flex-wrap">
@@ -210,34 +226,34 @@ export default function AdminBloodDonationPage() {
                 </div>
                 <div className="text-right flex-shrink-0">
                   <div className="text-3xl font-bold text-emerald-600">{request.interestedCount}</div>
-                  <p className="text-xs text-slate-500">Donors Interested</p>
+                  <p className="text-xs text-gray-500">Donors Interested</p>
                 </div>
               </div>
 
               {expandedRequests[request.id] && (
-                <div className="mt-4 border-t border-slate-200 pt-4">
-                  <h4 className="text-sm font-semibold text-slate-700">Interested donors</h4>
+                <div className="mt-4 border-t border-gray-200 pt-4">
+                  <h4 className="text-sm font-semibold text-gray-700">Interested donors</h4>
                   {donorsByRequestId[request.id]?.length ? (
                     <div className="mt-3 grid gap-3 md:grid-cols-2">
                       {donorsByRequestId[request.id].map((donor) => (
-                        <div key={donor.patientId} className="rounded-lg border border-slate-200 p-3 text-sm">
-                          <div className="font-medium text-slate-900">{donor.fullName}</div>
-                          <div className="text-slate-600">{donor.phoneNumber}</div>
-                          <div className="text-slate-600">
+                        <div key={donor.patientId} className="rounded-lg border border-gray-200 p-3 text-sm">
+                          <div className="font-medium text-gray-900">{donor.fullName}</div>
+                          <div className="text-gray-600">{donor.phoneNumber}</div>
+                          <div className="text-gray-600">
                             {donor.gender || "Gender n/a"}
-                            {donor.age ? ` • Age ${donor.age}` : ""}
+                            {donor.age ? ` - Age ${donor.age}` : ""}
                           </div>
-                          <div className="text-slate-600">
+                          <div className="text-gray-600">
                             {donor.bloodGroup || "Blood group n/a"}
                           </div>
                           {donor.location && (
-                            <div className="text-slate-600">{donor.location}</div>
+                            <div className="text-gray-600">{donor.location}</div>
                           )}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="mt-3 text-sm text-slate-500">No donors have responded yet.</div>
+                    <div className="mt-3 text-sm text-gray-500">No donors have responded yet.</div>
                   )}
                 </div>
               )}
@@ -251,13 +267,13 @@ export default function AdminBloodDonationPage() {
         <div className="modal-overlay">
           <div className="modal-backdrop" onClick={() => setShowModal(false)} />
           <div className="card w-full max-w-2xl space-y-4 max-h-[90vh] overflow-y-auto relative slide-up">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
               <h2 className="text-xl font-semibold">Create Blood Request</h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-gray-400 hover:text-gray-600 transition-colors"
               >
-                ✕
+                <CloseIcon />
               </button>
             </div>
 
@@ -386,7 +402,7 @@ export default function AdminBloodDonationPage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 border-t border-slate-200 pt-4">
+              <div className="flex gap-3 border-t border-gray-200 pt-4">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}

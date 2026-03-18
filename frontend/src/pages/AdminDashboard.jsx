@@ -36,90 +36,109 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div className="card fade-up">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <div className="pill">Governance</div>
-            <h1 className="mt-4 text-2xl font-semibold">Admin command center</h1>
-            <p className="mt-2 text-slate-600">Welcome, {user?.email}</p>
+            <p className="text-sm font-medium text-teal-600">Administration</p>
+            <h1 className="mt-1 text-2xl font-semibold text-gray-900">Command Center</h1>
+            <p className="mt-1 text-sm text-gray-500">Welcome, {user?.email}</p>
           </div>
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-xs text-emerald-700">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              Compliance dashboard
-            </div>
+          <div className="flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">
+            <span className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="font-medium">System Online</span>
           </div>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 fade-in">
-          {error}
+        <div className="alert alert-error fade-in">
+          <div className="flex items-center gap-2">
+            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
+          </div>
         </div>
       )}
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="card card-hover fade-up-delay-1">
+      {/* Stats Cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="card fade-up-delay-1">
           <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-[0.3em] text-emerald-700">Doctors</p>
-            <span className="text-2xl font-bold text-emerald-600">{doctors.length}</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <span className="text-2xl font-semibold text-gray-900">{doctors.length}</span>
           </div>
-          <p className="mt-3 text-lg font-semibold">Medical staff</p>
-          <p className="mt-1 text-sm text-slate-600">Registered doctors & specialists.</p>
+          <p className="mt-3 font-medium text-gray-900">Doctors</p>
+          <p className="text-sm text-gray-500">Registered medical staff</p>
         </div>
-        <Link to="/admin/blood-donation" className="card card-hover fade-up-delay-2 group">
+
+        <Link to="/admin/blood-donation" className="card card-hover group fade-up-delay-2">
           <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-[0.3em] text-red-600">🩸 Blood</p>
-            <svg className="h-5 w-5 text-slate-400 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 text-red-600">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+            <svg className="h-5 w-5 text-gray-300 transition-transform group-hover:translate-x-1 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </div>
-          <p className="mt-3 text-lg font-semibold">Blood donation requests</p>
-          <p className="mt-1 text-sm text-slate-600">Create urgent blood requests and manage donors.</p>
+          <p className="mt-3 font-medium text-gray-900">Blood Requests</p>
+          <p className="text-sm text-gray-500">Manage donation alerts</p>
         </Link>
-        <div className="card card-hover fade-up-delay-3">
+
+        <div className="card fade-up-delay-3">
           <div className="flex items-center justify-between">
-            <p className="text-xs uppercase tracking-[0.3em] text-emerald-700">Patients</p>
-            <span className="text-2xl font-bold text-emerald-600">{patients.length}</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </div>
+            <span className="text-2xl font-semibold text-gray-900">{patients.length}</span>
           </div>
-          <p className="mt-3 text-lg font-semibold">Registered patients</p>
-          <p className="mt-1 text-sm text-slate-600">Active patient accounts in system.</p>
+          <p className="mt-3 font-medium text-gray-900">Patients</p>
+          <p className="text-sm text-gray-500">Active patient accounts</p>
         </div>
       </div>
 
       {/* Data Tables */}
       {isLoading ? (
-        <Spinner label="Loading admin data..." />
+        <Spinner label="Loading data..." />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
+        <div className="grid gap-6 lg:grid-cols-2">
           {/* Doctors Table */}
           <div className="card fade-up-delay-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Doctors</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-gray-900">Doctors</h2>
               <span className="pill">{doctors.length} total</span>
             </div>
-            <div className="mt-4 overflow-x-auto">
+            <div className="overflow-x-auto -mx-6 px-6">
               {doctors.length === 0 ? (
                 <EmptyState title="No doctors found" description="No doctors have registered yet." />
               ) : (
-                <table className="min-w-full text-sm">
-                  <thead className="text-left text-xs uppercase tracking-wider text-slate-500">
-                    <tr>
-                      <th className="py-2 pr-4">Name</th>
-                      <th className="py-2 pr-4">Specialization</th>
-                      <th className="py-2 pr-4 hide-mobile">Hospital</th>
-                      <th className="py-2 pr-4">Phone</th>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      <th className="pb-3 pr-4">Name</th>
+                      <th className="pb-3 pr-4">Specialization</th>
+                      <th className="pb-3 pr-4 hide-mobile">Hospital</th>
+                      <th className="pb-3">Phone</th>
                     </tr>
                   </thead>
-                  <tbody className="text-slate-700">
+                  <tbody className="text-gray-700">
                     {doctors.map((doctor) => (
                       <tr key={doctor.id} className="table-row">
-                        <td className="py-2.5 pr-4 font-medium">{doctor.fullName}</td>
-                        <td className="py-2.5 pr-4">
+                        <td className="py-3 pr-4 font-medium text-gray-900">{doctor.fullName}</td>
+                        <td className="py-3 pr-4">
                           <span className="pill">{doctor.specialization}</span>
                         </td>
-                        <td className="py-2.5 pr-4 hide-mobile">{doctor.hospitalName || <span className="text-slate-400">-</span>}</td>
-                        <td className="py-2.5 pr-4 text-slate-500">{doctor.phoneNumber}</td>
+                        <td className="py-3 pr-4 hide-mobile text-gray-500">
+                          {doctor.hospitalName || <span className="text-gray-300">—</span>}
+                        </td>
+                        <td className="py-3 text-gray-500">{doctor.phoneNumber}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -130,36 +149,36 @@ export default function AdminDashboard() {
 
           {/* Patients Table */}
           <div className="card fade-up-delay-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Patients</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-gray-900">Patients</h2>
               <span className="pill">{patients.length} total</span>
             </div>
-            <div className="mt-4 overflow-x-auto">
+            <div className="overflow-x-auto -mx-6 px-6">
               {patients.length === 0 ? (
                 <EmptyState title="No patients found" description="No patients have registered yet." />
               ) : (
-                <table className="min-w-full text-sm">
-                  <thead className="text-left text-xs uppercase tracking-wider text-slate-500">
-                    <tr>
-                      <th className="py-2 pr-4">Name</th>
-                      <th className="py-2 pr-4">Age</th>
-                      <th className="py-2 pr-4">Blood Group</th>
-                      <th className="py-2 pr-4">Phone</th>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                      <th className="pb-3 pr-4">Name</th>
+                      <th className="pb-3 pr-4">Age</th>
+                      <th className="pb-3 pr-4">Blood Group</th>
+                      <th className="pb-3">Phone</th>
                     </tr>
                   </thead>
-                  <tbody className="text-slate-700">
+                  <tbody className="text-gray-700">
                     {patients.map((patient) => (
                       <tr key={patient.id} className="table-row">
-                        <td className="py-2.5 pr-4 font-medium">{patient.fullName}</td>
-                        <td className="py-2.5 pr-4">{patient.age ?? <span className="text-slate-400">-</span>}</td>
-                        <td className="py-2.5 pr-4">
+                        <td className="py-3 pr-4 font-medium text-gray-900">{patient.fullName}</td>
+                        <td className="py-3 pr-4">{patient.age ?? <span className="text-gray-300">—</span>}</td>
+                        <td className="py-3 pr-4">
                           {patient.bloodGroup ? (
                             <span className="pill-red">{patient.bloodGroup}</span>
                           ) : (
-                            <span className="text-slate-400">-</span>
+                            <span className="text-gray-300">—</span>
                           )}
                         </td>
-                        <td className="py-2.5 pr-4 text-slate-500">{patient.phoneNumber}</td>
+                        <td className="py-3 text-gray-500">{patient.phoneNumber}</td>
                       </tr>
                     ))}
                   </tbody>
