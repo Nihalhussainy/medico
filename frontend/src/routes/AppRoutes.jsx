@@ -10,6 +10,10 @@ import DoctorProfilePage from "../pages/DoctorProfilePage.jsx";
 import DoctorPatientPage from "../pages/DoctorPatientPage.jsx";
 import PatientDashboard from "../pages/PatientDashboard.jsx";
 import PatientProfilePage from "../pages/PatientProfilePage.jsx";
+import PatientLabReportsPage from "../pages/PatientLabReportsPage.jsx";
+import PatientFamilyPage from "../pages/PatientFamilyPage.jsx";
+import PatientRiskForecastPage from "../pages/PatientRiskForecastPage.jsx";
+import PatientLifestyleChatPage from "../pages/PatientLifestyleChatPage.jsx";
 import OtpConsentPage from "../pages/OtpConsentPage.jsx";
 import MedicalHistoryPage from "../pages/MedicalHistoryPage.jsx";
 import UploadReportPage from "../pages/UploadReportPage.jsx";
@@ -100,6 +104,38 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute roles={["PATIENT"]}>
             <PatientProfilePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/lab-reports"
+        element={
+          <ProtectedRoute roles={["PATIENT"]}>
+            <PatientLabReportsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/family"
+        element={
+          <ProtectedRoute roles={["PATIENT"]}>
+            <PatientFamilyPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/risk-forecast"
+        element={
+          <ProtectedRoute roles={["PATIENT"]}>
+            <PatientRiskForecastPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/patient/lifestyle-chat"
+        element={
+          <ProtectedRoute roles={["PATIENT"]}>
+            <PatientLifestyleChatPage />
           </ProtectedRoute>
         }
       />
