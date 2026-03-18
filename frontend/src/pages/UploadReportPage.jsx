@@ -22,7 +22,7 @@ export default function UploadReportPage() {
     <div className="space-y-6">
       <BackButton label="Back" />
 
-      <div className="card fade-up">
+      <div className="card-accent fade-up">
         <div className="pill">File vault</div>
         <h1 className="mt-4 text-2xl font-semibold">Upload report</h1>
         <p className="text-slate-700">Record ID {recordId}</p>

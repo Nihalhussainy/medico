@@ -72,7 +72,7 @@ export default function DoctorDashboard() {
     <>
       <RecentPatientsSidebar />
       <div className="space-y-6">
-        <div className="card fade-up">
+        <div className="card-accent fade-up">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <div className="pill">Clinical access</div>
@@ -102,10 +102,10 @@ export default function DoctorDashboard() {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <div className="card fade-up-delay-1 space-y-4">
+          <div className="card-teal fade-up-delay-1 space-y-4">
             <h2 className="text-xl font-semibold">Access patient records</h2>
             <p className="text-sm text-slate-600">Enter the patient's phone number and verify with OTP.</p>
-            
+
             <div>
               <label className="label">Patient phone number</label>
               <input
@@ -127,7 +127,7 @@ export default function DoctorDashboard() {
               {isSending && <span className="spinner" />}
               {isSending ? "Sending..." : "Send OTP request"}
             </button>
-            
+
             <div className="border-t border-slate-200 pt-4">
               <label className="label">OTP from patient</label>
               <input
@@ -150,7 +150,7 @@ export default function DoctorDashboard() {
             </button>
           </div>
 
-          <div className="card fade-up-delay-2 space-y-4">
+          <div className="card-blue fade-up-delay-2 space-y-4">
             <h2 className="text-xl font-semibold">Quick guide</h2>
             <div className="space-y-3">
               {[
@@ -160,7 +160,7 @@ export default function DoctorDashboard() {
                 { step: "4", text: "Click 'Verify' to access their medical records" }
               ].map((item) => (
                 <div key={item.step} className="flex gap-3">
-                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
+                  <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
                     {item.step}
                   </span>
                   <p className="text-sm text-slate-600 pt-1">{item.text}</p>

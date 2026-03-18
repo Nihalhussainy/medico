@@ -47,14 +47,12 @@ export default function PatientProfilePage() {
 
   const handleOpenModal = () => {
     setError(null);
-    setMessage(null);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
     setError(null);
-    setMessage(null);
   };
 
   const handleInputChange = (e) => {
@@ -65,7 +63,6 @@ export default function PatientProfilePage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-    setMessage(null);
     setIsUpdating(true);
 
     if (!formData.firstName.trim() || !formData.lastName.trim()) {
@@ -95,7 +92,7 @@ export default function PatientProfilePage() {
       <BackButton to="/patient" label="Back to portal" />
 
       {/* Profile Card */}
-      <div className="card fade-up">
+      <div className="card-accent fade-up">
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="pill">Health Profile</div>

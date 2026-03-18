@@ -35,7 +35,7 @@ export default function MedicalHistoryPage() {
     <div className="space-y-6">
       <BackButton label="Back" />
 
-      <div className="card fade-up">
+      <div className="card-accent fade-up">
         <div className="pill">Record timeline</div>
         <h1 className="mt-4 text-2xl font-semibold">Medical history</h1>
         <p className="text-slate-700">Patient phone {patientPhoneNumber}</p>

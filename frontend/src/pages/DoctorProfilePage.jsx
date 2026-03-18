@@ -76,7 +76,7 @@ export default function DoctorProfilePage() {
     <div className="space-y-6">
       <BackButton to="/doctor" label="Back to workspace" />
 
-      <div className="card fade-up">
+      <div className="card-accent fade-up">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <div className="pill">Profile</div>
@@ -94,7 +94,7 @@ export default function DoctorProfilePage() {
         </div>
       </div>
 
-      <div className="card space-y-6 fade-up-delay-1">
+      <div className="card-teal space-y-6 fade-up-delay-1">
         {/* Basic Info - Read Only */}
         <div className="grid gap-6 md:grid-cols-2">
           <div>
