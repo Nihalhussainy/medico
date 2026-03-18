@@ -250,7 +250,7 @@ export default function DoctorDashboard() {
         </div>
 
         {/* Analytics Link */}
-        <Link to="/analytics" className="card card-hover group fade-up-delay-3 flex items-center justify-between">
+        <Link to="/doctor/analytics" className="card card-hover group fade-up-delay-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-50 text-purple-600">
               <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

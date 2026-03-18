@@ -80,6 +80,14 @@ export default function AppRoutes() {
         }
       />
       <Route
+        path="/doctor/analytics"
+        element={
+          <ProtectedRoute roles={["DOCTOR"]}>
+            <AnalyticsDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/patient"
         element={
           <ProtectedRoute roles={["PATIENT"]}>
