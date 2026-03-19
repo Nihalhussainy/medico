@@ -17,3 +17,281 @@ Port 5182 is in use, trying another one...
 
   [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5183[22m/[39m
 [2m  [32m➜[39m  [1mNetwork[22m[2m: use [22m[1m--host[22m[2m to expose[22m
+[2m7:40:08 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/DoctorPatientPage.jsx, /src/components/RecentPatientsSidebar.jsx[22m
+[2m7:40:26 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecentPatientsSidebar.jsx, /src/index.css[22m
+[2m7:40:35 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[31m
+ [90m 185 |[31m   [36mif[31m (patients[33m.[31mlength [33m===[31m [35m0[31m) {
+[31m[1m>[22m[31m[90m 186 |[31m     [36mreturn[31m [36mnull[31m[33m;[31m
+ [90m     |[31m     [31m[1m^[22m[31m
+ [90m 187 |[31m   }
+ [90m 188 |[31m
+ [90m 189 |[31m   [36mreturn[31m ([0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mD:/medico/frontend/src/components/RecentPatientsSidebar.jsx[39m:186:4
+[33m  191|        {/* Sidebar */}
+  192|        <div className="h-full pointer-events-auto">
+  193|          <div
+     |          ^
+  194|            className={`h-full bg-gray-900 text-white transition-all duration-300 overflow-y-auto flex flex-col ${
+  195|              isExpanded ? "w-72" : "w-16"[39m
+      at constructor (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.parseReturnStatement (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13136:12)
+      at JSXParserMixin.parseStatementContent (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseBlock (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13297:10)
+      at JSXParserMixin.parseStatementContent (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12858:21)
+      at JSXParserMixin.parseStatementLike (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseStatementOrSloppyAnnexBFunctionDeclaration (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+      at JSXParserMixin.parseIfStatement (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13130:28)
+      at JSXParserMixin.parseStatementContent (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12796:21)
+      at JSXParserMixin.parseStatementLike (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseModuleItem (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12744:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13316:36)
+      at JSXParserMixin.parseBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseProgram (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12622:10)
+      at JSXParserMixin.parseTopLevel (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12612:25)
+      at JSXParserMixin.parse (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:14488:25)
+      at parse (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:14522:38)
+      at parser (D:\medico\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (D:\medico\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (D:\medico\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (D:\medico\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (D:\medico\frontend\node_modules\gensync\index.js:261:32)
+      at D:\medico\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (D:\medico\frontend\node_modules\gensync\index.js:223:11)
+      at D:\medico\frontend\node_modules\gensync\index.js:189:28
+      at D:\medico\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at D:\medico\frontend\node_modules\gensync\index.js:113:33
+      at step (D:\medico\frontend\node_modules\gensync\index.js:287:14)
+      at D:\medico\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (D:\medico\frontend\node_modules\gensync\index.js:223:11)
+[2m7:41:03 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/DoctorPatientPage.jsx, /src/index.css[22m
+[2m7:41:10 PM[22m [31m[1m[vite][22m[39m Pre-transform error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[39m
+ [90m 185 |[39m   [36mif[39m (patients[33m.[39mlength [33m===[39m [35m0[39m) {
+[31m[1m>[22m[39m[90m 186 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 187 |[39m   }
+ [90m 188 |[39m
+ [90m 189 |[39m   [36mreturn[39m ([0m
+[2m7:41:16 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/DoctorPatientPage.jsx, /src/index.css[22m
+[2m7:41:19 PM[22m [31m[1m[vite][22m[39m Pre-transform error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[39m
+ [90m 185 |[39m   [36mif[39m (patients[33m.[39mlength [33m===[39m [35m0[39m) {
+[31m[1m>[22m[39m[90m 186 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 187 |[39m   }
+ [90m 188 |[39m
+ [90m 189 |[39m   [36mreturn[39m ([0m
+[2m7:41:30 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/DoctorPatientPage.jsx, /src/index.css[22m
+[2m7:41:31 PM[22m [31m[1m[vite][22m[39m Pre-transform error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[39m
+ [90m 185 |[39m   [36mif[39m (patients[33m.[39mlength [33m===[39m [35m0[39m) {
+[31m[1m>[22m[39m[90m 186 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 187 |[39m   }
+ [90m 188 |[39m
+ [90m 189 |[39m   [36mreturn[39m ([0m
+[2m7:41:55 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/context/AuthContext.jsx, /src/index.css[22m
+[2m7:41:55 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/context/AuthContext.jsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m7:41:55 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/index.css, /src/components/NavBar.jsx, /src/routes/AppRoutes.jsx, /src/pages/LoginPage.jsx, /src/pages/AdminDashboard.jsx, /src/pages/RegisterPage.jsx, /src/pages/PatientRiskForecastPage.jsx, /src/pages/PatientLifestyleChatPage.jsx, /src/pages/PatientProfilePage.jsx, /src/pages/PatientLabReportsPage.jsx, /src/pages/PatientDashboard.jsx, /src/components/ProtectedRoute.jsx, /src/pages/DoctorProfilePage.jsx, /src/pages/MedicalHistoryPage.jsx, /src/components/RecentPatientsSidebar.jsx, /src/pages/DoctorPatientPage.jsx[22m
+[2m7:41:58 PM[22m [31m[1m[vite][22m[39m Pre-transform error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[39m
+ [90m 185 |[39m   [36mif[39m (patients[33m.[39mlength [33m===[39m [35m0[39m) {
+[31m[1m>[22m[39m[90m 186 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 187 |[39m   }
+ [90m 188 |[39m
+ [90m 189 |[39m   [36mreturn[39m ([0m
+[2m7:42:01 PM[22m [31m[1m[vite][22m[39m Pre-transform error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[39m
+ [90m 185 |[39m   [36mif[39m (patients[33m.[39mlength [33m===[39m [35m0[39m) {
+[31m[1m>[22m[39m[90m 186 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 187 |[39m   }
+ [90m 188 |[39m
+ [90m 189 |[39m   [36mreturn[39m ([0m
+[2m7:42:06 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/context/AuthContext.jsx, /src/index.css[22m
+[2m7:42:06 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[31m
+ [90m 185 |[31m   [36mif[31m (patients[33m.[31mlength [33m===[31m [35m0[31m) {
+[31m[1m>[22m[31m[90m 186 |[31m     [36mreturn[31m [36mnull[31m[33m;[31m
+ [90m     |[31m     [31m[1m^[22m[31m
+ [90m 187 |[31m   }
+ [90m 188 |[31m
+ [90m 189 |[31m   [36mreturn[31m ([0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mD:/medico/frontend/src/components/RecentPatientsSidebar.jsx[39m:186:4
+[33m  191|        {/* Sidebar */}
+  192|        <div className="h-full pointer-events-auto">
+  193|          <div
+     |          ^
+  194|            className={`h-full bg-gray-900 text-white transition-all duration-300 overflow-y-auto flex flex-col ${
+  195|              isExpanded ? "w-72" : "w-16"[39m
+      at constructor (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.parseReturnStatement (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13136:12)
+      at JSXParserMixin.parseStatementContent (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseBlock (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13297:10)
+      at JSXParserMixin.parseStatementContent (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12858:21)
+      at JSXParserMixin.parseStatementLike (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseStatementOrSloppyAnnexBFunctionDeclaration (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+      at JSXParserMixin.parseIfStatement (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13130:28)
+      at JSXParserMixin.parseStatementContent (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12796:21)
+      at JSXParserMixin.parseStatementLike (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseModuleItem (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12744:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13316:36)
+      at JSXParserMixin.parseBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseProgram (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12622:10)
+      at JSXParserMixin.parseTopLevel (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12612:25)
+      at JSXParserMixin.parse (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:14488:25)
+      at parse (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:14522:38)
+      at parser (D:\medico\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (D:\medico\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (D:\medico\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (D:\medico\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (D:\medico\frontend\node_modules\gensync\index.js:261:32)
+      at D:\medico\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (D:\medico\frontend\node_modules\gensync\index.js:223:11)
+      at D:\medico\frontend\node_modules\gensync\index.js:189:28
+      at D:\medico\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at D:\medico\frontend\node_modules\gensync\index.js:113:33
+      at step (D:\medico\frontend\node_modules\gensync\index.js:287:14)
+      at D:\medico\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (D:\medico\frontend\node_modules\gensync\index.js:223:11)
+[2m7:42:06 PM[22m [31m[1m[vite][22m[39m Pre-transform error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[39m
+ [90m 185 |[39m   [36mif[39m (patients[33m.[39mlength [33m===[39m [35m0[39m) {
+[31m[1m>[22m[39m[90m 186 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 187 |[39m   }
+ [90m 188 |[39m
+ [90m 189 |[39m   [36mreturn[39m ([0m
+[2m7:42:08 PM[22m [31m[1m[vite][22m[39m Pre-transform error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[39m
+ [90m 185 |[39m   [36mif[39m (patients[33m.[39mlength [33m===[39m [35m0[39m) {
+[31m[1m>[22m[39m[90m 186 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 187 |[39m   }
+ [90m 188 |[39m
+ [90m 189 |[39m   [36mreturn[39m ([0m
+[2m7:42:09 PM[22m [31m[1m[vite][22m[39m [31mInternal server error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[31m
+ [90m 185 |[31m   [36mif[31m (patients[33m.[31mlength [33m===[31m [35m0[31m) {
+[31m[1m>[22m[31m[90m 186 |[31m     [36mreturn[31m [36mnull[31m[33m;[31m
+ [90m     |[31m     [31m[1m^[22m[31m
+ [90m 187 |[31m   }
+ [90m 188 |[31m
+ [90m 189 |[31m   [36mreturn[31m ([0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mD:/medico/frontend/src/components/RecentPatientsSidebar.jsx[39m:186:4
+[33m  191|        {/* Sidebar */}
+  192|        <div className="h-full pointer-events-auto">
+  193|          <div
+     |          ^
+  194|            className={`h-full bg-gray-900 text-white transition-all duration-300 overflow-y-auto flex flex-col ${
+  195|              isExpanded ? "w-72" : "w-16"[39m
+      at constructor (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:6599:19)
+      at JSXParserMixin.parseReturnStatement (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13136:12)
+      at JSXParserMixin.parseStatementContent (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12798:21)
+      at JSXParserMixin.parseStatementLike (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseStatementListItem (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12747:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13316:61)
+      at JSXParserMixin.parseBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseBlock (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13297:10)
+      at JSXParserMixin.parseStatementContent (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12858:21)
+      at JSXParserMixin.parseStatementLike (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseStatementOrSloppyAnnexBFunctionDeclaration (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12757:17)
+      at JSXParserMixin.parseIfStatement (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13130:28)
+      at JSXParserMixin.parseStatementContent (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12796:21)
+      at JSXParserMixin.parseStatementLike (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12767:17)
+      at JSXParserMixin.parseModuleItem (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12744:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13316:36)
+      at JSXParserMixin.parseBlockBody (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:13309:10)
+      at JSXParserMixin.parseProgram (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12622:10)
+      at JSXParserMixin.parseTopLevel (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:12612:25)
+      at JSXParserMixin.parse (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:14488:25)
+      at parse (D:\medico\frontend\node_modules\@babel\parser\lib\index.js:14522:38)
+      at parser (D:\medico\frontend\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (D:\medico\frontend\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (D:\medico\frontend\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (D:\medico\frontend\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (D:\medico\frontend\node_modules\gensync\index.js:261:32)
+      at D:\medico\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (D:\medico\frontend\node_modules\gensync\index.js:223:11)
+      at D:\medico\frontend\node_modules\gensync\index.js:189:28
+      at D:\medico\frontend\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at D:\medico\frontend\node_modules\gensync\index.js:113:33
+      at step (D:\medico\frontend\node_modules\gensync\index.js:287:14)
+      at D:\medico\frontend\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (D:\medico\frontend\node_modules\gensync\index.js:223:11)
+[2m7:42:13 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/context/AuthContext.jsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m7:42:13 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/index.css, /src/components/NavBar.jsx, /src/routes/AppRoutes.jsx, /src/pages/LoginPage.jsx, /src/pages/AdminDashboard.jsx, /src/pages/RegisterPage.jsx, /src/pages/PatientRiskForecastPage.jsx, /src/pages/PatientLifestyleChatPage.jsx, /src/pages/PatientProfilePage.jsx, /src/pages/PatientLabReportsPage.jsx, /src/pages/PatientDashboard.jsx, /src/components/ProtectedRoute.jsx, /src/pages/DoctorProfilePage.jsx, /src/pages/MedicalHistoryPage.jsx, /src/components/RecentPatientsSidebar.jsx, /src/pages/DoctorPatientPage.jsx[22m
+[2m7:42:14 PM[22m [31m[1m[vite][22m[39m Pre-transform error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[39m
+ [90m 185 |[39m   [36mif[39m (patients[33m.[39mlength [33m===[39m [35m0[39m) {
+[31m[1m>[22m[39m[90m 186 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 187 |[39m   }
+ [90m 188 |[39m
+ [90m 189 |[39m   [36mreturn[39m ([0m
+[2m7:42:14 PM[22m [31m[1m[vite][22m[39m Pre-transform error: D:\medico\frontend\src\components\RecentPatientsSidebar.jsx: 'return' outside of function. (186:4)
+
+[0m [90m 184 |[39m
+ [90m 185 |[39m   [36mif[39m (patients[33m.[39mlength [33m===[39m [35m0[39m) {
+[31m[1m>[22m[39m[90m 186 |[39m     [36mreturn[39m [36mnull[39m[33m;[39m
+ [90m     |[39m     [31m[1m^[22m[39m
+ [90m 187 |[39m   }
+ [90m 188 |[39m
+ [90m 189 |[39m   [36mreturn[39m ([0m
+[2m7:44:53 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecentPatientsSidebar.jsx, /src/index.css[22m
+[2m7:45:36 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/DoctorPatientPage.jsx, /src/components/RecentPatientsSidebar.jsx, /src/context/AuthContext.jsx[22m
+[2m7:45:36 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecentPatientsSidebar.jsx, /src/index.css[22m
+[2m7:45:36 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/context/AuthContext.jsx, /src/index.css[22m
+[2m7:45:36 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/DoctorPatientPage.jsx, /src/index.css[22m
+[2m7:45:40 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/context/AuthContext.jsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m7:45:40 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/index.css, /src/components/NavBar.jsx, /src/routes/AppRoutes.jsx, /src/pages/LoginPage.jsx, /src/pages/AdminDashboard.jsx, /src/pages/RegisterPage.jsx, /src/pages/PatientRiskForecastPage.jsx, /src/pages/PatientLifestyleChatPage.jsx, /src/pages/PatientProfilePage.jsx, /src/pages/PatientLabReportsPage.jsx, /src/pages/PatientDashboard.jsx, /src/components/ProtectedRoute.jsx, /src/pages/DoctorProfilePage.jsx, /src/pages/MedicalHistoryPage.jsx, /src/components/RecentPatientsSidebar.jsx, /src/pages/DoctorPatientPage.jsx[22m
+[2m7:46:07 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/context/AuthContext.jsx, /src/index.css[22m
+[2m7:46:08 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/context/AuthContext.jsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m7:46:08 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/index.css, /src/components/NavBar.jsx, /src/routes/AppRoutes.jsx, /src/pages/LoginPage.jsx, /src/pages/AdminDashboard.jsx, /src/pages/RegisterPage.jsx, /src/pages/PatientRiskForecastPage.jsx, /src/pages/PatientLifestyleChatPage.jsx, /src/pages/PatientProfilePage.jsx, /src/pages/PatientLabReportsPage.jsx, /src/pages/PatientDashboard.jsx, /src/components/ProtectedRoute.jsx, /src/pages/DoctorProfilePage.jsx, /src/pages/MedicalHistoryPage.jsx, /src/components/RecentPatientsSidebar.jsx, /src/pages/DoctorPatientPage.jsx[22m
+[2m7:46:12 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/context/AuthContext.jsx, /src/index.css[22m
+[2m7:46:13 PM[22m [36m[1m[vite][22m[39m [33mhmr invalidate [39m[2m/src/context/AuthContext.jsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m7:46:13 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/App.jsx, /src/index.css, /src/components/NavBar.jsx, /src/routes/AppRoutes.jsx, /src/pages/LoginPage.jsx, /src/pages/AdminDashboard.jsx, /src/pages/RegisterPage.jsx, /src/pages/PatientRiskForecastPage.jsx, /src/pages/PatientLifestyleChatPage.jsx, /src/pages/PatientProfilePage.jsx, /src/pages/PatientLabReportsPage.jsx, /src/pages/PatientDashboard.jsx, /src/components/ProtectedRoute.jsx, /src/pages/DoctorProfilePage.jsx, /src/pages/MedicalHistoryPage.jsx, /src/components/RecentPatientsSidebar.jsx, /src/pages/DoctorPatientPage.jsx[22m
+[2m7:47:50 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/index.css, /src/pages/DoctorPatientPage.jsx, /src/components/RecentPatientsSidebar.jsx[22m
+[2m7:48:05 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecentPatientsSidebar.jsx, /src/index.css[22m
+[2m7:48:14 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecentPatientsSidebar.jsx, /src/index.css[22m
+[2m7:48:20 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecentPatientsSidebar.jsx, /src/index.css[22m
+[2m7:49:47 PM[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecentPatientsSidebar.jsx, /src/index.css[22m

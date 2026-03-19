@@ -7,35 +7,45 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.2.2)
 
-2026-03-19T19:02:25.791+05:30  INFO 6972 --- [           main] com.medico.backend.BackendApplication    : Starting BackendApplication v0.0.1-SNAPSHOT using Java 23.0.2 with PID 6972 (D:\medico\backend\target\backend-0.0.1-SNAPSHOT.jar started by LENOVO in D:\medico\backend)
-2026-03-19T19:02:25.799+05:30  INFO 6972 --- [           main] com.medico.backend.BackendApplication    : No active profile set, falling back to 1 default profile: "default"
-2026-03-19T19:02:30.466+05:30  INFO 6972 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-03-19T19:02:30.809+05:30  INFO 6972 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 308 ms. Found 13 JPA repository interfaces.
-2026-03-19T19:02:33.142+05:30  INFO 6972 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
-2026-03-19T19:02:33.199+05:30  INFO 6972 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-03-19T19:02:33.199+05:30  INFO 6972 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
-2026-03-19T19:02:33.870+05:30  INFO 6972 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-03-19T19:02:33.877+05:30  INFO 6972 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 7805 ms
-2026-03-19T19:02:34.772+05:30  INFO 6972 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-03-19T19:02:35.095+05:30  INFO 6972 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.1.Final
-2026-03-19T19:02:35.261+05:30  INFO 6972 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
-2026-03-19T19:02:36.300+05:30  INFO 6972 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-03-19T19:02:36.398+05:30  INFO 6972 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-03-19T19:02:37.503+05:30  INFO 6972 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@25470477
-2026-03-19T19:02:37.508+05:30  INFO 6972 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-03-19T19:02:37.704+05:30  WARN 6972 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-03-19T19:02:46.107+05:30  INFO 6972 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-03-19T19:02:47.024+05:30  INFO 6972 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-03-19T19:02:54.779+05:30  WARN 6972 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-03-19T19:02:56.958+05:30  INFO 6972 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@453bbb9b, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@170b27a7, org.springframework.security.web.context.SecurityContextHolderFilter@79c4454, org.springframework.security.web.header.HeaderWriterFilter@3aec2f59, org.springframework.web.filter.CorsFilter@79392584, org.springframework.security.web.authentication.logout.LogoutFilter@64ba5a71, com.medico.backend.security.JwtAuthenticationFilter@574134ba, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@31aee6d9, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7f0b2bf1, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@cf82c58, org.springframework.security.web.session.SessionManagementFilter@141874c8, org.springframework.security.web.access.ExceptionTranslationFilter@5c960f64, org.springframework.security.web.access.intercept.AuthorizationFilter@b3cbc0e]
-2026-03-19T19:02:59.894+05:30  INFO 6972 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
-2026-03-19T19:02:59.995+05:30  INFO 6972 --- [           main] com.medico.backend.BackendApplication    : Started BackendApplication in 36.451 seconds (process running for 40.108)
-2026-03-19T19:03:00.621+05:30  INFO 6972 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-03-19T19:03:00.621+05:30  INFO 6972 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-03-19T19:03:00.623+05:30  INFO 6972 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-03-19T19:32:22.627+05:30  INFO 12892 --- [           main] com.medico.backend.BackendApplication    : Starting BackendApplication v0.0.1-SNAPSHOT using Java 23.0.2 with PID 12892 (D:\medico\backend\target\backend-0.0.1-SNAPSHOT.jar started by LENOVO in D:\medico\backend)
+2026-03-19T19:32:22.636+05:30  INFO 12892 --- [           main] com.medico.backend.BackendApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-03-19T19:32:33.765+05:30  INFO 12892 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-03-19T19:32:34.132+05:30  INFO 12892 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 320 ms. Found 13 JPA repository interfaces.
+2026-03-19T19:32:39.895+05:30  INFO 12892 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-03-19T19:32:39.944+05:30  INFO 12892 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-03-19T19:32:39.945+05:30  INFO 12892 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.18]
+2026-03-19T19:32:40.077+05:30  INFO 12892 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-03-19T19:32:40.080+05:30  INFO 12892 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 16596 ms
+2026-03-19T19:32:40.959+05:30  INFO 12892 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-03-19T19:32:41.288+05:30  INFO 12892 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.1.Final
+2026-03-19T19:32:41.693+05:30  INFO 12892 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-03-19T19:32:45.845+05:30  INFO 12892 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-03-19T19:32:46.058+05:30  INFO 12892 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-03-19T19:32:48.485+05:30  INFO 12892 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@28831d69
+2026-03-19T19:32:48.489+05:30  INFO 12892 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-03-19T19:32:48.713+05:30  WARN 12892 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-03-19T19:32:57.363+05:30  INFO 12892 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-03-19T19:32:58.636+05:30  INFO 12892 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-03-19T19:33:14.950+05:30  WARN 12892 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-03-19T19:33:16.295+05:30  INFO 12892 --- [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4557723a, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7308d133, org.springframework.security.web.context.SecurityContextHolderFilter@47a68e3f, org.springframework.security.web.header.HeaderWriterFilter@376c5950, org.springframework.web.filter.CorsFilter@35b70f9d, org.springframework.security.web.authentication.logout.LogoutFilter@4349389d, com.medico.backend.security.JwtAuthenticationFilter@5cca5ff3, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@33ef393a, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@6d18401b, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@21dbd651, org.springframework.security.web.session.SessionManagementFilter@6d2693f, org.springframework.security.web.access.ExceptionTranslationFilter@1f8a1b, org.springframework.security.web.access.intercept.AuthorizationFilter@72b689f6]
+2026-03-19T19:33:17.733+05:30  INFO 12892 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port 8080 (http) with context path ''
+2026-03-19T19:33:17.781+05:30  INFO 12892 --- [           main] com.medico.backend.BackendApplication    : Started BackendApplication in 58.756 seconds (process running for 61.703)
 Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
 Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
 Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.name=?
+2026-03-19T19:33:43.022+05:30  INFO 12892 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-03-19T19:33:43.022+05:30  INFO 12892 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-03-19T19:33:43.025+05:30  INFO 12892 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 2 ms
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
 Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
 Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
 Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
@@ -55,9 +65,545 @@ Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,
 Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
 Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
 Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
 Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
 Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
 Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
 Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
 Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
 Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 where d1_0.phone_number=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: insert into otp_consent (consent_valid_until,doctor_id,doctor_phone_number,expires_at,otp_code,patient_id,patient_phone_number,status,verified_at) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? and oc1_0.otp_code=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: update otp_consent set consent_valid_until=?,doctor_id=?,doctor_phone_number=?,expires_at=?,otp_code=?,patient_id=?,patient_phone_number=?,status=?,verified_at=? where id=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join patients p1_0 on p1_0.id=mr1_0.patient_id where p1_0.id=? order by mr1_0.created_at desc
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 where d1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 where fm1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join patients p1_0 on p1_0.id=mr1_0.patient_id where p1_0.id=? order by mr1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 where d1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 where fm1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select fg1_0.id,fg1_0.created_at,fg1_0.family_name,fg1_0.owner_patient_id from family_groups fg1_0 left join patients op1_0 on op1_0.id=fg1_0.owner_patient_id where op1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 left join family_groups fg1_0 on fg1_0.id=fm1_0.family_group_id where fg1_0.id=? and fm1_0.is_active order by fm1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select fg1_0.id,fg1_0.created_at,fg1_0.family_name,fg1_0.owner_patient_id from family_groups fg1_0 left join patients op1_0 on op1_0.id=fg1_0.owner_patient_id where op1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 left join family_groups fg1_0 on fg1_0.id=fm1_0.family_group_id where fg1_0.id=? and fm1_0.is_active order by fm1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 where d1_0.phone_number=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: insert into otp_consent (consent_valid_until,doctor_id,doctor_phone_number,expires_at,otp_code,patient_id,patient_phone_number,status,verified_at) values (?,?,?,?,?,?,?,?,?)
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? and oc1_0.otp_code=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: update otp_consent set consent_valid_until=?,doctor_id=?,doctor_phone_number=?,expires_at=?,otp_code=?,patient_id=?,patient_phone_number=?,status=?,verified_at=? where id=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join patients p1_0 on p1_0.id=mr1_0.patient_id where p1_0.id=? order by mr1_0.created_at desc
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 where d1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 where fm1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join patients p1_0 on p1_0.id=mr1_0.patient_id where p1_0.id=? order by mr1_0.created_at desc
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 where d1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 where fm1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select fg1_0.id,fg1_0.created_at,fg1_0.family_name,fg1_0.owner_patient_id from family_groups fg1_0 left join patients op1_0 on op1_0.id=fg1_0.owner_patient_id where op1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 left join family_groups fg1_0 on fg1_0.id=fm1_0.family_group_id where fg1_0.id=? and fm1_0.is_active order by fm1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select fg1_0.id,fg1_0.created_at,fg1_0.family_name,fg1_0.owner_patient_id from family_groups fg1_0 left join patients op1_0 on op1_0.id=fg1_0.owner_patient_id where op1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 left join family_groups fg1_0 on fg1_0.id=fm1_0.family_group_id where fg1_0.id=? and fm1_0.is_active order by fm1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join patients p1_0 on p1_0.id=mr1_0.patient_id where p1_0.id=? order by mr1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 where d1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 where fm1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join patients p1_0 on p1_0.id=mr1_0.patient_id where p1_0.id=? order by mr1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 where d1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 where fm1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select fg1_0.id,fg1_0.created_at,fg1_0.family_name,fg1_0.owner_patient_id from family_groups fg1_0 left join patients op1_0 on op1_0.id=fg1_0.owner_patient_id where op1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: select mf1_0.id,mf1_0.category,mf1_0.created_at,mf1_0.file_type,mf1_0.original_file_name,mf1_0.public_id,mf1_0.record_id,mf1_0.uploaded_by_name,mf1_0.uploaded_by_role,mf1_0.url from medical_files mf1_0 left join medical_records r1_0 on r1_0.id=mf1_0.record_id where r1_0.id=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 left join family_groups fg1_0 on fg1_0.id=fm1_0.family_group_id where fg1_0.id=? and fm1_0.is_active order by fm1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select oc1_0.id,oc1_0.consent_valid_until,oc1_0.doctor_id,oc1_0.doctor_phone_number,oc1_0.expires_at,oc1_0.otp_code,oc1_0.patient_id,oc1_0.patient_phone_number,oc1_0.status,oc1_0.verified_at from otp_consent oc1_0 where oc1_0.patient_phone_number=? and oc1_0.doctor_phone_number=? order by oc1_0.id desc fetch first ? rows only
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0 where p1_0.phone_number=?
+Hibernate: select fg1_0.id,fg1_0.created_at,fg1_0.family_name,fg1_0.owner_patient_id from family_groups fg1_0 left join patients op1_0 on op1_0.id=fg1_0.owner_patient_id where op1_0.id=?
+Hibernate: select fm1_0.id,fm1_0.blood_group,fm1_0.created_at,fm1_0.date_of_birth,fm1_0.family_group_id,fm1_0.first_name,fm1_0.gender,fm1_0.is_active,fm1_0.last_name,fm1_0.patient_id,fm1_0.phone_number,fm1_0.profile_photo_url,fm1_0.relationship from family_members fm1_0 left join family_groups fg1_0 on fg1_0.id=fm1_0.family_group_id where fg1_0.id=? and fm1_0.is_active order by fm1_0.created_at desc
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: insert into audit_logs (action,created_at,details,entity_id,entity_type,ip_address,user_id) values (?,?,?,?,?,?,?)
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select d1_0.id,d1_0.first_name,d1_0.hospital_name,d1_0.last_name,d1_0.license_number,d1_0.phone_number,d1_0.profile_picture_url,d1_0.specialization,d1_0.user_id from doctors d1_0 left join users u1_0 on u1_0.id=d1_0.user_id where u1_0.id=?
+Hibernate: select mr1_0.id,mr1_0.advice,mr1_0.allergies,mr1_0.created_at,mr1_0.description,mr1_0.diagnosis,mr1_0.doctor_id,mr1_0.family_member_id,mr1_0.follow_up_date,mr1_0.hospital_name,mr1_0.medications,mr1_0.medicine_duration,mr1_0.patient_id,mr1_0.record_date,mr1_0.title,mr1_0.vitals from medical_records mr1_0 left join doctors d1_0 on d1_0.id=mr1_0.doctor_id where d1_0.id=?
+Hibernate: select p1_0.id,p1_0.blood_group,p1_0.date_of_birth,p1_0.first_name,p1_0.gender,p1_0.last_name,p1_0.location,p1_0.phone_number,p1_0.profile_picture_url,p1_0.user_id from patients p1_0
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id,r1_0.id,r1_0.name from users u1_0 join roles r1_0 on r1_0.id=u1_0.role_id where u1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?
+Hibernate: select r1_0.id,r1_0.name from roles r1_0 where r1_0.id=?
+Hibernate: select u1_0.id,u1_0.created_at,u1_0.email,u1_0.enabled,u1_0.password,u1_0.phone_number,u1_0.role_id from users u1_0 where u1_0.email=?

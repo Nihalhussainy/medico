@@ -1,9 +1,17 @@
-const RECENT_PATIENTS_KEY = 'medico_recent_patients';
 const MAX_RECENT = 5;
 
-export const addRecentPatient = (phoneNumber, fullName, consentValidUntil) => {
+// Generate doctor-specific storage key
+const getDoctorKey = (doctorIdentifier) => {
+  if (!doctorIdentifier) return null;
+  return `medico_recent_patients_${doctorIdentifier}`;
+};
+
+export const addRecentPatient = (phoneNumber, fullName, consentValidUntil, doctorIdentifier) => {
   try {
-    const stored = localStorage.getItem(RECENT_PATIENTS_KEY);
+    const key = getDoctorKey(doctorIdentifier);
+    if (!key) return;
+
+    const stored = localStorage.getItem(key);
     let patients = stored ? JSON.parse(stored) : [];
 
     // Remove if already exists
@@ -20,25 +28,30 @@ export const addRecentPatient = (phoneNumber, fullName, consentValidUntil) => {
     // Keep only last 5
     patients = patients.slice(0, MAX_RECENT);
 
-    localStorage.setItem(RECENT_PATIENTS_KEY, JSON.stringify(patients));
+    localStorage.setItem(key, JSON.stringify(patients));
   } catch (error) {
     console.error('Error saving recent patient:', error);
   }
 };
 
-export const getRecentPatients = () => {
+export const getRecentPatients = (doctorIdentifier) => {
   try {
-    const stored = localStorage.getItem(RECENT_PATIENTS_KEY);
+    const key = getDoctorKey(doctorIdentifier);
+    if (!key) return [];
+
+    const stored = localStorage.getItem(key);
     const patients = stored ? JSON.parse(stored) : [];
     const today = new Date();
     return patients.filter((patient) => {
       if (!patient.lastAccessed) return false;
       const accessed = new Date(patient.lastAccessed);
-      return (
+      const isToday =
         accessed.getFullYear() === today.getFullYear() &&
         accessed.getMonth() === today.getMonth() &&
-        accessed.getDate() === today.getDate()
-      );
+        accessed.getDate() === today.getDate();
+
+      // Only include patients accessed today AND with valid consent
+      return isToday && isConsentValid(patient.consentValidUntil);
     });
   } catch (error) {
     console.error('Error retrieving recent patients:', error);
@@ -51,10 +64,30 @@ export const isConsentValid = (consentValidUntil) => {
   return new Date(consentValidUntil) > new Date();
 };
 
-export const clearRecentPatients = () => {
+export const clearRecentPatients = (doctorIdentifier) => {
   try {
-    localStorage.removeItem(RECENT_PATIENTS_KEY);
+    const key = getDoctorKey(doctorIdentifier);
+    if (key) {
+      localStorage.removeItem(key);
+    }
   } catch (error) {
     console.error('Error clearing recent patients:', error);
   }
 };
+
+// Clear all doctor's recent patients on logout (remove all medico_recent_patients_* keys)
+export const clearAllDoctorPatients = () => {
+  try {
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('medico_recent_patients_')) {
+        keysToRemove.push(key);
+      }
+    }
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  } catch (error) {
+    console.error('Error clearing all doctor patients:', error);
+  }
+};
+

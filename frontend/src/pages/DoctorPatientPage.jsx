@@ -11,6 +11,7 @@ import { useToast } from "../components/Toast.jsx";
 import BackButton from "../components/BackButton.jsx";
 import AiInsightsPanel from "../components/AiInsightsPanel.jsx";
 import { deriveFamilyMembersFromRecords } from "../services/familyInsights.js";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 const QUICK_DIAGNOSES = [
@@ -71,12 +72,16 @@ const LockIcon = () => (
 
 export default function DoctorPatientPage() {
   const { patientPhoneNumber } = useParams();
+  const { user } = useAuth();
   const toast = useToast();
   const [patient, setPatient] = useState(null);
 
+  // Doctor identifier for sidebar scoping
+  const doctorIdentifier = user?.email || user?.phoneNumber;
+
   // Get patient name from recent patients if available
   const getPatientDisplayName = () => {
-    const recentPatients = getRecentPatients();
+    const recentPatients = getRecentPatients(doctorIdentifier);
     const recentPatient = recentPatients.find(p => p.phoneNumber === patientPhoneNumber);
     return recentPatient?.fullName || null;
   };
@@ -125,7 +130,7 @@ export default function DoctorPatientPage() {
       }
       const endOfDay = new Date();
       endOfDay.setHours(23, 59, 59, 999);
-      addRecentPatient(patientPhoneNumber, patientResponse.data.fullName, endOfDay.toISOString());
+      addRecentPatient(patientPhoneNumber, patientResponse.data.fullName, endOfDay.toISOString(), doctorIdentifier);
 
       try {
         const familyResponse = await api.get(`/patients/phone/${patientPhoneNumber}/family-members`);

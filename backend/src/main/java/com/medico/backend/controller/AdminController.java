@@ -2,11 +2,13 @@ package com.medico.backend.controller;
 
 import com.medico.backend.dto.AdminDoctorResponse;
 import com.medico.backend.dto.AdminPatientResponse;
+import com.medico.backend.dto.FamilyMemberResponse;
 import com.medico.backend.service.AdminService;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,5 +35,13 @@ public class AdminController {
     @GetMapping("/patients")
     public ResponseEntity<List<AdminPatientResponse>> getPatients() {
         return ResponseEntity.ok(adminService.getPatients());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/patients/{patientId}/family-members")
+    public ResponseEntity<List<FamilyMemberResponse>> getFamilyMembers(
+        @PathVariable Long patientId
+    ) {
+        return ResponseEntity.ok(adminService.getFamilyMembersForPatient(patientId));
     }
 }

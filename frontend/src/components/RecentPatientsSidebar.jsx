@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { getRecentPatients, isConsentValid, clearRecentPatients } from "../services/recentPatientsManager.js";
+import { getRecentPatients, clearRecentPatients } from "../services/recentPatientsManager.js";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 
@@ -10,12 +10,19 @@ export default function RecentPatientsSidebar() {
   const [patients, setPatients] = useState([]);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Doctor identifier - use email or phoneNumber as unique identifier
+  const doctorIdentifier = user?.email || user?.phoneNumber;
+
   useEffect(() => {
     loadRecents();
-  }, [location, user?.email, user?.phoneNumber, user?.id]);
+  }, [location, doctorIdentifier]);
 
   const loadRecents = () => {
-    const recents = getRecentPatients();
+    if (!doctorIdentifier) {
+      setPatients([]);
+      return;
+    }
+    const recents = getRecentPatients(doctorIdentifier);
     setPatients(recents);
   };
 
@@ -76,7 +83,9 @@ export default function RecentPatientsSidebar() {
           {isExpanded && (
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Today's Patients</h3>
+                <h3 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">
+                  Today's Patients <span className="text-gray-500">({patients.length})</span>
+                </h3>
                 <button
                   onClick={loadRecents}
                   className="text-gray-400 hover:text-white transition-colors"
@@ -94,35 +103,19 @@ export default function RecentPatientsSidebar() {
               </div>
 
               <div className="space-y-2">
-                {patients.map((patient) => {
-                  const isValid = isConsentValid(patient.consentValidUntil);
-                  return (
-                    <button
-                      key={patient.phoneNumber}
-                      onClick={() => handleNavigate(patient.phoneNumber)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        isValid
-                          ? "bg-green-900/30 hover:bg-green-900/50 border border-green-700/50"
-                          : "bg-gray-800 hover:bg-gray-700 border border-gray-700"
-                      }`}
-                    >
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-white truncate">{patient.fullName}</p>
-                          <p className="text-xs text-gray-400 mt-1">{patient.phoneNumber}</p>
-                          <p className="text-xs text-gray-500 mt-1">{formatTime(patient.lastAccessed)}</p>
-                        </div>
-                        {isValid && (
-                          <div className="mt-1 flex-shrink-0">
-                            <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                    </button>
-                  );
-                })}
+                {patients.map((patient) => (
+                  <button
+                    key={patient.phoneNumber}
+                    onClick={() => handleNavigate(patient.phoneNumber)}
+                    className="w-full text-left p-3 rounded-lg transition-colors bg-gray-800 hover:bg-gray-700 border border-gray-700"
+                  >
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-white truncate">{patient.fullName}</p>
+                      <p className="text-xs text-gray-400 mt-1">{patient.phoneNumber}</p>
+                      <p className="text-xs text-gray-500 mt-1">{formatTime(patient.lastAccessed)}</p>
+                    </div>
+                  </button>
+                ))}
               </div>
             </div>
           )}
@@ -130,7 +123,7 @@ export default function RecentPatientsSidebar() {
           {/* Collapsed state - show patient count */}
           {!isExpanded && patients.length > 0 && (
             <div className="flex-shrink-0 flex justify-center py-3">
-              <div className="text-xs font-semibold text-green-400 whitespace-nowrap px-2 py-1 bg-green-900/30 rounded">
+              <div className="text-xs font-semibold text-gray-400 whitespace-nowrap px-2 py-1 bg-gray-800 rounded">
                 {patients.length}
               </div>
             </div>
@@ -140,7 +133,7 @@ export default function RecentPatientsSidebar() {
           {isExpanded && (
             <button
               onClick={() => {
-                clearRecentPatients();
+                clearRecentPatients(doctorIdentifier);
                 setPatients([]);
               }}
               className="text-xs text-gray-400 hover:text-gray-200 py-3 border-t border-gray-700 transition-colors flex-shrink-0"

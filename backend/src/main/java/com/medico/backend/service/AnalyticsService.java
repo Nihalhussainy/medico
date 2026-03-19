@@ -5,8 +5,12 @@ import com.medico.backend.dto.DashboardAnalyticsResponse.DiagnosisCount;
 import com.medico.backend.dto.DashboardAnalyticsResponse.VisitTrend;
 import com.medico.backend.entity.Patient;
 import com.medico.backend.entity.MedicalRecord;
+import com.medico.backend.entity.Doctor;
+import com.medico.backend.entity.FamilyMember;
 import com.medico.backend.repository.PatientRepository;
 import com.medico.backend.repository.MedicalRecordRepository;
+import com.medico.backend.repository.DoctorRepository;
+import com.medico.backend.repository.FamilyMemberRepository;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -25,27 +29,53 @@ public class AnalyticsService {
 
     private final PatientRepository patientRepository;
     private final MedicalRecordRepository medicalRecordRepository;
+    private final DoctorRepository doctorRepository;
+    private final FamilyMemberRepository familyMemberRepository;
 
     @Transactional(readOnly = true)
-    public DashboardAnalyticsResponse getDashboardAnalytics() {
+    public DashboardAnalyticsResponse getDashboardAnalyticsForAdmin() {
         List<Patient> allPatients = patientRepository.findAll();
         List<MedicalRecord> allRecords = medicalRecordRepository.findAll();
+        List<FamilyMember> allFamilyMembers = familyMemberRepository.findAll();
+        return buildAnalytics(allPatients, allRecords, allFamilyMembers);
+    }
 
+    @Transactional(readOnly = true)
+    public DashboardAnalyticsResponse getDashboardAnalyticsForDoctor(Long doctorId) {
+        // Get all records created by this doctor
+        List<MedicalRecord> doctorRecords = medicalRecordRepository.findByDoctorId(doctorId);
+
+        // Get unique patients from those records
+        Set<Long> patientIds = doctorRecords.stream()
+            .map(r -> r.getPatient().getId())
+            .collect(Collectors.toSet());
+
+        List<Patient> doctorPatients = patientRepository.findAll().stream()
+            .filter(p -> patientIds.contains(p.getId()))
+            .collect(Collectors.toList());
+
+        // Get family members of the doctor's patients
+        List<FamilyMember> doctorFamilyMembers = familyMemberRepository.findByOwnerPatientIdInAndIsActiveTrue(patientIds);
+
+        return buildAnalytics(doctorPatients, doctorRecords, doctorFamilyMembers);
+    }
+
+    private DashboardAnalyticsResponse buildAnalytics(List<Patient> patients, List<MedicalRecord> records, List<FamilyMember> familyMembers) {
         Instant now = Instant.now();
         Instant oneMonthAgo = now.minus(30, ChronoUnit.DAYS);
         Instant twoMonthsAgo = now.minus(60, ChronoUnit.DAYS);
 
         // Total patients
-        long totalPatients = allPatients.size();
+        long totalPatients = patients.size();
 
         // New patients this month
-        int newPatientsThisMonth = (int) allPatients.stream()
+        int newPatientsThisMonth = (int) patients.stream()
                 .filter(p -> p.getUser() != null && p.getUser().getCreatedAt() != null)
                 .filter(p -> p.getUser().getCreatedAt().isAfter(oneMonthAgo))
                 .count();
 
         // New patients last month
-        int newPatientsLastMonth = (int) allPatients.stream()
+        int newPatientsLastMonth = (int) patients.stream()
                 .filter(p -> p.getUser() != null && p.getUser().getCreatedAt() != null)
                 .filter(p -> p.getUser().getCreatedAt().isAfter(twoMonthsAgo)
                         && p.getUser().getCreatedAt().isBefore(oneMonthAgo))
@@ -57,12 +87,12 @@ public class AnalyticsService {
                 : newPatientsThisMonth > 0 ? 100.0 : 0.0;
 
         // Visits this month
-        int totalVisitsThisMonth = (int) allRecords.stream()
+        int totalVisitsThisMonth = (int) records.stream()
                 .filter(r -> r.getCreatedAt() != null && r.getCreatedAt().isAfter(oneMonthAgo))
                 .count();
 
         // Visits last month
-        int totalVisitsLastMonth = (int) allRecords.stream()
+        int totalVisitsLastMonth = (int) records.stream()
                 .filter(r -> r.getCreatedAt() != null
                         && r.getCreatedAt().isAfter(twoMonthsAgo)
                         && r.getCreatedAt().isBefore(oneMonthAgo))
@@ -74,23 +104,21 @@ public class AnalyticsService {
                 : totalVisitsThisMonth > 0 ? 100.0 : 0.0;
 
         // Visit trends (last 6 months)
-        List<VisitTrend> visitTrends = calculateVisitTrends(allRecords, 6);
+        List<VisitTrend> visitTrends = calculateVisitTrends(records, 6);
 
         // Patients by gender
-        Map<String, Long> patientsByGender = allPatients.stream()
+        Map<String, Long> patientsByGender = patients.stream()
                 .filter(p -> p.getGender() != null && !p.getGender().isEmpty())
                 .collect(Collectors.groupingBy(Patient::getGender, Collectors.counting()));
 
         // Patients by age group
-        Map<String, Long> patientsByAgeGroup = calculateAgeGroups(allPatients);
+        Map<String, Long> patientsByAgeGroup = calculateAgeGroups(patients);
 
-        // Patients by blood group
-        Map<String, Long> patientsByBloodGroup = allPatients.stream()
-                .filter(p -> p.getBloodGroup() != null && !p.getBloodGroup().isEmpty())
-                .collect(Collectors.groupingBy(Patient::getBloodGroup, Collectors.counting()));
+        // Patients by blood group (including family members)
+        Map<String, Long> patientsByBloodGroup = calculateBloodGroupDistribution(patients, familyMembers);
 
         // Top diagnoses
-        List<DiagnosisCount> topDiagnoses = calculateTopDiagnoses(allRecords, 10);
+        List<DiagnosisCount> topDiagnoses = calculateTopDiagnoses(records, 10);
 
         return DashboardAnalyticsResponse.builder()
                 .totalPatients(totalPatients)
@@ -105,6 +133,22 @@ public class AnalyticsService {
                 .patientsByBloodGroup(patientsByBloodGroup)
                 .topDiagnoses(topDiagnoses)
                 .build();
+    }
+
+    private Map<String, Long> calculateBloodGroupDistribution(List<Patient> patients, List<FamilyMember> familyMembers) {
+        Map<String, Long> bloodGroupMap = new HashMap<>();
+
+        // Add patients' blood groups
+        patients.stream()
+                .filter(p -> p.getBloodGroup() != null && !p.getBloodGroup().isEmpty())
+                .forEach(p -> bloodGroupMap.put(p.getBloodGroup(), bloodGroupMap.getOrDefault(p.getBloodGroup(), 0L) + 1));
+
+        // Add family members' blood groups
+        familyMembers.stream()
+                .filter(fm -> fm.getBloodGroup() != null && !fm.getBloodGroup().isEmpty())
+                .forEach(fm -> bloodGroupMap.put(fm.getBloodGroup(), bloodGroupMap.getOrDefault(fm.getBloodGroup(), 0L) + 1));
+
+        return bloodGroupMap;
     }
 
     private List<VisitTrend> calculateVisitTrends(List<MedicalRecord> records, int months) {
