@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import BackButton from "../components/BackButton.jsx";
 import Spinner from "../components/Spinner.jsx";
 import EmptyState from "../components/EmptyState.jsx";
+import { deriveFamilyMembersFromRecords, filterRecordsByProfile } from "../services/familyInsights.js";
 
 export default function MedicalHistoryPage() {
   const toast = useToast();
@@ -27,18 +28,19 @@ export default function MedicalHistoryPage() {
           api.get(`/records/patient/${patientPhoneNumber}`),
           api.get(`/patients/phone/${patientPhoneNumber}`)
         ]);
-        setRecords(recordsResponse.data);
+        const loadedRecords = recordsResponse.data || [];
+        setRecords(loadedRecords);
         setPatient(patientResponse.data);
 
         if (isOwnRecords) {
           try {
             const familyRes = await api.get(`/family/group`);
-            if (familyRes.data?.members) {
-              setFamilyMembers(familyRes.data.members);
-            }
-          } catch (err) {
-            // No family group
+            setFamilyMembers(familyRes.data?.members || []);
+          } catch {
+            setFamilyMembers(deriveFamilyMembersFromRecords(loadedRecords));
           }
+        } else {
+          setFamilyMembers([]);
         }
       } catch (err) {
         toast.error(err.response?.data?.message || "Failed to load records");
@@ -50,11 +52,7 @@ export default function MedicalHistoryPage() {
   }, [patientPhoneNumber, isOwnRecords]);
 
   const filteredRecords = useMemo(() => {
-    if (selectedPerson.type === 'patient') {
-      return records.filter(record => !record.familyMemberId);
-    } else {
-      return records.filter(record => record.familyMemberId === selectedPerson.id);
-    }
+    return filterRecordsByProfile(records, selectedPerson);
   }, [records, selectedPerson]);
 
   const selectedPersonName = useMemo(() => {

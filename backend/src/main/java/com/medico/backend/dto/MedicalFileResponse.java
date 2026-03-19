@@ -12,5 +12,7 @@ public class MedicalFileResponse {
     private String fileType;
     private String originalFileName;
     private String category;
+    private String uploadedByRole;
+    private String uploadedByName;
     private Instant createdAt;
 }

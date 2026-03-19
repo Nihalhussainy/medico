@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../services/api.js";
 import Spinner from "./Spinner.jsx";
+import { buildRiskPatientHistory } from "../services/riskPrediction.js";
 
 /* SVG Icons */
 const PillIcon = () => (
@@ -104,17 +105,7 @@ export default function AiInsightsPanel({ patient, history }) {
     if (!history || history.length === 0) { setRiskError("No medical history available"); return; }
     setRiskLoading(true); setRiskError(null); setRisks(null);
     try {
-      const patientHistory = history.map(r => ({
-        disease: r.diagnosis || "General Checkup",
-        severity: "MODERATE",
-        bpSystolic: parseBP(r.vitals, "sys") || 120,
-        bpDiastolic: parseBP(r.vitals, "dia") || 80,
-        heartRate: parseHR(r.vitals) || 78,
-        temperature: 98.6,
-        spo2: 97,
-        riskFactors: "",
-        isChronic: false
-      }));
+      const patientHistory = buildRiskPatientHistory(history);
       const age = patient?.age ?? 30;
       const gender = patient?.gender === "Female" ? "Female" : "Male";
       const { data } = await api.post("/ml/predict-risks", {
@@ -138,19 +129,6 @@ export default function AiInsightsPanel({ patient, history }) {
       setIntError(e.response?.data?.detail || e.message || "Failed to check interactions");
     } finally { setIntLoading(false); }
   }, [intMeds]);
-
-  /* Vitals parsers */
-  function parseBP(v, part) {
-    if (!v) return null;
-    const m = v.match(/(\d{2,3})\s*\/\s*(\d{2,3})/);
-    if (!m) return null;
-    return part === "sys" ? +m[1] : +m[2];
-  }
-  function parseHR(v) {
-    if (!v) return null;
-    const m = v.match(/(?:HR|heart\s*rate|pulse)\s*[:=]?\s*(\d{2,3})/i);
-    return m ? +m[1] : null;
-  }
 
   /* Render */
   if (mlOnline === null) return null;

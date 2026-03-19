@@ -30,7 +30,7 @@ public class MedicalFileController {
         this.userService = userService;
     }
 
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasAnyRole('DOCTOR','PATIENT')")
     @PostMapping(value = "/{recordId}/files", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MedicalFileResponse> uploadFile(
         @PathVariable Long recordId,

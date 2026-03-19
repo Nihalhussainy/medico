@@ -17,42 +17,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "medical_files")
+@Table(name = "family_groups")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MedicalFile {
+public class FamilyGroup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "record_id", nullable = false)
-    private MedicalRecord record;
+    @JoinColumn(name = "owner_patient_id", nullable = false)
+    private Patient ownerPatient;
 
     @Column(nullable = false)
-    private String url;
-
-    @Column(nullable = false)
-    private String publicId;
-
-    @Column(nullable = false)
-    private String fileType;
-
-    @Column(nullable = false)
-    private String originalFileName;
-
-    @Column(nullable = false)
-    private String category;
-
-    @Column
-    private String uploadedByRole;
-
-    @Column
-    private String uploadedByName;
+    private String familyName;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

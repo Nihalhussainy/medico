@@ -1,6 +1,7 @@
 package com.medico.backend.controller;
 
 import com.medico.backend.dto.PatientDetailsResponse;
+import com.medico.backend.dto.FamilyMemberResponse;
 import com.medico.backend.dto.PatientProfileUpdateRequest;
 import com.medico.backend.entity.Doctor;
 import com.medico.backend.entity.Patient;
@@ -9,6 +10,7 @@ import com.medico.backend.entity.User;
 import com.medico.backend.exception.BadRequestException;
 import com.medico.backend.exception.ResourceNotFoundException;
 import com.medico.backend.repository.PatientRepository;
+import com.medico.backend.service.FamilyService;
 import com.medico.backend.service.OtpConsentService;
 import com.medico.backend.service.UserService;
 import java.time.LocalDate;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/patients")
@@ -29,15 +32,18 @@ public class PatientController {
     private final PatientRepository patientRepository;
     private final UserService userService;
     private final OtpConsentService otpConsentService;
+    private final FamilyService familyService;
 
     public PatientController(
         PatientRepository patientRepository,
         UserService userService,
-        OtpConsentService otpConsentService
+        OtpConsentService otpConsentService,
+        FamilyService familyService
     ) {
         this.patientRepository = patientRepository;
         this.userService = userService;
         this.otpConsentService = otpConsentService;
+        this.familyService = familyService;
     }
 
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','PATIENT')")
@@ -91,6 +97,27 @@ public class PatientController {
 
         patientRepository.save(patient);
         return ResponseEntity.ok(toResponse(patient));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','PATIENT')")
+    @GetMapping("/phone/{phoneNumber}/family-members")
+    public ResponseEntity<List<FamilyMemberResponse>> getFamilyMembersByPhone(@PathVariable String phoneNumber) {
+        User actor = userService.getCurrentUser();
+        Patient patient = patientRepository.findByPhoneNumber(phoneNumber)
+            .orElseThrow(() -> new ResourceNotFoundException("Patient not found"));
+
+        if (actor.getRole().getName() == RoleName.PATIENT && !actor.getPhoneNumber().equals(phoneNumber)) {
+            throw new BadRequestException("Not allowed");
+        }
+
+        if (actor.getRole().getName() == RoleName.DOCTOR) {
+            Doctor doctor = userService.getCurrentDoctor();
+            if (!otpConsentService.hasValidConsent(doctor.getPhoneNumber(), phoneNumber)) {
+                throw new BadRequestException("Consent required to view family members");
+            }
+        }
+
+        return ResponseEntity.ok(familyService.getMembersByPatientPhone(patient.getPhoneNumber()));
     }
 
     private PatientDetailsResponse toResponse(Patient patient) {

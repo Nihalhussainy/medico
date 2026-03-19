@@ -10,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
-import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,13 +17,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "medical_records")
+@Table(name = "patient_lab_reports")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MedicalRecord {
+public class PatientLabReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,46 +33,23 @@ public class MedicalRecord {
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    @Column(nullable = false)
+    private String url;
 
     @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false, length = 2000)
-    private String description;
+    private String publicId;
 
     @Column(nullable = false)
-    private String hospitalName;
+    private String fileType;
 
-    @Column(length = 500)
-    private String diagnosis;
+    @Column(nullable = false)
+    private String originalFileName;
 
-    @Column(length = 500)
-    private String vitals;
+    @Column(nullable = false)
+    private String uploadedByRole;
 
-    @Column(length = 1000)
-    private String medications;
-
-    @Column(length = 1000)
-    private String allergies;
-
-    @Column(length = 1000)
-    private String advice;
-
-    @Column
-    private Integer medicineDuration;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "family_member_id")
-    private FamilyMember familyMember;
-
-    @Column
-    private LocalDate followUpDate;
-
-    @Column
-    private LocalDate recordDate;
+    @Column(nullable = false)
+    private String uploadedByName;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;

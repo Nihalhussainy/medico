@@ -10,6 +10,7 @@ import { addRecentPatient, getRecentPatients } from "../services/recentPatientsM
 import { useToast } from "../components/Toast.jsx";
 import BackButton from "../components/BackButton.jsx";
 import AiInsightsPanel from "../components/AiInsightsPanel.jsx";
+import { deriveFamilyMembersFromRecords } from "../services/familyInsights.js";
 
 const MAX_UPLOAD_BYTES = 15 * 1024 * 1024;
 const QUICK_DIAGNOSES = [
@@ -130,7 +131,7 @@ export default function DoctorPatientPage() {
         const familyResponse = await api.get(`/patients/phone/${patientPhoneNumber}/family-members`);
         setFamilyMembers(familyResponse.data || []);
       } catch {
-        setFamilyMembers([]);
+        setFamilyMembers(deriveFamilyMembersFromRecords(historyResponse.data || []));
       }
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Failed to load patient data";
@@ -343,6 +344,7 @@ export default function DoctorPatientPage() {
   const handleEditRecord = (record) => {
     setEditingRecordId(record.id);
     setShowClinicalNotes(Boolean(record.description?.trim()));
+    setSelectedPerson(record.familyMemberId ? { type: 'family', id: record.familyMemberId } : { type: 'patient', id: null });
     setRecordData({
       title: record.title || '',
       description: record.description || '',
@@ -352,7 +354,9 @@ export default function DoctorPatientPage() {
       medications: parseMedicationsString(record.medications),
       allergies: record.allergies || '',
       followUpDate: record.followUpDate || '',
-      recordDate: record.recordDate || getTodayDate()
+      recordDate: record.recordDate || getTodayDate(),
+      medicineDuration: record.medicineDuration || 30,
+      advice: record.advice || ''
     });
     setShowCreateForm(true);
     toast.info('Editing record. Make changes and click "Update Record"');
@@ -424,7 +428,8 @@ export default function DoctorPatientPage() {
           followUpDate: recordData.followUpDate || null,
           recordDate: recordData.recordDate || null,
           medicineDuration: recordData.medicineDuration || 30,
-          advice: recordData.advice || null
+          advice: recordData.advice || null,
+          familyMemberId: selectedPerson.type === 'family' ? selectedPerson.id : null
         });
         toast.success('Record updated successfully');
         setEditingRecordId(null);

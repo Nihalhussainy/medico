@@ -53,13 +53,30 @@ public class MedicalFileService {
 
     public MedicalFileResponse uploadFile(Long recordId, MultipartFile file, String category, User actor, String ipAddress) throws IOException {
         FileValidator.validate(file);
-        Doctor doctor = doctorRepository.findByUserId(actor.getId())
-            .orElseThrow(() -> new BadRequestException("Doctor profile not found"));
         MedicalRecord record = medicalRecordRepository.findById(recordId)
             .orElseThrow(() -> new ResourceNotFoundException("Record not found"));
 
-        if (!otpConsentService.hasValidConsent(doctor.getPhoneNumber(), record.getPatient().getPhoneNumber())) {
-            throw new BadRequestException("Consent required to upload files");
+        String uploaderRole;
+        String uploaderName;
+
+        if (actor.getRole().getName() == RoleName.DOCTOR) {
+            Doctor doctor = doctorRepository.findByUserId(actor.getId())
+                .orElseThrow(() -> new BadRequestException("Doctor profile not found"));
+            if (!otpConsentService.hasValidConsent(doctor.getPhoneNumber(), record.getPatient().getPhoneNumber())) {
+                throw new BadRequestException("Consent required to upload files");
+            }
+            uploaderRole = "DOCTOR";
+            uploaderName = (doctor.getFirstName() + " " + doctor.getLastName()).trim();
+        } else if (actor.getRole().getName() == RoleName.PATIENT) {
+            Patient patient = patientRepository.findByUserId(actor.getId())
+                .orElseThrow(() -> new BadRequestException("Patient profile not found"));
+            if (!patient.getId().equals(record.getPatient().getId())) {
+                throw new BadRequestException("Not allowed to upload files for this record");
+            }
+            uploaderRole = "PATIENT";
+            uploaderName = (patient.getFirstName() + " " + patient.getLastName()).trim();
+        } else {
+            throw new BadRequestException("Not allowed to upload files");
         }
 
         StorageResult uploadResult = localFileStorageService.store(file);
@@ -74,6 +91,8 @@ public class MedicalFileService {
             .fileType(file.getContentType())
             .originalFileName(file.getOriginalFilename() == null ? "file" : file.getOriginalFilename())
             .category(safeCategory)
+            .uploadedByRole(uploaderRole)
+            .uploadedByName(uploaderName.isBlank() ? actor.getEmail() : uploaderName)
             .createdAt(Instant.now())
             .build();
         medicalFileRepository.save(medicalFile);
@@ -86,6 +105,8 @@ public class MedicalFileService {
             .fileType(medicalFile.getFileType())
             .originalFileName(medicalFile.getOriginalFileName())
             .category(medicalFile.getCategory())
+            .uploadedByRole(medicalFile.getUploadedByRole())
+            .uploadedByName(medicalFile.getUploadedByName())
             .createdAt(medicalFile.getCreatedAt())
             .build();
     }
@@ -117,6 +138,8 @@ public class MedicalFileService {
                 .fileType(file.getFileType())
                 .originalFileName(file.getOriginalFileName())
                 .category(file.getCategory())
+                .uploadedByRole(file.getUploadedByRole())
+                .uploadedByName(file.getUploadedByName())
                 .createdAt(file.getCreatedAt())
                 .build())
             .collect(Collectors.toList());

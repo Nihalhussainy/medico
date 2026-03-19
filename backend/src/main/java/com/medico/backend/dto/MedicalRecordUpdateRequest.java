@@ -29,4 +29,10 @@ public class MedicalRecordUpdateRequest {
     private LocalDate followUpDate;
 
     private LocalDate recordDate;
+
+    private Integer medicineDuration;
+
+    private String advice;
+
+    private Long familyMemberId;
 }

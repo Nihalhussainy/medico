@@ -21,6 +21,12 @@ public class MedicalRecordResponse {
     private String vitals;
     private String medications;
     private String allergies;
+    private String advice;
+    private Integer medicineDuration;
+    private Long familyMemberId;
+    private String familyMemberFirstName;
+    private String familyMemberLastName;
+    private String familyMemberRelationship;
     private LocalDate followUpDate;
     private LocalDate recordDate;
     private Instant createdAt;

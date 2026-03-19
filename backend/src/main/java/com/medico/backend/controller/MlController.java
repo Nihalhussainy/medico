@@ -42,7 +42,7 @@ public class MlController {
     }
 
     @PostMapping("/predict-risks")
-    @PreAuthorize("hasRole('DOCTOR')")
+    @PreAuthorize("hasAnyRole('DOCTOR','PATIENT')")
     public ResponseEntity<Map<String, Object>> predictRisks(
             @RequestBody MlRiskRequest request) {
         return ResponseEntity.ok(mlService.predictRisks(request));

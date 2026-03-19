@@ -6,6 +6,7 @@ import com.medico.backend.dto.MedicalRecordResponse;
 import com.medico.backend.dto.MedicalRecordUpdateRequest;
 import com.medico.backend.entity.AuditAction;
 import com.medico.backend.entity.Doctor;
+import com.medico.backend.entity.FamilyMember;
 import com.medico.backend.entity.MedicalRecord;
 import com.medico.backend.entity.Patient;
 import com.medico.backend.entity.RoleName;
@@ -31,6 +32,7 @@ public class MedicalRecordService {
     private final PatientRepository patientRepository;
     private final OtpConsentService otpConsentService;
     private final AuditLogService auditLogService;
+    private final FamilyService familyService;
 
     public MedicalRecordService(
         MedicalRecordRepository medicalRecordRepository,
@@ -38,7 +40,8 @@ public class MedicalRecordService {
         DoctorRepository doctorRepository,
         PatientRepository patientRepository,
         OtpConsentService otpConsentService,
-        AuditLogService auditLogService
+        AuditLogService auditLogService,
+        FamilyService familyService
     ) {
         this.medicalRecordRepository = medicalRecordRepository;
         this.medicalFileRepository = medicalFileRepository;
@@ -46,6 +49,7 @@ public class MedicalRecordService {
         this.patientRepository = patientRepository;
         this.otpConsentService = otpConsentService;
         this.auditLogService = auditLogService;
+        this.familyService = familyService;
     }
 
     public MedicalRecordResponse createRecord(MedicalRecordCreateRequest request, User actor, String ipAddress) {
@@ -58,6 +62,8 @@ public class MedicalRecordService {
             throw new BadRequestException("Consent required to create record");
         }
 
+        FamilyMember familyMember = familyService.resolveMemberForPatient(request.getFamilyMemberId(), patient);
+
         MedicalRecord record = MedicalRecord.builder()
             .patient(patient)
             .doctor(doctor)
@@ -68,6 +74,9 @@ public class MedicalRecordService {
             .vitals(request.getVitals())
             .medications(request.getMedications())
             .allergies(request.getAllergies())
+            .advice(request.getAdvice())
+            .medicineDuration(request.getMedicineDuration())
+            .familyMember(familyMember)
             .followUpDate(request.getFollowUpDate())
             .recordDate(request.getRecordDate())
             .createdAt(Instant.now())
@@ -106,6 +115,8 @@ public class MedicalRecordService {
                     .fileType(file.getFileType())
                     .originalFileName(file.getOriginalFileName())
                     .category(file.getCategory())
+                    .uploadedByRole(file.getUploadedByRole())
+                    .uploadedByName(file.getUploadedByName())
                     .createdAt(file.getCreatedAt())
                     .build())
                 .collect(Collectors.toList())))
@@ -117,6 +128,7 @@ public class MedicalRecordService {
 
     private MedicalRecordResponse toResponse(MedicalRecord record, List<MedicalFileResponse> files) {
         String doctorName = record.getDoctor().getFirstName() + " " + record.getDoctor().getLastName();
+        FamilyMember member = record.getFamilyMember();
         return MedicalRecordResponse.builder()
             .id(record.getId())
             .patientId(record.getPatient().getId())
@@ -130,6 +142,12 @@ public class MedicalRecordService {
             .vitals(record.getVitals())
             .medications(record.getMedications())
             .allergies(record.getAllergies())
+            .advice(record.getAdvice())
+            .medicineDuration(record.getMedicineDuration())
+            .familyMemberId(member != null ? member.getId() : null)
+            .familyMemberFirstName(member != null ? member.getFirstName() : null)
+            .familyMemberLastName(member != null ? member.getLastName() : null)
+            .familyMemberRelationship(member != null ? member.getRelationship() : null)
             .followUpDate(record.getFollowUpDate())
             .recordDate(record.getRecordDate())
             .createdAt(record.getCreatedAt())
@@ -162,6 +180,15 @@ public class MedicalRecordService {
         record.setVitals(request.getVitals());
         record.setMedications(request.getMedications());
         record.setAllergies(request.getAllergies());
+        record.setAdvice(request.getAdvice());
+        record.setMedicineDuration(request.getMedicineDuration());
+
+        if (request.getFamilyMemberId() == null) {
+            record.setFamilyMember(null);
+        } else {
+            record.setFamilyMember(familyService.resolveMemberForPatient(request.getFamilyMemberId(), record.getPatient()));
+        }
+
         record.setFollowUpDate(request.getFollowUpDate());
         record.setRecordDate(request.getRecordDate());
 
@@ -175,6 +202,8 @@ public class MedicalRecordService {
                 .fileType(file.getFileType())
                 .originalFileName(file.getOriginalFileName())
                 .category(file.getCategory())
+                .uploadedByRole(file.getUploadedByRole())
+                .uploadedByName(file.getUploadedByName())
                 .createdAt(file.getCreatedAt())
                 .build())
             .collect(Collectors.toList());

@@ -18,62 +18,52 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "medical_records")
+@Table(name = "family_members")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MedicalRecord {
+public class FamilyMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "patient_id", nullable = false)
+    @JoinColumn(name = "family_group_id", nullable = false)
+    private FamilyGroup familyGroup;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id")
     private Patient patient;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id", nullable = false)
-    private Doctor doctor;
+    @Column(nullable = false)
+    private String firstName;
 
     @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false, length = 2000)
-    private String description;
+    private String lastName;
 
     @Column(nullable = false)
-    private String hospitalName;
-
-    @Column(length = 500)
-    private String diagnosis;
-
-    @Column(length = 500)
-    private String vitals;
-
-    @Column(length = 1000)
-    private String medications;
-
-    @Column(length = 1000)
-    private String allergies;
-
-    @Column(length = 1000)
-    private String advice;
+    private String relationship;
 
     @Column
-    private Integer medicineDuration;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "family_member_id")
-    private FamilyMember familyMember;
+    private LocalDate dateOfBirth;
 
     @Column
-    private LocalDate followUpDate;
+    private String gender;
 
     @Column
-    private LocalDate recordDate;
+    private String bloodGroup;
+
+    @Column
+    private String phoneNumber;
+
+    @Column
+    private String profilePhotoUrl;
+
+    @Column(nullable = false)
+    private Boolean isActive;
 
     @Column(nullable = false, updatable = false)
     private Instant createdAt;
