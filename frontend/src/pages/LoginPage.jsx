@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../components/Toast.jsx";
+import BrandLogo from "../components/BrandLogo.jsx";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -40,8 +41,8 @@ export default function LoginPage() {
         <div className="card fade-up">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-teal-600 text-xl font-bold text-white mb-4">
-              M
+            <div className="mb-4 flex items-center justify-center">
+              <BrandLogo />
             </div>
             <h1 className="text-2xl font-semibold text-gray-900">Welcome back</h1>
             <p className="mt-2 text-sm text-gray-500">

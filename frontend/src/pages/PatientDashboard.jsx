@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import PatientBloodNotifications from "../components/PatientBloodNotifications.jsx";
+import api from "../services/api.js";
 
 const quickAccessItems = [
   {
@@ -76,20 +78,49 @@ const serviceItems = [
 
 export default function PatientDashboard() {
   const { user } = useAuth();
+  const [patientProfile, setPatientProfile] = useState(null);
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user?.phoneNumber) return;
+      try {
+        const response = await api.get(`/patients/phone/${user.phoneNumber}`);
+        setPatientProfile(response.data || null);
+      } catch {
+        setPatientProfile(null);
+      }
+    };
+
+    loadProfile();
+  }, [user?.phoneNumber]);
 
   return (
     <div className="space-y-8">
       {/* Welcome Header */}
       <div className="card fade-up">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-sm font-medium text-teal-600">Patient Portal</p>
-            <h1 className="mt-1 text-2xl font-semibold text-gray-900">
-              Welcome back, {user?.firstName || "there"}
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Manage your records, monitor health risks, and coordinate family care.
-            </p>
+          <div className="flex items-center gap-3">
+            {patientProfile?.profilePictureUrl ? (
+              <img
+                src={patientProfile.profilePictureUrl}
+                alt="Patient profile"
+                className="h-14 w-14 rounded-full object-cover border border-gray-200"
+              />
+            ) : (
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal-600 text-xl font-semibold text-white">
+                {(user?.firstName || "P").trim().charAt(0).toUpperCase()}
+              </div>
+            )}
+
+            <div>
+              <p className="text-sm font-medium text-teal-600">Patient Portal</p>
+              <h1 className="mt-1 text-2xl font-semibold text-gray-900">
+                Welcome back, {user?.firstName || "there"}
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                Manage your records, monitor health risks, and coordinate family care.
+              </p>
+            </div>
           </div>
           <div className="flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 text-sm text-green-700">
             <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

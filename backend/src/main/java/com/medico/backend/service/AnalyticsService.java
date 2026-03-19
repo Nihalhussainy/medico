@@ -36,7 +36,9 @@ public class AnalyticsService {
     public DashboardAnalyticsResponse getDashboardAnalyticsForAdmin() {
         List<Patient> allPatients = patientRepository.findAll();
         List<MedicalRecord> allRecords = medicalRecordRepository.findAll();
-        List<FamilyMember> allFamilyMembers = familyMemberRepository.findAll();
+                List<FamilyMember> allFamilyMembers = familyMemberRepository.findAll().stream()
+                        .filter(fm -> Boolean.TRUE.equals(fm.getIsActive()))
+                        .collect(Collectors.toList());
         return buildAnalytics(allPatients, allRecords, allFamilyMembers);
     }
 
@@ -65,20 +67,33 @@ public class AnalyticsService {
         Instant oneMonthAgo = now.minus(30, ChronoUnit.DAYS);
         Instant twoMonthsAgo = now.minus(60, ChronoUnit.DAYS);
 
-        // Total patients
-        long totalPatients = patients.size();
+        List<FamilyMember> activeFamilyMembers = familyMembers.stream()
+            .filter(fm -> Boolean.TRUE.equals(fm.getIsActive()))
+            .collect(Collectors.toList());
 
-        // New patients this month
+        // Total people under care (account owners + active family members)
+        long totalPatients = patients.size() + activeFamilyMembers.size();
+
+        // New people this month (account owners + family members)
         int newPatientsThisMonth = (int) patients.stream()
                 .filter(p -> p.getUser() != null && p.getUser().getCreatedAt() != null)
                 .filter(p -> p.getUser().getCreatedAt().isAfter(oneMonthAgo))
                 .count();
+        newPatientsThisMonth += (int) activeFamilyMembers.stream()
+                .filter(fm -> fm.getCreatedAt() != null)
+                .filter(fm -> fm.getCreatedAt().isAfter(oneMonthAgo))
+                .count();
 
-        // New patients last month
+        // New people last month (account owners + family members)
         int newPatientsLastMonth = (int) patients.stream()
                 .filter(p -> p.getUser() != null && p.getUser().getCreatedAt() != null)
                 .filter(p -> p.getUser().getCreatedAt().isAfter(twoMonthsAgo)
                         && p.getUser().getCreatedAt().isBefore(oneMonthAgo))
+                .count();
+        newPatientsLastMonth += (int) activeFamilyMembers.stream()
+                .filter(fm -> fm.getCreatedAt() != null)
+                .filter(fm -> fm.getCreatedAt().isAfter(twoMonthsAgo)
+                        && fm.getCreatedAt().isBefore(oneMonthAgo))
                 .count();
 
         // Patient growth percentage
@@ -106,16 +121,19 @@ public class AnalyticsService {
         // Visit trends (last 6 months)
         List<VisitTrend> visitTrends = calculateVisitTrends(records, 6);
 
-        // Patients by gender
+        // Patients/family by gender
         Map<String, Long> patientsByGender = patients.stream()
                 .filter(p -> p.getGender() != null && !p.getGender().isEmpty())
                 .collect(Collectors.groupingBy(Patient::getGender, Collectors.counting()));
+        activeFamilyMembers.stream()
+                .filter(fm -> fm.getGender() != null && !fm.getGender().isEmpty())
+                .forEach(fm -> patientsByGender.merge(fm.getGender(), 1L, Long::sum));
 
-        // Patients by age group
-        Map<String, Long> patientsByAgeGroup = calculateAgeGroups(patients);
+        // Patients/family by age group
+        Map<String, Long> patientsByAgeGroup = calculateAgeGroups(patients, activeFamilyMembers);
 
         // Patients by blood group (including family members)
-        Map<String, Long> patientsByBloodGroup = calculateBloodGroupDistribution(patients, familyMembers);
+        Map<String, Long> patientsByBloodGroup = calculateBloodGroupDistribution(patients, activeFamilyMembers);
 
         // Top diagnoses
         List<DiagnosisCount> topDiagnoses = calculateTopDiagnoses(records, 10);
@@ -172,7 +190,7 @@ public class AnalyticsService {
         return trends;
     }
 
-    private Map<String, Long> calculateAgeGroups(List<Patient> patients) {
+        private Map<String, Long> calculateAgeGroups(List<Patient> patients, List<FamilyMember> familyMembers) {
         Map<String, Long> ageGroups = new LinkedHashMap<>();
         ageGroups.put("0-18", 0L);
         ageGroups.put("19-35", 0L);
@@ -196,6 +214,21 @@ public class AnalyticsService {
 
             ageGroups.put(group, ageGroups.get(group) + 1);
         }
+
+                for (FamilyMember familyMember : familyMembers) {
+                        if (familyMember.getDateOfBirth() == null) continue;
+
+                        int age = (int) ChronoUnit.YEARS.between(familyMember.getDateOfBirth(), now);
+
+                        String group;
+                        if (age < 19) group = "0-18";
+                        else if (age < 36) group = "19-35";
+                        else if (age < 51) group = "36-50";
+                        else if (age < 66) group = "51-65";
+                        else group = "65+";
+
+                        ageGroups.put(group, ageGroups.get(group) + 1);
+                }
 
         return ageGroups;
     }

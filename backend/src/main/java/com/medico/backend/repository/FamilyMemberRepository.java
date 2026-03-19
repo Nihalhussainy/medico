@@ -11,6 +11,6 @@ public interface FamilyMemberRepository extends JpaRepository<FamilyMember, Long
     List<FamilyMember> findByFamilyGroupIdAndIsActiveTrueOrderByCreatedAtDesc(Long familyGroupId);
     Optional<FamilyMember> findByIdAndFamilyGroupIdAndIsActiveTrue(Long memberId, Long familyGroupId);
 
-    @Query("SELECT fm FROM FamilyMember fm WHERE fm.familyGroup.ownerPatientId IN :patientIds AND fm.isActive = true")
+    @Query("SELECT fm FROM FamilyMember fm WHERE fm.familyGroup.ownerPatient.id IN :patientIds AND fm.isActive = true")
     List<FamilyMember> findByOwnerPatientIdInAndIsActiveTrue(@Param("patientIds") java.util.Collection<Long> patientIds);
 }

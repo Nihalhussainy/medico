@@ -141,7 +141,20 @@ export default function DoctorDashboard() {
         {/* Welcome Header */}
         <div className="card fade-up !py-4">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-            <div>
+            <div className="flex items-center gap-3">
+              {doctorProfile?.profilePictureUrl ? (
+                <img
+                  src={doctorProfile.profilePictureUrl}
+                  alt="Doctor profile"
+                  className="h-14 w-14 rounded-full object-cover border border-gray-200"
+                />
+              ) : (
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-teal-600 text-xl font-semibold text-white">
+                  {doctorProfile?.firstName?.charAt(0)?.toUpperCase() || "D"}
+                </div>
+              )}
+
+              <div>
               <p className="text-xs font-medium text-teal-600 uppercase tracking-wider">Clinical Workspace</p>
               {doctorProfile && !isLoadingProfile ? (
                 <>
@@ -176,6 +189,7 @@ export default function DoctorDashboard() {
                   </div>
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>

@@ -7,6 +7,7 @@ export default function AnalyticsDashboardPage() {
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [hoveredTrendIndex, setHoveredTrendIndex] = useState(null);
 
   useEffect(() => {
     loadAnalytics();
@@ -126,7 +127,19 @@ export default function AnalyticsDashboardPage() {
                 const maxCount = Math.max(...arr.map((t) => t.count)) || 1;
                 const height = (item.count / maxCount) * 100;
                 return (
-                  <div key={idx} className="flex h-full flex-col items-center justify-end gap-2">
+                  <div
+                    key={idx}
+                    className="flex h-full flex-col items-center justify-end gap-2"
+                    onMouseEnter={() => setHoveredTrendIndex(idx)}
+                    onMouseLeave={() => setHoveredTrendIndex(null)}
+                  >
+                    <span
+                      className={`rounded-md bg-gray-900 px-2 py-0.5 text-xs font-semibold text-white transition-opacity ${
+                        hoveredTrendIndex === idx ? "opacity-100" : "opacity-0"
+                      }`}
+                    >
+                      {item.count}
+                    </span>
                     <div
                       className="w-full rounded-t-md bg-cyan-500"
                       style={{ height: `${Math.max(height, 6)}%` }}

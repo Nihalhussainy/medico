@@ -693,9 +693,17 @@ export default function DoctorPatientPage() {
       <div className="card fade-up overflow-hidden border border-cyan-200/70 bg-white shadow-lg">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_420px] xl:items-start">
           <div className="flex gap-4 sm:gap-5">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-2xl font-semibold text-white shadow-md">
-              {(patient?.fullName || "P").trim().charAt(0).toUpperCase()}
-            </div>
+            {patient?.profilePictureUrl ? (
+              <img
+                src={patient.profilePictureUrl}
+                alt="Patient profile"
+                className="h-16 w-16 shrink-0 rounded-2xl object-cover border border-emerald-200 shadow-md"
+              />
+            ) : (
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-2xl font-semibold text-white shadow-md">
+                {(patient?.fullName || "P").trim().charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="min-w-0">
               <div className="pill-blue">Patient Care Console</div>
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">{patient?.fullName || "Patient"}</h1>

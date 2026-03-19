@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import BrandLogo from "./BrandLogo.jsx";
 
 const roleLinks = {
   ADMIN: [
@@ -86,10 +87,8 @@ export default function NavBar() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-600 text-sm font-bold text-white">
-            M
-          </span>
-          <span className="text-lg font-semibold text-gray-900 hide-mobile">Medico</span>
+          <BrandLogo compact={false} className="hidden sm:inline-flex" />
+          <BrandLogo compact className="sm:hidden" />
         </Link>
 
         {/* Desktop Navigation */}
