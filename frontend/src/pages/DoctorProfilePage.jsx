@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../components/Toast.jsx";
 import BackButton from "../components/BackButton.jsx";
 import Spinner from "../components/Spinner.jsx";
+import ImageCropperModal from "../components/ImageCropperModal.jsx";
 
 export default function DoctorProfilePage() {
   const navigate = useNavigate();
@@ -14,6 +15,10 @@ export default function DoctorProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [formData, setFormData] = useState({
     specialization: "",
     hospitalName: "",
@@ -55,6 +60,69 @@ export default function DoctorProfilePage() {
     }));
   };
 
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select a valid image file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB');
+        return;
+      }
+      // Create preview and open cropper
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageToCrop(e.target.result);
+        setIsCropperOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropComplete = (imageElement, crop) => {
+    const canvas = document.createElement('canvas');
+    const scaleX = imageElement.naturalWidth / imageElement.width;
+    const scaleY = imageElement.naturalHeight / imageElement.height;
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
+    const ctx = canvas.getContext('2d');
+
+    ctx.drawImage(
+      imageElement,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width * scaleX,
+      crop.height * scaleY
+    );
+
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        console.error('Canvas is empty');
+        toast.error('Failed to process image. Please try again.');
+        setIsCropperOpen(false);
+        setImageToCrop(null);
+        return;
+      }
+      const file = new File([blob], 'profile.jpg', { type: 'image/jpeg' });
+      setProfilePicture(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfilePicturePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+      setIsCropperOpen(false);
+      setImageToCrop(null);
+    }, 'image/jpeg');
+  };
+
   const handleSave = async () => {
     if (!formData.email.trim()) {
       toast.error("Email is required");
@@ -71,6 +139,8 @@ export default function DoctorProfilePage() {
 
     try {
       setIsSaving(true);
+
+      // First, update profile details
       const payload = {
         ...formData,
         newPassword: formData.newPassword?.trim() ? formData.newPassword : null
@@ -78,6 +148,24 @@ export default function DoctorProfilePage() {
       delete payload.confirmPassword;
       const emailChanged = formData.email.trim().toLowerCase() !== (user?.email || "").toLowerCase();
       const response = await api.put("/doctors/me", payload);
+
+      // Then, upload profile picture if selected
+      if (profilePicture) {
+        const formDataWithImage = new FormData();
+        formDataWithImage.append('profilePicture', profilePicture);
+        try {
+          await api.put("/doctors/me/profile-picture", formDataWithImage, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+        } catch (err) {
+          console.error('Failed to upload profile picture:', err);
+          // Don't fail the entire save if picture upload fails
+          toast.warning("Profile updated but image upload failed");
+        }
+      }
+
       setProfile(response.data);
       updateUser({
         email: response.data.email,
@@ -85,13 +173,17 @@ export default function DoctorProfilePage() {
         firstName: response.data.firstName,
         lastName: response.data.lastName
       });
+
       if (emailChanged) {
         toast.success("Email updated. Please sign in again with your new email.");
         logout();
         navigate("/login");
         return;
       }
+
       setIsEditing(false);
+      setProfilePicture(null);
+      setProfilePicturePreview(null);
       toast.success("Profile updated successfully");
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update profile");
@@ -136,10 +228,78 @@ export default function DoctorProfilePage() {
         </div>
       </div>
 
-      {/* Profile Details */}
-      <div className="card fade-up-delay-1 space-y-6">
+      {/* Profile Picture Section */}
+      <div className="card fade-up-delay-1">
+        <div className="flex flex-col sm:flex-row gap-6 items-start">
+          {/* Profile Picture Display */}
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-32 w-32 rounded-lg bg-teal-100 flex items-center justify-center overflow-hidden border-2 border-teal-200">
+              {profilePicturePreview ? (
+                <img src={profilePicturePreview} alt="Profile" className="h-full w-full object-cover" />
+              ) : profile?.profilePictureUrl ? (
+                <img src={profile.profilePictureUrl} alt="Profile" className="h-full w-full object-cover" />
+              ) : (
+                <svg className="h-16 w-16 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              )}
+            </div>
+            {isEditing && (
+              <div className="w-full">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    className="hidden"
+                  />
+                  <div className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg text-center transition-colors">
+                    {profilePicturePreview ? "Change Picture" : "Upload Picture"}
+                  </div>
+                </label>
+                {profilePicturePreview && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfilePicture(null);
+                      setProfilePicturePreview(null);
+                    }}
+                    className="w-full mt-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 text-sm font-medium rounded-lg transition-colors"
+                  >
+                    Remove Picture
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Profile Info */}
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              {profile?.firstName} {profile?.lastName}
+            </h2>
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-medium text-gray-500 uppercase">Specialization</label>
+                <p className="text-sm text-gray-900 mt-1">{profile?.specialization}</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-500 uppercase">Hospital</label>
+                <p className="text-sm text-gray-900 mt-1">{profile?.hospitalName || <span className="text-gray-400">Not set</span>}</p>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-500 uppercase">Email</label>
+                <p className="text-sm text-gray-900 mt-1">{profile?.email || user?.email}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Information Card */}
+      <div className="card fade-up-delay-2">
         {/* Read-only Fields */}
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 mb-6">
           <div>
             <label className="label">First Name</label>
             <div className="px-3.5 py-2.5 bg-gray-50 rounded-lg border border-gray-200 text-gray-700 text-sm">
@@ -242,6 +402,8 @@ export default function DoctorProfilePage() {
                   className="button-outline"
                   onClick={() => {
                     setIsEditing(false);
+                    setProfilePicture(null);
+                    setProfilePicturePreview(null);
                     setFormData({
                       specialization: profile.specialization,
                       hospitalName: profile.hospitalName || "",
@@ -281,6 +443,18 @@ export default function DoctorProfilePage() {
           )}
         </div>
       </div>
+
+      {/* Image Cropper Modal */}
+      {isCropperOpen && (
+        <ImageCropperModal
+          imageSrc={imageToCrop}
+          onClose={() => {
+            setIsCropperOpen(false);
+            setImageToCrop(null);
+          }}
+          onCropComplete={handleCropComplete}
+        />
+      )}
     </div>
   );
 }

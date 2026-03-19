@@ -19,4 +19,5 @@ public class DoctorProfileResponse {
     private String specialization;
     private String licenseNumber;
     private String hospitalName;
+    private String profilePictureUrl;
 }

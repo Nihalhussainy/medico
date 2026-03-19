@@ -49,4 +49,7 @@ public class Doctor {
 
     @Column(length = 255)
     private String hospitalName;
+
+    @Column(columnDefinition = "TEXT")
+    private String profilePictureUrl;
 }

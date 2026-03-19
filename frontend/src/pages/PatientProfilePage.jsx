@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../components/Toast.jsx";
 import BackButton from "../components/BackButton.jsx";
 import Spinner from "../components/Spinner.jsx";
+import ImageCropperModal from "../components/ImageCropperModal.jsx";
 
 export default function PatientProfilePage() {
   const navigate = useNavigate();
@@ -15,6 +16,10 @@ export default function PatientProfilePage() {
   const [showModal, setShowModal] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState(null);
+  const [profilePicture, setProfilePicture] = useState(null);
+  const [profilePicturePreview, setProfilePicturePreview] = useState(null);
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [isCropperOpen, setIsCropperOpen] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -70,6 +75,69 @@ export default function PatientProfilePage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleProfilePictureChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        setError('Please select a valid image file');
+        return;
+      }
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError('Image size must be less than 5MB');
+        return;
+      }
+      // Create preview and open cropper
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImageToCrop(e.target.result);
+        setIsCropperOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCropComplete = (imageElement, crop) => {
+    const canvas = document.createElement('canvas');
+    const scaleX = imageElement.naturalWidth / imageElement.width;
+    const scaleY = imageElement.naturalHeight / imageElement.height;
+    canvas.width = crop.width * scaleX;
+    canvas.height = crop.height * scaleY;
+    const ctx = canvas.getContext('2d');
+
+    ctx.drawImage(
+      imageElement,
+      crop.x * scaleX,
+      crop.y * scaleY,
+      crop.width * scaleX,
+      crop.height * scaleY,
+      0,
+      0,
+      crop.width * scaleX,
+      crop.height * scaleY
+    );
+
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        console.error('Canvas is empty');
+        setError('Failed to process image. Please try again.');
+        setIsCropperOpen(false);
+        setImageToCrop(null);
+        return;
+      }
+      const file = new File([blob], 'profile.jpg', { type: 'image/jpeg' });
+      setProfilePicture(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setProfilePicturePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+      setIsCropperOpen(false);
+      setImageToCrop(null);
+    }, 'image/jpeg');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
@@ -104,6 +172,24 @@ export default function PatientProfilePage() {
       delete payload.confirmPassword;
       const emailChanged = formData.email.trim().toLowerCase() !== (user?.email || "").toLowerCase();
       const response = await api.put("/patients/me", payload);
+
+      // Upload profile picture if selected
+      if (profilePicture) {
+        const formDataWithImage = new FormData();
+        formDataWithImage.append('profilePicture', profilePicture);
+        try {
+          await api.put("/patients/me/profile-picture", formDataWithImage, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+        } catch (err) {
+          console.error('Failed to upload profile picture:', err);
+          // Don't fail the entire save if picture upload fails
+          toast.warning("Profile updated but image upload failed");
+        }
+      }
+
       setProfile(response.data);
       updateUser({
         email: response.data.email,
@@ -117,6 +203,8 @@ export default function PatientProfilePage() {
         navigate("/login");
         return;
       }
+      setProfilePicture(null);
+      setProfilePicturePreview(null);
       toast.success("Profile updated successfully!");
       setShowModal(false);
     } catch (err) {
@@ -190,6 +278,44 @@ export default function PatientProfilePage() {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Profile Picture Section */}
+              <div className="flex flex-col items-center gap-2 pb-4 border-b border-gray-100">
+                <div className="h-24 w-24 rounded-lg bg-teal-100 flex items-center justify-center overflow-hidden border-2 border-teal-200">
+                  {profilePicturePreview ? (
+                    <img src={profilePicturePreview} alt="Profile" className="h-full w-full object-cover" />
+                  ) : profile?.profilePictureUrl ? (
+                    <img src={profile.profilePictureUrl} alt="Profile" className="h-full w-full object-cover" />
+                  ) : (
+                    <svg className="h-10 w-10 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  )}
+                </div>
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleProfilePictureChange}
+                    className="hidden"
+                  />
+                  <div className="px-4 py-1.5 bg-teal-600 hover:bg-teal-700 text-white text-xs font-medium rounded-lg text-center transition-colors">
+                    {profilePicturePreview ? "Change" : "Upload"}
+                  </div>
+                </label>
+                {profilePicturePreview && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setProfilePicture(null);
+                      setProfilePicturePreview(null);
+                    }}
+                    className="text-xs text-red-600 hover:text-red-700 font-medium"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="label">First Name *</label>
@@ -271,7 +397,16 @@ export default function PatientProfilePage() {
               )}
 
               <div className="flex gap-3 pt-4 border-t border-gray-100">
-                <button type="button" onClick={handleCloseModal} className="button-outline flex-1" disabled={isUpdating}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleCloseModal();
+                    setProfilePicture(null);
+                    setProfilePicturePreview(null);
+                  }}
+                  className="button-outline flex-1"
+                  disabled={isUpdating}
+                >
                   Cancel
                 </button>
                 <button type="submit" className="button flex-1" disabled={isUpdating}>
@@ -282,6 +417,18 @@ export default function PatientProfilePage() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Image Cropper Modal */}
+      {isCropperOpen && (
+        <ImageCropperModal
+          imageSrc={imageToCrop}
+          onClose={() => {
+            setIsCropperOpen(false);
+            setImageToCrop(null);
+          }}
+          onCropComplete={handleCropComplete}
+        />
       )}
     </div>
   );

@@ -68,7 +68,9 @@ public class OtpConsentService {
             .expiresAt(expiresAt)
             .build();
         otpConsentRepository.save(consent);
-        emailService.sendOtpEmail(patient.getUser().getEmail(), otp);
+        String patientEmail = patient.getUser().getEmail();
+        String doctorName = doctor.getFirstName() + " " + doctor.getLastName();
+        emailService.sendOtpEmail(patientEmail, otp, doctorName);
         auditLogService.log(actor, AuditAction.CONSENT_REQUEST, "OtpConsent", consent.getId().toString(), ipAddress,
             "Doctor requested access to patient records");
 
@@ -76,6 +78,7 @@ public class OtpConsentService {
             .status(consent.getStatus())
             .expiresAt(consent.getExpiresAt())
             .otp(emailService.isMock() ? otp : null)
+            .destinationEmail(patientEmail)
             .build();
     }
 

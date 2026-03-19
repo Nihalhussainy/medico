@@ -53,4 +53,7 @@ public class Patient {
 
     @Column
     private String location;
+
+    @Column(columnDefinition = "TEXT")
+    private String profilePictureUrl;
 }

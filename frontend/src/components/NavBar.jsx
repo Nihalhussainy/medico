@@ -10,6 +10,7 @@ const roleLinks = {
   ],
   DOCTOR: [
     { to: "/doctor", label: "Workspace", icon: "briefcase" },
+    { to: "/doctor/analytics", label: "Analytics", icon: "chart" },
     { to: "/doctor/profile", label: "Profile", icon: "user" }
   ],
   PATIENT: [

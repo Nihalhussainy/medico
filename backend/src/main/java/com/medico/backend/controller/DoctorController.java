@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/doctors")
@@ -38,6 +40,15 @@ public class DoctorController {
     ) {
         Long userId = extractUserIdFromAuth(authentication);
         return ResponseEntity.ok(doctorService.updateProfile(userId, request));
+    }
+
+    @PutMapping("/me/profile-picture")
+    public ResponseEntity<DoctorProfileResponse> uploadProfilePicture(
+        @RequestParam("profilePicture") MultipartFile file,
+        Authentication authentication
+    ) {
+        Long userId = extractUserIdFromAuth(authentication);
+        return ResponseEntity.ok(doctorService.uploadProfilePicture(userId, file));
     }
 
     private Long extractUserIdFromAuth(Authentication authentication) {

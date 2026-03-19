@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
@@ -99,6 +101,28 @@ public class PatientController {
         return ResponseEntity.ok(toResponse(patient));
     }
 
+    @PreAuthorize("hasRole('PATIENT')")
+    @PutMapping("/me/profile-picture")
+    public ResponseEntity<PatientDetailsResponse> uploadProfilePicture(@RequestParam("profilePicture") MultipartFile file) {
+        User currentUser = userService.getCurrentUser();
+        Patient patient = patientRepository.findByUserId(currentUser.getId())
+            .orElseThrow(() -> new ResourceNotFoundException("Patient profile not found"));
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("File is empty");
+        }
+
+        try {
+            byte[] fileBytes = file.getBytes();
+            String base64Image = "data:image/jpeg;base64," + java.util.Base64.getEncoder().encodeToString(fileBytes);
+            patient.setProfilePictureUrl(base64Image);
+            patientRepository.save(patient);
+            return ResponseEntity.ok(toResponse(patient));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload profile picture", e);
+        }
+    }
+
     @PreAuthorize("hasAnyRole('ADMIN','DOCTOR','PATIENT')")
     @GetMapping("/phone/{phoneNumber}/family-members")
     public ResponseEntity<List<FamilyMemberResponse>> getFamilyMembersByPhone(@PathVariable String phoneNumber) {
@@ -134,6 +158,8 @@ public class PatientController {
             .dateOfBirth(dob)
             .bloodGroup(patient.getBloodGroup())
             .location(patient.getLocation())
+            .email(patient.getUser().getEmail())
+            .profilePictureUrl(patient.getProfilePictureUrl())
             .build();
     }
 }

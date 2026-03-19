@@ -176,6 +176,10 @@ body {
   to { opacity: 1; }
 }
 
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out both;
+}
+
 .slide-up {
   animation: slideUp 0.25s var(--ease-out) both;
 }

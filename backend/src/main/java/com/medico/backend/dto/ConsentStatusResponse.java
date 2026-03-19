@@ -12,4 +12,5 @@ public class ConsentStatusResponse {
     private Instant expiresAt;
     private Instant consentValidUntil;
     private String otp;
+    private String destinationEmail;
 }

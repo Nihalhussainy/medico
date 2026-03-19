@@ -14,4 +14,6 @@ public class PatientDetailsResponse {
     private LocalDate dateOfBirth;
     private String bloodGroup;
     private String location;
+    private String email;
+    private String profilePictureUrl;
 }
