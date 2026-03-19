@@ -184,15 +184,15 @@ export default function DoctorPatientHistoryPage() {
                 <button
                   type="button"
                   onClick={() => handleSelectPerson('patient')}
-                  className={`w-full text-left px-3 py-3 rounded-lg transition-all ${
+                  className={`w-full text-left px-3 py-3 rounded-lg transition-colors ${
                     selectedPerson.type === 'patient'
-                      ? 'bg-slate-800 text-white shadow-sm'
-                      : 'hover:bg-slate-50 text-gray-700'
+                      ? 'bg-gray-900 text-white'
+                      : 'hover:bg-gray-50 text-gray-700'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
-                      selectedPerson.type === 'patient' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+                      selectedPerson.type === 'patient' ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-600'
                     }`}>
                       {(patient?.fullName || 'P').charAt(0)}
                     </div>
@@ -220,17 +220,17 @@ export default function DoctorPatientHistoryPage() {
                         key={member.id}
                         type="button"
                         onClick={() => handleSelectPerson('family', member.id)}
-                        className={`w-full text-left px-3 py-3 rounded-lg transition-all ${
+                        className={`w-full text-left px-3 py-3 rounded-lg transition-colors ${
                           selectedPerson.type === 'family' && selectedPerson.id === member.id
-                            ? 'bg-slate-800 text-white shadow-sm'
-                            : 'hover:bg-slate-50 text-gray-700'
+                            ? 'bg-gray-900 text-white'
+                            : 'hover:bg-gray-50 text-gray-700'
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
                             selectedPerson.type === 'family' && selectedPerson.id === member.id
                               ? 'bg-white/20 text-white'
-                              : 'bg-slate-100 text-slate-600'
+                              : 'bg-gray-100 text-gray-600'
                           }`}>
                             {member.firstName?.charAt(0) || 'F'}
                           </div>

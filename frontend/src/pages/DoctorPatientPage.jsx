@@ -691,7 +691,7 @@ export default function DoctorPatientPage() {
       {!isLoadingData && !consentRequired && (
       <>
       {/* Patient Header Card */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden fade-up">
+      <div className="bg-gradient-to-br from-white to-sky-50/30 border border-sky-100 rounded-2xl overflow-hidden shadow-sm fade-up">
         <div className="px-6 py-5">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             {/* Patient Info */}
@@ -700,16 +700,16 @@ export default function DoctorPatientPage() {
                 <img
                   src={patient.profilePictureUrl}
                   alt="Patient"
-                  className="h-16 w-16 shrink-0 rounded-xl object-cover border border-gray-200"
+                  className="h-16 w-16 shrink-0 rounded-xl object-cover border-2 border-white shadow-sm"
                 />
               ) : (
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-2xl font-semibold text-gray-600">
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-100 to-teal-100 text-2xl font-semibold text-teal-700 shadow-sm">
                   {(patient?.fullName || "P").trim().charAt(0).toUpperCase()}
                 </div>
               )}
               <div className="min-w-0">
-                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Patient Console</p>
-                <h1 className="mt-1 text-2xl font-semibold text-gray-900">
+                <p className="text-xs font-medium text-teal-600 uppercase tracking-wider">Patient Console</p>
+                <h1 className="mt-1 text-2xl font-semibold text-gray-800">
                   {patient?.fullName || "Patient"}
                 </h1>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
@@ -724,16 +724,16 @@ export default function DoctorPatientPage() {
 
             {/* Stats */}
             <div className="flex items-center gap-4">
-              <div className="text-center px-4">
-                <div className="text-2xl font-semibold text-gray-900">{filteredHistory.length}</div>
-                <div className="text-xs text-gray-500">Records</div>
+              <div className="text-center px-5 py-3 bg-white/60 backdrop-blur-sm rounded-xl border border-sky-100">
+                <div className="text-2xl font-semibold text-teal-700">{filteredHistory.length}</div>
+                <div className="text-xs text-gray-500 font-medium">Records</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Consultation Subject Selection with Details */}
-        <div className="border-t border-gray-100 bg-gray-50 px-6 py-4">
+        <div className="border-t border-sky-100 bg-white/50 backdrop-blur-sm px-6 py-4">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             {/* Person Selector */}
             <div>
@@ -743,10 +743,10 @@ export default function DoctorPatientPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedPerson({ type: 'patient', id: null })}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                     selectedPerson.type === 'patient'
-                      ? 'bg-slate-800 text-white shadow-sm'
-                      : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                      ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-md shadow-teal-200'
+                      : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-300 hover:bg-teal-50/50'
                   }`}
                 >
                   {patient?.fullName || 'Patient'} {patient?.age ? `(${patient.age}y)` : '(Self)'}
@@ -758,10 +758,10 @@ export default function DoctorPatientPage() {
                     key={member.id}
                     type="button"
                     onClick={() => setSelectedPerson({ type: 'family', id: member.id })}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                       selectedPerson.type === 'family' && selectedPerson.id === member.id
-                        ? 'bg-slate-800 text-white shadow-sm'
-                        : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                        ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-md shadow-teal-200'
+                        : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-300 hover:bg-teal-50/50'
                     }`}
                   >
                     {member.firstName} {member.lastName} {member.age ? `(${member.age}y · ${member.relationship})` : `(${member.relationship})`}
@@ -771,11 +771,11 @@ export default function DoctorPatientPage() {
             </div>
 
             {/* Selected Person Details */}
-            <div className="bg-white border border-gray-200 rounded-lg px-4 py-3 min-w-[200px]">
+            <div className="bg-gradient-to-r from-teal-50 to-sky-50 border border-teal-100 rounded-xl px-4 py-3 min-w-[200px]">
               {selectedPerson.type === 'patient' ? (
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{patient?.fullName || 'Patient'}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-sm font-semibold text-gray-800">{patient?.fullName || 'Patient'}</p>
+                  <p className="text-xs text-teal-700 mt-0.5 font-medium">
                     {patient?.age && `${patient.age} yrs`}
                     {patient?.age && patient?.gender && ' · '}
                     {patient?.gender}
@@ -788,8 +788,8 @@ export default function DoctorPatientPage() {
                   const member = familyMembers.find(m => m.id === selectedPerson.id);
                   return member ? (
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{member.firstName} {member.lastName}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-sm font-semibold text-gray-800">{member.firstName} {member.lastName}</p>
+                      <p className="text-xs text-teal-700 mt-0.5 font-medium">
                         {member.age && `${member.age} yrs`}
                         {member.age && member.gender && ' · '}
                         {member.gender}
@@ -804,12 +804,12 @@ export default function DoctorPatientPage() {
           </div>
 
           {/* Action Buttons - Inline */}
-          <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-3">
+          <div className="mt-4 pt-4 border-t border-sky-100 flex flex-wrap gap-3">
             <a
               href={`/doctor/patient/${patientPhoneNumber}/history${selectedPerson.type === 'family' ? `?familyMemberId=${selectedPerson.id}` : ''}`}
-              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white border border-sky-200 rounded-xl text-gray-700 hover:border-teal-300 hover:bg-teal-50/50 transition-all"
             >
-              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <svg className="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
               View Patient History
@@ -817,10 +817,10 @@ export default function DoctorPatientPage() {
             <button
               type="button"
               onClick={() => (showCreateForm ? handleCancelEdit() : openCreateModal())}
-              className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+              className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-xl transition-all ${
                 showCreateForm
-                  ? 'bg-slate-800 text-white shadow-sm'
-                  : 'bg-slate-800 text-white hover:bg-slate-700 shadow-sm'
+                  ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-md shadow-teal-200'
+                  : 'bg-gradient-to-r from-teal-600 to-teal-500 text-white hover:from-teal-700 hover:to-teal-600 shadow-md shadow-teal-200'
               }`}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
