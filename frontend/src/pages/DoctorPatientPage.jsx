@@ -687,195 +687,155 @@ export default function DoctorPatientPage() {
         </div>
       )}
 
-      {/* Patient Profile */}
+      {/* Patient Profile - Clean & Professional */}
       {!isLoadingData && !consentRequired && (
       <>
-      <div className="card fade-up overflow-hidden border border-cyan-200/70 bg-white shadow-lg">
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_420px] xl:items-start">
-          <div className="flex gap-4 sm:gap-5">
-            {patient?.profilePictureUrl ? (
-              <img
-                src={patient.profilePictureUrl}
-                alt="Patient profile"
-                className="h-16 w-16 shrink-0 rounded-2xl object-cover border border-emerald-200 shadow-md"
-              />
-            ) : (
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-2xl font-semibold text-white shadow-md">
-                {(patient?.fullName || "P").trim().charAt(0).toUpperCase()}
-              </div>
-            )}
-            <div className="min-w-0">
-              <div className="pill-blue">Patient Care Console</div>
-              <h1 className="mt-4 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">{patient?.fullName || "Patient"}</h1>
-              <p className="mt-3 max-w-2xl text-sm leading-7 text-gray-600">
-                Review the patient timeline, open a polished consultation composer, and work directly against the hospital profile tied to this doctor account.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-3">
-                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-300/60 bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-800">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                  Hospital {doctorHospitalName || "Not set"}
+      {/* Patient Header Card */}
+      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden fade-up">
+        <div className="px-6 py-5">
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+            {/* Patient Info */}
+            <div className="flex items-start gap-4">
+              {patient?.profilePictureUrl ? (
+                <img
+                  src={patient.profilePictureUrl}
+                  alt="Patient"
+                  className="h-16 w-16 shrink-0 rounded-xl object-cover border border-gray-200"
+                />
+              ) : (
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-gray-100 text-2xl font-semibold text-gray-600">
+                  {(patient?.fullName || "P").trim().charAt(0).toUpperCase()}
                 </div>
-                <div className="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700">
-                  {patient?.age != null ? `Age ${patient.age}` : "Age unavailable"}
-                  {patient?.gender ? ` - ${patient.gender}` : ""}
-                </div>
-                <div className="inline-flex items-center rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700">
-                  Phone {patient?.phoneNumber || patientPhoneNumber}
+              )}
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Patient Console</p>
+                <h1 className="mt-1 text-2xl font-semibold text-gray-900">
+                  {patient?.fullName || "Patient"}
+                </h1>
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
+                  {patient?.age != null && (
+                    <span>{patient.age} years{patient?.gender ? ` · ${patient.gender}` : ""}</span>
+                  )}
+                  <span>{patient?.phoneNumber || patientPhoneNumber}</span>
+                  {doctorHospitalName && <span>{doctorHospitalName}</span>}
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-2">
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Records</div>
-              <div className="mt-3 text-3xl font-semibold tracking-tight text-gray-900">{filteredHistory.length}</div>
-              <p className="mt-1 text-sm text-gray-500">Available in active timeline</p>
-            </div>
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Subject</div>
-              <div className="mt-3 text-lg font-semibold text-gray-900">{selectedPerson.type === "patient" ? "Primary patient" : "Family member"}</div>
-              <p className="mt-1 text-sm text-gray-500">Consultation target</p>
-            </div>
-            <div className="rounded-2xl border border-gray-900 bg-gray-900 p-4 text-white shadow-md sm:col-span-3 xl:col-span-2">
-              <div className="text-xs font-semibold uppercase tracking-wide text-gray-400">Workflow</div>
-              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <div className="text-lg font-semibold">Consultation workspace ready</div>
-                  <p className="mt-1 text-sm text-gray-300">Timeline, AI support, and record composer are tuned for this patient.</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => (showCreateForm ? handleCancelEdit() : openCreateModal())}
-                  className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition hover:bg-gray-100"
-                >
-                  {showCreateForm ? "Close Composer" : "Start Consultation"}
-                </button>
+            {/* Stats */}
+            <div className="flex items-center gap-4">
+              <div className="text-center px-4">
+                <div className="text-2xl font-semibold text-gray-900">{filteredHistory.length}</div>
+                <div className="text-xs text-gray-500">Records</div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Family Members Selection */}
-        {familyMembers.length > 0 && (
-          <div className="mt-7 border-t border-emerald-100/80 pt-6">
-            <h3 className="mb-3 text-sm font-semibold text-gray-700">
-              Select who this consultation is for
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {/* Main Patient Option */}
-              <button
-                type="button"
-                onClick={() => setSelectedPerson({ type: 'patient', id: null })}
-                className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                  selectedPerson.type === 'patient'
-                    ? 'bg-emerald-600 text-white border-emerald-700 shadow-md'
-                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
-              >
-                {patient?.fullName || 'Main Patient'}
-                <span className="ml-1 text-xs opacity-75">(Self)</span>
-              </button>
-
-              {/* Family Member Options */}
-              {familyMembers.map((member) => (
+        {/* Consultation Subject Selection with Details */}
+        <div className="border-t border-gray-100 bg-gray-50 px-6 py-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            {/* Person Selector */}
+            <div>
+              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Consultation For</p>
+              <div className="flex flex-wrap gap-2">
+                {/* Main Patient */}
                 <button
-                  key={member.id}
                   type="button"
-                  onClick={() => setSelectedPerson({ type: 'family', id: member.id })}
-                  className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                    selectedPerson.type === 'family' && selectedPerson.id === member.id
-                      ? 'bg-gray-900 text-white border-gray-900 shadow-md'
-                      : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                  onClick={() => setSelectedPerson({ type: 'patient', id: null })}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    selectedPerson.type === 'patient'
+                      ? 'bg-slate-800 text-white shadow-sm'
+                      : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
                   }`}
                 >
-                  {member.firstName} {member.lastName}
-                  <span className="ml-1 text-xs opacity-75">({member.relationship})</span>
+                  {patient?.fullName || 'Patient'} {patient?.age ? `(${patient.age}y)` : '(Self)'}
                 </button>
-              ))}
+
+                {/* Family Members */}
+                {familyMembers.map((member) => (
+                  <button
+                    key={member.id}
+                    type="button"
+                    onClick={() => setSelectedPerson({ type: 'family', id: member.id })}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      selectedPerson.type === 'family' && selectedPerson.id === member.id
+                        ? 'bg-slate-800 text-white shadow-sm'
+                        : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                    }`}
+                  >
+                    {member.firstName} {member.lastName} {member.age ? `(${member.age}y · ${member.relationship})` : `(${member.relationship})`}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Show selected person indicator */}
-            <div className="mt-3 text-sm text-gray-600">
-              Creating records for{' '}
-              <span className="font-semibold text-gray-800">
-                {selectedPerson.type === 'patient'
-                  ? patient?.fullName
-                  : familyMembers.find(m => m.id === selectedPerson.id)?.firstName + ' ' + familyMembers.find(m => m.id === selectedPerson.id)?.lastName
-                }
-              </span>
+            {/* Selected Person Details */}
+            <div className="bg-white border border-gray-200 rounded-lg px-4 py-3 min-w-[200px]">
+              {selectedPerson.type === 'patient' ? (
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{patient?.fullName || 'Patient'}</p>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    {patient?.age && `${patient.age} yrs`}
+                    {patient?.age && patient?.gender && ' · '}
+                    {patient?.gender}
+                    {(patient?.age || patient?.gender) && ' · '}
+                    Self
+                  </p>
+                </div>
+              ) : (
+                (() => {
+                  const member = familyMembers.find(m => m.id === selectedPerson.id);
+                  return member ? (
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{member.firstName} {member.lastName}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        {member.age && `${member.age} yrs`}
+                        {member.age && member.gender && ' · '}
+                        {member.gender}
+                        {(member.age || member.gender) && ' · '}
+                        {member.relationship}
+                      </p>
+                    </div>
+                  ) : null;
+                })()
+              )}
             </div>
           </div>
-        )}
+
+          {/* Action Buttons - Inline */}
+          <div className="mt-4 pt-4 border-t border-gray-200 flex flex-wrap gap-3">
+            <a
+              href={`/doctor/patient/${patientPhoneNumber}/history${selectedPerson.type === 'family' ? `?familyMemberId=${selectedPerson.id}` : ''}`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium bg-white border border-gray-200 rounded-lg text-gray-700 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+            >
+              <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              View Patient History
+            </a>
+            <button
+              type="button"
+              onClick={() => (showCreateForm ? handleCancelEdit() : openCreateModal())}
+              className={`inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                showCreateForm
+                  ? 'bg-slate-800 text-white shadow-sm'
+                  : 'bg-slate-800 text-white hover:bg-slate-700 shadow-sm'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              {showCreateForm ? 'Close Consultation' : 'New Consultation'}
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* AI Medical Insights */}
-      <AiInsightsPanel patient={patient} history={filteredHistory} patientPhoneNumber={patientPhoneNumber} />
-
-      {/* Action Buttons */}
-      <div className="card fade-up border border-cyan-200/60 bg-white shadow-md">
-        <div className="flex flex-wrap items-center justify-between gap-5">
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">Workspace actions</div>
-            <h3 className="mt-2 text-xl font-semibold tracking-tight text-gray-900">Move between history review and record creation without losing context.</h3>
-            <p className="mt-2 text-sm text-gray-600">The timeline stays available for review while the composer handles clean structured entry.</p>
-          </div>
-          <div className="flex gap-3 flex-wrap">
-          <button
-            onClick={() => setShowHistory(!showHistory)}
-            className={`rounded-2xl border px-5 py-3 font-medium transition-all ${
-              showHistory
-                ? "border-sky-600 bg-sky-600 text-white shadow-md"
-                : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50 hover:shadow-sm"
-            }`}
-          >
-            {showHistory ? "Hide Medical History" : "Show Medical History"}
-          </button>
-          <button
-            onClick={() => (showCreateForm ? handleCancelEdit() : openCreateModal())}
-            className={`rounded-2xl border px-5 py-3 font-medium transition-all ${
-              showCreateForm
-                ? "border-emerald-700 bg-emerald-600 text-white shadow-md"
-                : "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 hover:shadow-sm"
-            }`}
-          >
-            {showCreateForm ? "Close Composer" : "Create Medical Record"}
-          </button>
-          </div>
-        </div>
+      <div className="fade-up" style={{ animationDelay: '100ms' }}>
+        <AiInsightsPanel patient={patient} history={filteredHistory} patientPhoneNumber={patientPhoneNumber} />
       </div>
-
-      {/* Medical History */}
-      {showHistory && (
-      <div className="card fade-up border border-cyan-200/60 bg-white">
-        <div className="flex flex-wrap items-end justify-between gap-4 border-b border-gray-200 pb-5">
-          <div>
-            <div className="pill-blue">Medical History</div>
-            <h2 className="mt-3 text-2xl font-semibold text-gray-900">
-              {selectedPerson.type === 'patient'
-                ? 'Patient history'
-                : `${familyMembers.find(m => m.id === selectedPerson.id)?.firstName || 'Family Member'} history`
-              }
-            </h2>
-            <p className="mt-1 text-sm text-gray-600">Clean timeline of consultations, prescriptions, files and follow-ups.</p>
-          </div>
-          <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-right text-sm text-emerald-800">
-            <div className="text-xs uppercase tracking-wide text-emerald-600">Records</div>
-            <div className="text-2xl font-semibold">{filteredHistory.length}</div>
-          </div>
-        </div>
-        {historyError && <div className="mt-3 text-sm text-red-500">{historyError}</div>}
-        <div className="mt-6">
-          <RecordTimeline
-            records={filteredHistory}
-            onPrintRecord={printOldRecord}
-            onEditRecord={handleEditRecord}
-            onDeleteRecord={handleDeleteRecord}
-            doctorProfile={doctorProfile}
-          />
-        </div>
-      </div>
-      )}
 
       {/* Create/Edit Record Form */}
       {showCreateForm && (

@@ -8,6 +8,7 @@ import AnalyticsDashboardPage from "../pages/AnalyticsDashboardPage.jsx";
 import DoctorDashboard from "../pages/DoctorDashboard.jsx";
 import DoctorProfilePage from "../pages/DoctorProfilePage.jsx";
 import DoctorPatientPage from "../pages/DoctorPatientPage.jsx";
+import DoctorPatientHistoryPage from "../pages/DoctorPatientHistoryPage.jsx";
 import PatientDashboard from "../pages/PatientDashboard.jsx";
 import PatientProfilePage from "../pages/PatientProfilePage.jsx";
 import PatientLabReportsPage from "../pages/PatientLabReportsPage.jsx";
@@ -80,6 +81,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute roles={["DOCTOR"]}>
             <DoctorPatientPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/doctor/patient/:patientPhoneNumber/history"
+        element={
+          <ProtectedRoute roles={["DOCTOR"]}>
+            <DoctorPatientHistoryPage />
           </ProtectedRoute>
         }
       />

@@ -140,51 +140,56 @@ export default function AiInsightsPanel({ patient, history }) {
   ];
 
   return (
-    <div className="card fade-up overflow-hidden border border-gray-200 bg-white">
+    <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
       {/* Header */}
-      <button onClick={() => setCollapsed(c => !c)} className="flex w-full items-center justify-between text-left">
+      <button 
+        onClick={() => setCollapsed(c => !c)} 
+        className="flex w-full items-center justify-between text-left px-5 py-4 hover:bg-gray-50 transition-colors"
+      >
         <div className="flex items-center gap-3">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-teal-600 text-white">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
             <AiIcon />
-          </span>
+          </div>
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-gray-900">AI Medical Insights</h2>
-            <p className="text-xs text-gray-500">
-              ML-powered recommendations - Trained on 5,000+ medical records
-            </p>
+            <h2 className="text-base font-semibold text-gray-900">AI Medical Insights</h2>
+            <p className="text-xs text-gray-500">ML-powered recommendations</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className={`h-2 w-2 rounded-full ${mlOnline ? "bg-emerald-400" : "bg-red-400"}`} />
-          <span className="text-xs text-gray-500">{mlOnline ? "Online" : "Offline"}</span>
-          <svg className={`h-5 w-5 text-gray-400 transition-transform ${collapsed ? "-rotate-90" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        <div className="flex items-center gap-3">
+          <span className={`flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium ${
+            mlOnline ? "bg-gray-100 text-gray-600" : "bg-red-50 text-red-600"
+          }`}>
+            <span className={`h-1.5 w-1.5 rounded-full ${mlOnline ? "bg-green-500" : "bg-red-500"}`} />
+            {mlOnline ? "Online" : "Offline"}
+          </span>
+          <svg className={`h-4 w-4 text-gray-400 transition-transform duration-200 ${collapsed ? "-rotate-90" : ""}`} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </div>
       </button>
 
       {!collapsed && (
-        <div className="mt-4 space-y-4">
+        <div className="px-5 pb-5 space-y-4 border-t border-gray-100">
           {!mlOnline && (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-              ML service is offline. Start the Python service with <code className="mx-1 rounded bg-amber-200 px-1 font-mono text-xs">python main.py</code> in the ml-service directory.
+            <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-800">
+              ML service is offline. Start with <code className="mx-1 rounded bg-amber-100 px-1 font-mono text-xs">python main.py</code> in ml-service.
             </div>
           )}
 
           {/* Tab bar */}
-          <div className="flex gap-1 rounded-lg bg-gray-100 p-1">
+          <div className="mt-4 flex gap-1 p-1 rounded-lg bg-gray-100">
             {tabs.map(t => (
               <button
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
-                className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-all ${
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                   activeTab === t.id
-                    ? "bg-white text-gray-800 shadow-sm"
-                    : "text-gray-600 hover:bg-gray-50"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-600 hover:text-gray-900"
                 }`}
               >
                 {t.icon}
-                <span>{t.label}</span>
+                <span className="hidden sm:inline">{t.label}</span>
               </button>
             ))}
           </div>
@@ -193,12 +198,12 @@ export default function AiInsightsPanel({ patient, history }) {
           {activeTab === "recommend" && (
             <div className="space-y-3">
               <p className="text-sm text-gray-600">
-                Enter a diagnosis to get AI-recommended medicines based on similar past cases, patient age, and treatment outcomes.
+                Enter a diagnosis to get AI-recommended medicines based on similar cases.
               </p>
               <div className="flex gap-2">
                 <input
                   className="input flex-1"
-                  placeholder="e.g. Hypertension, Diabetes, Asthma"
+                  placeholder="e.g. Hypertension, Diabetes"
                   value={recDisease}
                   onChange={e => setRecDisease(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && fetchRecommendations()}
@@ -208,7 +213,7 @@ export default function AiInsightsPanel({ patient, history }) {
                   onClick={fetchRecommendations}
                   disabled={recLoading || !recDisease.trim() || !mlOnline}
                 >
-                  {recLoading ? <span className="spinner" /> : "Get Recommendations"}
+                  {recLoading ? <span className="spinner" /> : "Get"}
                 </button>
               </div>
               {recError && <p className="text-sm text-red-500">{recError}</p>}
@@ -217,38 +222,35 @@ export default function AiInsightsPanel({ patient, history }) {
 
               {recommendations && !recLoading && (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <span>Analyzed <strong>{recommendations.similar_cases || 0}</strong> similar cases</span>
-                    <span>-</span>
-                    <span>Age-matched: <strong>{recommendations.age_matched_cases || 0}</strong></span>
-                  </div>
+                  <p className="text-xs text-gray-500">
+                    Analyzed {recommendations.similar_cases || 0} similar cases · Age-matched: {recommendations.age_matched_cases || 0}
+                  </p>
 
                   {recommendations.recommendations?.length > 0 ? (
                     <div className="grid gap-2 sm:grid-cols-2">
                       {recommendations.recommendations.map((med, i) => (
-                        <div key={i} className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm">
-                          <div className="flex items-start justify-between">
-                            <h4 className="font-semibold text-gray-800">{med.medicine}</h4>
-                            <span className={`rounded-full px-2 py-0.5 text-xs font-bold text-white ${
-                              med.success_rate >= 80 ? "bg-emerald-500" :
+                        <div key={i} className="rounded-lg border border-gray-200 bg-white p-3">
+                          <div className="flex items-start justify-between gap-2">
+                            <h4 className="font-medium text-gray-900 text-sm">{med.medicine}</h4>
+                            <span className={`shrink-0 rounded px-1.5 py-0.5 text-xs font-semibold text-white ${
+                              med.success_rate >= 80 ? "bg-green-500" :
                               med.success_rate >= 60 ? "bg-amber-500" : "bg-red-500"
                             }`}>
                               {med.success_rate}%
                             </span>
                           </div>
                           <p className="mt-1 text-xs text-gray-500">
-                            {med.cases_used} cases - {med.cured_count} cured - {med.improved_count} improved
+                            {med.cases_used} cases · {med.cured_count} cured
                           </p>
                           {med.allergy_warning && (
-                            <p className="mt-1 flex items-center gap-1 text-xs font-medium text-red-600">
-                              <WarningIcon /> Allergy conflict detected
+                            <p className="mt-1 text-xs font-medium text-red-600">
+                              <WarningIcon /> Allergy warning
                             </p>
                           )}
-                          {/* Success bar */}
-                          <div className="mt-2 h-1.5 w-full rounded-full bg-gray-100">
+                          <div className="mt-2 h-1 w-full rounded-full bg-gray-100">
                             <div
-                              className={`h-full rounded-full transition-all ${
-                                med.success_rate >= 80 ? "bg-emerald-400" :
+                              className={`h-full rounded-full ${
+                                med.success_rate >= 80 ? "bg-green-400" :
                                 med.success_rate >= 60 ? "bg-amber-400" : "bg-red-400"
                               }`}
                               style={{ width: `${med.success_rate}%` }}
@@ -258,7 +260,7 @@ export default function AiInsightsPanel({ patient, history }) {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 italic">No recommendations found for this diagnosis.</p>
+                    <p className="text-sm text-gray-500 text-center py-4">No recommendations found.</p>
                   )}
                 </div>
               )}
@@ -269,17 +271,17 @@ export default function AiInsightsPanel({ patient, history }) {
           {activeTab === "risks" && (
             <div className="space-y-3">
               <p className="text-sm text-gray-600">
-                Analyzes the patient's complete medical history to predict future health risks with precautions.
+                Analyze patient history to predict future health risks.
               </p>
               <button
                 className="button"
                 onClick={fetchRisks}
                 disabled={riskLoading || !history?.length || !mlOnline}
               >
-                {riskLoading ? <span className="spinner" /> : "Analyze Patient Risks"}
+                {riskLoading ? <span className="spinner" /> : "Analyze Risks"}
               </button>
               {!history?.length && (
-                <p className="text-sm text-amber-600">No medical history available to analyze.</p>
+                <p className="text-sm text-amber-600">No history available.</p>
               )}
               {riskError && <p className="text-sm text-red-500">{riskError}</p>}
 
@@ -288,59 +290,41 @@ export default function AiInsightsPanel({ patient, history }) {
               {risks && !riskLoading && (
                 <div className="space-y-3">
                   <p className="text-xs text-gray-500">
-                    {risks.history_records_analyzed || 0} records analyzed for {risks.patient_gender}, age {risks.patient_age}
+                    {risks.history_records_analyzed || 0} records analyzed
                   </p>
 
                   {risks.risks?.length > 0 ? (
                     risks.risks.map((r, i) => {
                       const c = riskColour[r.risk_level] || riskColour.LOW;
                       return (
-                        <div key={i} className={`rounded-lg border p-4 ${c.bg} ${c.border}`}>
+                        <div key={i} className={`rounded-lg border p-3 ${c.bg} ${c.border}`}>
                           <div className="flex items-center justify-between">
-                            <h4 className={`font-semibold ${c.text}`}>{r.disease}</h4>
+                            <h4 className={`font-medium ${c.text}`}>{r.disease}</h4>
                             <div className="flex items-center gap-2">
-                              <span className={`rounded-full px-2 py-0.5 text-xs font-bold text-white ${c.badge}`}>
+                              <span className={`rounded px-1.5 py-0.5 text-xs font-semibold text-white ${c.badge}`}>
                                 {r.risk_level}
                               </span>
-                              <span className={`text-lg font-bold ${c.text}`}>{r.probability}%</span>
+                              <span className={`text-lg font-semibold ${c.text}`}>{r.probability}%</span>
                             </div>
                           </div>
-
-                          {/* Risk bar */}
-                          <div className="mt-2 h-2 w-full rounded-full bg-white/60">
-                            <div
-                              className={`h-full rounded-full ${c.badge}`}
-                              style={{ width: `${Math.min(r.probability, 100)}%` }}
-                            />
+                          <div className="mt-2 h-1.5 w-full rounded-full bg-white/60">
+                            <div className={`h-full rounded-full ${c.badge}`} style={{ width: `${Math.min(r.probability, 100)}%` }} />
                           </div>
-
-                          {/* Precautions */}
-                          <div className="mt-3">
-                            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Precautions</p>
-                            <ul className="mt-1 space-y-0.5">
-                              {r.precautions?.map((p, j) => (
-                                <li key={j} className="flex items-start gap-1.5 text-sm text-gray-700">
-                                  <span className="mt-1 text-xs">-</span>{p}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-
-                          {r.advice && (
-                            <div className="mt-2 rounded-lg bg-white/50 p-2 text-sm text-gray-700">
-                              <strong>Advice:</strong> {r.advice}
+                          {r.precautions?.length > 0 && (
+                            <div className="mt-2">
+                              <p className="text-xs font-medium text-gray-500">Precautions:</p>
+                              <ul className="mt-1 text-xs text-gray-600 space-y-0.5">
+                                {r.precautions.map((p, j) => <li key={j}>• {p}</li>)}
+                              </ul>
                             </div>
                           )}
                         </div>
                       );
                     })
                   ) : (
-                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center">
-                      <div className="flex justify-center">
-                        <CheckCircleIcon />
-                      </div>
-                      <p className="mt-1 font-medium text-emerald-700">No significant risks detected</p>
-                      <p className="text-sm text-emerald-600">Continue regular checkups and healthy lifestyle.</p>
+                    <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
+                      <CheckCircleIcon />
+                      <p className="mt-1 font-medium text-green-700">No significant risks</p>
                     </div>
                   )}
                 </div>
@@ -352,12 +336,12 @@ export default function AiInsightsPanel({ patient, history }) {
           {activeTab === "interactions" && (
             <div className="space-y-3">
               <p className="text-sm text-gray-600">
-                Check if a combination of medicines has any known dangerous interactions.
+                Check drug interactions (comma-separated).
               </p>
               <div className="flex gap-2">
                 <input
                   className="input flex-1"
-                  placeholder="e.g. Warfarin, Aspirin, Metformin"
+                  placeholder="e.g. Warfarin, Aspirin"
                   value={intMeds}
                   onChange={e => setIntMeds(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && fetchInteractions()}
@@ -377,31 +361,26 @@ export default function AiInsightsPanel({ patient, history }) {
               {interactions && !intLoading && (
                 <div className="space-y-3">
                   {interactions.safe ? (
-                    <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center">
-                      <div className="flex justify-center">
-                        <CheckCircleIcon />
-                      </div>
-                      <p className="mt-1 font-medium text-emerald-700">No interactions found</p>
-                      <p className="text-sm text-emerald-600">
-                        {interactions.pairs_checked} pairs checked - all safe.
-                      </p>
+                    <div className="rounded-lg border border-green-200 bg-green-50 p-4 text-center">
+                      <CheckCircleIcon />
+                      <p className="mt-1 font-medium text-green-700">No interactions</p>
+                      <p className="text-xs text-green-600">{interactions.pairs_checked} pairs checked</p>
                     </div>
                   ) : (
                     <>
-                      {/* Summary badges */}
                       <div className="flex gap-2 flex-wrap">
                         {interactions.severe_count > 0 && (
-                          <span className="rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white">
+                          <span className="rounded bg-red-500 px-2 py-0.5 text-xs font-semibold text-white">
                             {interactions.severe_count} Severe
                           </span>
                         )}
                         {interactions.moderate_count > 0 && (
-                          <span className="rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-white">
+                          <span className="rounded bg-amber-500 px-2 py-0.5 text-xs font-semibold text-white">
                             {interactions.moderate_count} Moderate
                           </span>
                         )}
                         {interactions.mild_count > 0 && (
-                          <span className="rounded-full bg-emerald-500 px-3 py-1 text-xs font-bold text-white">
+                          <span className="rounded bg-green-500 px-2 py-0.5 text-xs font-semibold text-white">
                             {interactions.mild_count} Mild
                           </span>
                         )}
@@ -410,19 +389,14 @@ export default function AiInsightsPanel({ patient, history }) {
                       {interactions.interactions.map((ix, i) => {
                         const c = sevColour[ix.severity] || sevColour.MILD;
                         return (
-                          <div key={i} className={`rounded-lg border border-gray-200 p-4 ${c.bg}`}>
+                          <div key={i} className={`rounded-lg border border-gray-200 p-3 ${c.bg}`}>
                             <div className="flex items-center gap-2">
-                              <span className={`h-2.5 w-2.5 rounded-full ${c.dot}`} />
-                              <span className={`text-xs font-bold uppercase ${c.text}`}>{ix.severity}</span>
+                              <span className={`h-2 w-2 rounded-full ${c.dot}`} />
+                              <span className={`text-xs font-semibold uppercase ${c.text}`}>{ix.severity}</span>
                             </div>
-                            <h4 className="mt-1 font-semibold text-gray-800">
-                              {ix.drug_a} + {ix.drug_b}
-                            </h4>
-                            <p className="mt-1 text-sm text-gray-700">{ix.effect}</p>
-                            <p className="mt-1 text-xs text-gray-500"><strong>Mechanism:</strong> {ix.mechanism}</p>
-                            <div className="mt-2 rounded-lg bg-white/80 p-2 text-sm text-gray-700">
-                              <strong>Recommendation:</strong> {ix.recommendation}
-                            </div>
+                            <h4 className="mt-1 font-medium text-gray-900 text-sm">{ix.drug_a} + {ix.drug_b}</h4>
+                            <p className="mt-1 text-xs text-gray-600">{ix.effect}</p>
+                            <p className="mt-1 text-xs text-gray-500"><strong>Rec:</strong> {ix.recommendation}</p>
                           </div>
                         );
                       })}
