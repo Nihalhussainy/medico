@@ -241,6 +241,19 @@ export default function DoctorPatientPage() {
     }
   }, [history, selectedPerson]);
 
+  const selectedPersonName = useMemo(() => {
+    if (selectedPerson.type === "patient") {
+      return patient?.fullName || "Patient";
+    }
+
+    const member = familyMembers.find((item) => String(item.id) === String(selectedPerson.id));
+    if (!member) {
+      return "Family Member";
+    }
+
+    return `${member.firstName || ""} ${member.lastName || ""}`.trim();
+  }, [selectedPerson, patient, familyMembers]);
+
   const formatMedicinesForAPI = (medicines) => {
     if (typeof medicines === 'string') return medicines; // Already a string
 
@@ -858,24 +871,17 @@ export default function DoctorPatientPage() {
         <div className="modal-content w-full max-w-6xl">
           <div className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-xl slide-up">
             <div className="flex max-h-[88vh] flex-col bg-white">
-                <div className="flex items-center justify-between border-b border-gray-200 px-6 py-5">
-                  <div>
+                <div className="grid grid-cols-1 gap-4 border-b border-gray-200 px-6 py-5 md:grid-cols-[1fr_auto_1fr] md:items-center">
+                  <div className="text-center md:text-left">
                     <div className="pill-blue">Record Composer</div>
                     <h3 className="mt-2 text-2xl font-semibold text-gray-900">{editingRecordId ? "Edit consultation" : "Create consultation"}</h3>
                     <p className="mt-1 text-sm text-gray-500">Focused, fast, and clinically structured.</p>
                   </div>
-                  <div className="hidden rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-right text-sm text-emerald-800 md:block">
-                    <div className="text-xs uppercase tracking-wide text-emerald-600">For</div>
-                    <div className="font-semibold text-emerald-900">
-                      {selectedPerson.type === "patient"
-                        ? patient?.fullName || "Patient"
-                        : `${familyMembers.find((member) => member.id === selectedPerson.id)?.firstName || "Family"} ${familyMembers.find((member) => member.id === selectedPerson.id)?.lastName || "Member"}`}
-                    </div>
+                  <div className="mx-auto rounded-2xl border border-emerald-200 bg-gradient-to-b from-emerald-50 to-white px-5 py-2.5 text-center text-sm text-emerald-900 shadow-sm">
+                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-600">For</div>
+                    <div className="text-xl font-semibold leading-tight text-emerald-900">{selectedPersonName}</div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="hidden rounded-xl border border-gray-200 bg-gray-50 px-3 py-2 text-xs font-medium text-gray-700 sm:block">
-                      Hospital {doctorHospitalName || "Not configured"}
-                    </div>
+                  <div className="flex items-center justify-center gap-3 md:justify-end">
                     <button
                       type="button"
                       className="button-ghost"
@@ -1096,7 +1102,8 @@ export default function DoctorPatientPage() {
                           <div>
                             <label className="label">Prescription</label>
                             <input
-                              className="input"
+                              id="upload-prescription"
+                              className="sr-only"
                               type="file"
                               onChange={(e) => {
                                 const file = e.target.files?.[0] || null;
@@ -1104,11 +1111,32 @@ export default function DoctorPatientPage() {
                                 if (file) toast.info(`Prescription file selected: ${file.name}`);
                               }}
                             />
+                            <label
+                              htmlFor="upload-prescription"
+                              className="group mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-gray-300 bg-gradient-to-b from-white to-gray-50 px-4 py-3 transition-all hover:border-teal-400 hover:shadow-sm"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="rounded-lg bg-teal-50 p-2 text-teal-700">
+                                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m0 12l-3.5-3.5M12 16l3.5-3.5M4 16.5v1A2.5 2.5 0 006.5 20h11a2.5 2.5 0 002.5-2.5v-1" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">Upload prescription</p>
+                                  <p className="text-xs text-gray-500">PDF, image, or document</p>
+                                </div>
+                              </div>
+                              <span className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition-colors group-hover:bg-teal-100">Choose file</span>
+                            </label>
+                            {prescriptionFile && (
+                              <p className="mt-2 truncate text-xs font-medium text-gray-600">Selected: {prescriptionFile.name}</p>
+                            )}
                           </div>
                           <div>
                             <label className="label">Lab report</label>
                             <input
-                              className="input"
+                              id="upload-lab-report"
+                              className="sr-only"
                               type="file"
                               onChange={(e) => {
                                 const file = e.target.files?.[0] || null;
@@ -1116,11 +1144,32 @@ export default function DoctorPatientPage() {
                                 if (file) toast.info(`Lab report selected: ${file.name}`);
                               }}
                             />
+                            <label
+                              htmlFor="upload-lab-report"
+                              className="group mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-gray-300 bg-gradient-to-b from-white to-gray-50 px-4 py-3 transition-all hover:border-teal-400 hover:shadow-sm"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="rounded-lg bg-teal-50 p-2 text-teal-700">
+                                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-8.25a1.5 1.5 0 00-1.5-1.5h-12a1.5 1.5 0 00-1.5 1.5v12a1.5 1.5 0 001.5 1.5h8.25m5.25-5.25l-6 6m0 0H16.5m-3 0V17.25" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">Upload lab report</p>
+                                  <p className="text-xs text-gray-500">Blood tests, scans, and diagnostics</p>
+                                </div>
+                              </div>
+                              <span className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition-colors group-hover:bg-teal-100">Choose file</span>
+                            </label>
+                            {labReportFile && (
+                              <p className="mt-2 truncate text-xs font-medium text-gray-600">Selected: {labReportFile.name}</p>
+                            )}
                           </div>
                           <div>
                             <label className="label">Other reports</label>
                             <input
-                              className="input"
+                              id="upload-other-reports"
+                              className="sr-only"
                               type="file"
                               multiple
                               onChange={(e) => {
@@ -1129,6 +1178,37 @@ export default function DoctorPatientPage() {
                                 if (files.length > 0) toast.info(`${files.length} additional report(s) selected`);
                               }}
                             />
+                            <label
+                              htmlFor="upload-other-reports"
+                              className="group mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-gray-300 bg-gradient-to-b from-white to-gray-50 px-4 py-3 transition-all hover:border-teal-400 hover:shadow-sm"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="rounded-lg bg-teal-50 p-2 text-teal-700">
+                                  <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M18 13.5V9a3 3 0 00-3-3h-6a3 3 0 00-3 3v9a3 3 0 003 3h4.5m4.5-4.5h-6m6 0l-2.25-2.25M18 16.5l-2.25 2.25" />
+                                  </svg>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium text-gray-900">Upload additional reports</p>
+                                  <p className="text-xs text-gray-500">You can select multiple files</p>
+                                </div>
+                              </div>
+                              <span className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition-colors group-hover:bg-teal-100">Choose files</span>
+                            </label>
+                            {otherReports.length > 0 && (
+                              <div className="mt-2 flex flex-wrap gap-2">
+                                {otherReports.slice(0, 3).map((file) => (
+                                  <span key={file.name} className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600">
+                                    {file.name}
+                                  </span>
+                                ))}
+                                {otherReports.length > 3 && (
+                                  <span className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600">
+                                    +{otherReports.length - 3} more
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                           <p className="text-xs text-gray-500">Maximum 15 MB per file.</p>
                         </div>
