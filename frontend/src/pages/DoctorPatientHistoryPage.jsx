@@ -19,9 +19,14 @@ export default function DoctorPatientHistoryPage() {
 
   const [records, setRecords] = useState([]);
   const [familyMembers, setFamilyMembers] = useState([]);
-  const [selectedPerson, setSelectedPerson] = useState(
-    familyMemberId ? { type: 'family', id: familyMemberId } : { type: 'patient', id: null }
-  );
+  const [selectedPerson, setSelectedPerson] = useState(() => {
+    if (familyMemberId) {
+      // Parse as number if it's numeric for proper comparison
+      const parsedId = !isNaN(familyMemberId) ? parseInt(familyMemberId, 10) : familyMemberId;
+      return { type: 'family', id: parsedId };
+    }
+    return { type: 'patient', id: null };
+  });
   const [isLoading, setIsLoading] = useState(true);
   const [patient, setPatient] = useState(null);
   const [doctorProfile, setDoctorProfile] = useState(null);
@@ -57,7 +62,9 @@ export default function DoctorPatientHistoryPage() {
   // Update selected person when URL changes
   useEffect(() => {
     if (familyMemberId) {
-      setSelectedPerson({ type: 'family', id: familyMemberId });
+      // Parse as number if it's numeric for proper comparison
+      const parsedId = !isNaN(familyMemberId) ? parseInt(familyMemberId, 10) : familyMemberId;
+      setSelectedPerson({ type: 'family', id: parsedId });
     } else {
       setSelectedPerson({ type: 'patient', id: null });
     }
@@ -67,7 +74,11 @@ export default function DoctorPatientHistoryPage() {
     if (selectedPerson.type === 'patient') {
       return records.filter(record => !record.familyMemberId);
     } else {
-      return records.filter(record => record.familyMemberId === selectedPerson.id);
+      // Compare with string conversion to handle type mismatches
+      return records.filter(record => {
+        if (!record.familyMemberId) return false;
+        return String(record.familyMemberId) === String(selectedPerson.id);
+      });
     }
   }, [records, selectedPerson]);
 
@@ -80,7 +91,8 @@ export default function DoctorPatientHistoryPage() {
         relationship: 'Self'
       };
     }
-    const member = familyMembers.find(m => m.id === selectedPerson.id);
+    // Compare with string conversion to handle type mismatches
+    const member = familyMembers.find(m => String(m.id) === String(selectedPerson.id));
     return member ? {
       name: `${member.firstName} ${member.lastName}`,
       age: member.age,
@@ -221,14 +233,14 @@ export default function DoctorPatientHistoryPage() {
                         type="button"
                         onClick={() => handleSelectPerson('family', member.id)}
                         className={`w-full text-left px-3 py-3 rounded-lg transition-colors ${
-                          selectedPerson.type === 'family' && selectedPerson.id === member.id
+                          selectedPerson.type === 'family' && String(selectedPerson.id) === String(member.id)
                             ? 'bg-gray-900 text-white'
                             : 'hover:bg-gray-50 text-gray-700'
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold ${
-                            selectedPerson.type === 'family' && selectedPerson.id === member.id
+                            selectedPerson.type === 'family' && String(selectedPerson.id) === String(member.id)
                               ? 'bg-white/20 text-white'
                               : 'bg-gray-100 text-gray-600'
                           }`}>
@@ -237,7 +249,7 @@ export default function DoctorPatientHistoryPage() {
                           <div className="min-w-0 flex-1">
                             <p className="font-medium truncate">{member.firstName} {member.lastName}</p>
                             <p className={`text-xs ${
-                              selectedPerson.type === 'family' && selectedPerson.id === member.id
+                              selectedPerson.type === 'family' && String(selectedPerson.id) === String(member.id)
                                 ? 'text-gray-300'
                                 : 'text-gray-500'
                             }`}>
@@ -279,7 +291,7 @@ export default function DoctorPatientHistoryPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate(`/doctor/patient/${patientPhoneNumber}`)}
+                  onClick={() => navigate(`/doctor/patient/${patientPhoneNumber}${selectedPerson.type === 'family' ? `?familyMemberId=${selectedPerson.id}` : ''}`)}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   New Consultation
@@ -301,7 +313,7 @@ export default function DoctorPatientHistoryPage() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => navigate(`/doctor/patient/${patientPhoneNumber}`)}
+                  onClick={() => navigate(`/doctor/patient/${patientPhoneNumber}${selectedPerson.type === 'family' ? `?familyMemberId=${selectedPerson.id}` : ''}`)}
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   Create First Record

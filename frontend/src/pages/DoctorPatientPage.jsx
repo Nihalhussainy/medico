@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@mui/material";
 import api from "../services/api.js";
 import RecordTimeline from "../components/RecordTimeline.jsx";
@@ -72,6 +72,8 @@ const LockIcon = () => (
 
 export default function DoctorPatientPage() {
   const { patientPhoneNumber } = useParams();
+  const [searchParams] = useSearchParams();
+  const initialFamilyMemberId = searchParams.get('familyMemberId');
   const { user } = useAuth();
   const toast = useToast();
   const [patient, setPatient] = useState(null);
@@ -109,7 +111,13 @@ export default function DoctorPatientPage() {
 
   // Family member selection for records
   const [familyMembers, setFamilyMembers] = useState([]);
-  const [selectedPerson, setSelectedPerson] = useState({ type: 'patient', id: null }); // { type: 'patient' | 'family', id: familyMemberId }
+  const [selectedPerson, setSelectedPerson] = useState(() => {
+    if (initialFamilyMemberId) {
+      const parsedId = !isNaN(initialFamilyMemberId) ? parseInt(initialFamilyMemberId, 10) : initialFamilyMemberId;
+      return { type: 'family', id: parsedId };
+    }
+    return { type: 'patient', id: null };
+  });
 
   const loadPatientData = async () => {
     setIsLoadingData(true);
@@ -694,32 +702,65 @@ export default function DoctorPatientPage() {
       <div className="bg-gradient-to-br from-white to-sky-50/30 border border-sky-100 rounded-2xl overflow-hidden shadow-sm fade-up">
         <div className="px-6 py-5">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
-            {/* Patient Info */}
+            {/* Selected Person Info - Dynamic based on selection */}
             <div className="flex items-start gap-4">
-              {patient?.profilePictureUrl ? (
-                <img
-                  src={patient.profilePictureUrl}
-                  alt="Patient"
-                  className="h-16 w-16 shrink-0 rounded-xl object-cover border-2 border-white shadow-sm"
-                />
-              ) : (
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-100 to-teal-100 text-2xl font-semibold text-teal-700 shadow-sm">
-                  {(patient?.fullName || "P").trim().charAt(0).toUpperCase()}
-                </div>
-              )}
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-teal-600 uppercase tracking-wider">Patient Console</p>
-                <h1 className="mt-1 text-2xl font-semibold text-gray-800">
-                  {patient?.fullName || "Patient"}
-                </h1>
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
-                  {patient?.age != null && (
-                    <span>{patient.age} years{patient?.gender ? ` · ${patient.gender}` : ""}</span>
-                  )}
-                  <span>{patient?.phoneNumber || patientPhoneNumber}</span>
-                  {doctorHospitalName && <span>{doctorHospitalName}</span>}
-                </div>
-              </div>
+              {(() => {
+                // Get selected person data
+                const isPatient = selectedPerson.type === 'patient';
+                const selectedMember = !isPatient ? familyMembers.find(m => String(m.id) === String(selectedPerson.id)) : null;
+                const displayName = isPatient ? (patient?.fullName || "Patient") : (selectedMember ? `${selectedMember.firstName} ${selectedMember.lastName}` : "Family Member");
+                const displayAge = isPatient ? patient?.age : selectedMember?.age;
+                const displayGender = isPatient ? patient?.gender : selectedMember?.gender;
+                const relationship = isPatient ? "Self" : (selectedMember?.relationship || "Family");
+                
+                // Get avatar gradient based on relationship
+                const getAvatarStyle = () => {
+                  if (isPatient) {
+                    return "bg-gradient-to-br from-sky-100 to-teal-100 text-teal-700";
+                  }
+                  const rel = relationship?.toLowerCase() || '';
+                  if (rel.includes('son') || rel.includes('daughter') || rel.includes('child')) {
+                    return "bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700";
+                  }
+                  if (rel.includes('wife') || rel.includes('husband') || rel.includes('spouse')) {
+                    return "bg-gradient-to-br from-rose-100 to-pink-100 text-rose-700";
+                  }
+                  if (rel.includes('father') || rel.includes('mother') || rel.includes('parent')) {
+                    return "bg-gradient-to-br from-blue-100 to-indigo-100 text-blue-700";
+                  }
+                  return "bg-gradient-to-br from-violet-100 to-purple-100 text-violet-700";
+                };
+
+                return (
+                  <>
+                    {isPatient && patient?.profilePictureUrl ? (
+                      <img
+                        src={patient.profilePictureUrl}
+                        alt="Patient"
+                        className="h-16 w-16 shrink-0 rounded-xl object-cover border-2 border-white shadow-sm"
+                      />
+                    ) : (
+                      <div className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-xl text-2xl font-semibold shadow-sm ${getAvatarStyle()}`}>
+                        {displayName.trim().charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-teal-600 uppercase tracking-wider">Patient Console</p>
+                      <h1 className="mt-1 text-2xl font-semibold text-gray-800">
+                        {displayName}
+                      </h1>
+                      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-600">
+                        {displayAge != null && (
+                          <span>{displayAge} years{displayGender ? ` · ${displayGender}` : ""}</span>
+                        )}
+                        {!isPatient && <span className="px-2 py-0.5 bg-teal-50 text-teal-700 rounded-md text-xs font-medium">{relationship}</span>}
+                        <span>{patient?.phoneNumber || patientPhoneNumber}</span>
+                        {doctorHospitalName && <span>{doctorHospitalName}</span>}
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
 
             {/* Stats */}
@@ -732,74 +773,39 @@ export default function DoctorPatientPage() {
           </div>
         </div>
 
-        {/* Consultation Subject Selection with Details */}
+        {/* Consultation Subject Selection */}
         <div className="border-t border-sky-100 bg-white/50 backdrop-blur-sm px-6 py-4">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            {/* Person Selector */}
-            <div>
-              <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Consultation For</p>
-              <div className="flex flex-wrap gap-2">
-                {/* Main Patient */}
+          <div>
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Consultation For</p>
+            <div className="flex flex-wrap gap-2">
+              {/* Main Patient */}
+              <button
+                type="button"
+                onClick={() => setSelectedPerson({ type: 'patient', id: null })}
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  selectedPerson.type === 'patient'
+                    ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-md shadow-teal-200'
+                    : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-300 hover:bg-teal-50/50'
+                }`}
+              >
+                {patient?.fullName || 'Patient'} {patient?.age ? `(${patient.age}y)` : '(Self)'}
+              </button>
+
+              {/* Family Members */}
+              {familyMembers.map((member) => (
                 <button
+                  key={member.id}
                   type="button"
-                  onClick={() => setSelectedPerson({ type: 'patient', id: null })}
+                  onClick={() => setSelectedPerson({ type: 'family', id: member.id })}
                   className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                    selectedPerson.type === 'patient'
+                    selectedPerson.type === 'family' && String(selectedPerson.id) === String(member.id)
                       ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-md shadow-teal-200'
                       : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-300 hover:bg-teal-50/50'
                   }`}
                 >
-                  {patient?.fullName || 'Patient'} {patient?.age ? `(${patient.age}y)` : '(Self)'}
+                  {member.firstName} {member.lastName} {member.age ? `(${member.age}y · ${member.relationship})` : `(${member.relationship})`}
                 </button>
-
-                {/* Family Members */}
-                {familyMembers.map((member) => (
-                  <button
-                    key={member.id}
-                    type="button"
-                    onClick={() => setSelectedPerson({ type: 'family', id: member.id })}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                      selectedPerson.type === 'family' && selectedPerson.id === member.id
-                        ? 'bg-gradient-to-r from-teal-600 to-teal-500 text-white shadow-md shadow-teal-200'
-                        : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-300 hover:bg-teal-50/50'
-                    }`}
-                  >
-                    {member.firstName} {member.lastName} {member.age ? `(${member.age}y · ${member.relationship})` : `(${member.relationship})`}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Selected Person Details */}
-            <div className="bg-gradient-to-r from-teal-50 to-sky-50 border border-teal-100 rounded-xl px-4 py-3 min-w-[200px]">
-              {selectedPerson.type === 'patient' ? (
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">{patient?.fullName || 'Patient'}</p>
-                  <p className="text-xs text-teal-700 mt-0.5 font-medium">
-                    {patient?.age && `${patient.age} yrs`}
-                    {patient?.age && patient?.gender && ' · '}
-                    {patient?.gender}
-                    {(patient?.age || patient?.gender) && ' · '}
-                    Self
-                  </p>
-                </div>
-              ) : (
-                (() => {
-                  const member = familyMembers.find(m => m.id === selectedPerson.id);
-                  return member ? (
-                    <div>
-                      <p className="text-sm font-semibold text-gray-800">{member.firstName} {member.lastName}</p>
-                      <p className="text-xs text-teal-700 mt-0.5 font-medium">
-                        {member.age && `${member.age} yrs`}
-                        {member.age && member.gender && ' · '}
-                        {member.gender}
-                        {(member.age || member.gender) && ' · '}
-                        {member.relationship}
-                      </p>
-                    </div>
-                  ) : null;
-                })()
-              )}
+              ))}
             </div>
           </div>
 
