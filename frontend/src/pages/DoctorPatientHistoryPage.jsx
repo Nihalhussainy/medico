@@ -111,6 +111,15 @@ export default function DoctorPatientHistoryPage() {
     }
   };
 
+  const handleNewConsultation = () => {
+    const params = new URLSearchParams();
+    if (selectedPerson.type === 'family' && selectedPerson.id !== null && selectedPerson.id !== undefined) {
+      params.set('familyMemberId', String(selectedPerson.id));
+    }
+    params.set('openConsultation', '1');
+    navigate(`/doctor/patient/${patientPhoneNumber}?${params.toString()}`);
+  };
+
   const printRecord = async (record) => {
     try {
       if (!doctorProfile) {
@@ -291,7 +300,7 @@ export default function DoctorPatientHistoryPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate(`/doctor/patient/${patientPhoneNumber}${selectedPerson.type === 'family' ? `?familyMemberId=${selectedPerson.id}` : ''}`)}
+                  onClick={handleNewConsultation}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                   New Consultation
@@ -313,7 +322,7 @@ export default function DoctorPatientHistoryPage() {
                 </p>
                 <button
                   type="button"
-                  onClick={() => navigate(`/doctor/patient/${patientPhoneNumber}${selectedPerson.type === 'family' ? `?familyMemberId=${selectedPerson.id}` : ''}`)}
+                  onClick={handleNewConsultation}
                   className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-900 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   Create First Record

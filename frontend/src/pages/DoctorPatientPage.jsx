@@ -74,6 +74,7 @@ export default function DoctorPatientPage() {
   const { patientPhoneNumber } = useParams();
   const [searchParams] = useSearchParams();
   const initialFamilyMemberId = searchParams.get('familyMemberId');
+  const shouldOpenConsultation = searchParams.get('openConsultation') === '1';
   const { user } = useAuth();
   const toast = useToast();
   const [patient, setPatient] = useState(null);
@@ -385,6 +386,13 @@ export default function DoctorPatientPage() {
     }
     setShowCreateForm(true);
   };
+
+  useEffect(() => {
+    if (!shouldOpenConsultation) {
+      return;
+    }
+    openCreateModal();
+  }, [shouldOpenConsultation, doctorHospitalName]);
 
   const handleDeleteRecord = async (record) => {
     if (!window.confirm(`Are you sure you want to delete this record: "${record.title}"?`)) {
