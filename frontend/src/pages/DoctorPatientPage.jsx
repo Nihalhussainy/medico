@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { Skeleton } from "@mui/material";
 import api from "../services/api.js";
@@ -109,6 +109,9 @@ export default function DoctorPatientPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showClinicalNotes, setShowClinicalNotes] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const prescriptionInputRef = useRef(null);
+  const labReportInputRef = useRef(null);
+  const otherReportsInputRef = useRef(null);
 
   // Family member selection for records
   const [familyMembers, setFamilyMembers] = useState([]);
@@ -610,6 +613,44 @@ export default function DoctorPatientPage() {
     setRecordData({ ...recordData, advice: next });
   };
 
+  const getSafeFileName = (file) => {
+    if (!file || typeof file.name !== "string") return "Selected file";
+    return file.name;
+  };
+
+  const handlePrescriptionFileChange = (e) => {
+    try {
+      const file = e.target.files?.[0] || null;
+      setPrescriptionFile(file);
+      if (file) toast.info(`Prescription file selected: ${getSafeFileName(file)}`);
+    } catch {
+      setPrescriptionFile(null);
+      toast.error("Unable to read selected prescription file");
+    }
+  };
+
+  const handleLabReportFileChange = (e) => {
+    try {
+      const file = e.target.files?.[0] || null;
+      setLabReportFile(file);
+      if (file) toast.info(`Lab report selected: ${getSafeFileName(file)}`);
+    } catch {
+      setLabReportFile(null);
+      toast.error("Unable to read selected lab report");
+    }
+  };
+
+  const handleOtherReportsChange = (e) => {
+    try {
+      const files = Array.from(e.target.files || []).filter(Boolean);
+      setOtherReports(files);
+      if (files.length > 0) toast.info(`${files.length} additional report(s) selected`);
+    } catch {
+      setOtherReports([]);
+      toast.error("Unable to read selected report files");
+    }
+  };
+
   return (
     <>
       <RecentPatientsSidebar />
@@ -1102,104 +1143,95 @@ export default function DoctorPatientPage() {
                           <div>
                             <label className="label">Prescription</label>
                             <input
-                              id="upload-prescription"
-                              className="sr-only"
+                              ref={prescriptionInputRef}
+                              className="hidden"
                               type="file"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                setPrescriptionFile(file);
-                                if (file) toast.info(`Prescription file selected: ${file.name}`);
-                              }}
+                              onChange={handlePrescriptionFileChange}
                             />
-                            <label
-                              htmlFor="upload-prescription"
-                              className="group mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-gray-300 bg-gradient-to-b from-white to-gray-50 px-4 py-3 transition-all hover:border-teal-400 hover:shadow-sm"
+                            <button
+                              type="button"
+                              onClick={() => prescriptionInputRef.current?.click()}
+                              className="group mt-2 flex w-full min-h-[76px] cursor-pointer items-center justify-between rounded-2xl border border-gray-300 bg-gradient-to-b from-white to-gray-50 px-4 py-3 text-left transition-all hover:border-teal-400 hover:shadow-sm"
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex min-w-0 flex-1 items-center gap-3">
                                 <div className="rounded-lg bg-teal-50 p-2 text-teal-700">
                                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 16V4m0 12l-3.5-3.5M12 16l3.5-3.5M4 16.5v1A2.5 2.5 0 006.5 20h11a2.5 2.5 0 002.5-2.5v-1" />
                                   </svg>
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                   <p className="text-sm font-medium text-gray-900">Upload prescription</p>
                                   <p className="text-xs text-gray-500">PDF, image, or document</p>
                                 </div>
                               </div>
-                              <span className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition-colors group-hover:bg-teal-100">Choose file</span>
-                            </label>
+                              <span className="ml-3 shrink-0 rounded-lg border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition-colors group-hover:bg-teal-100">Choose file</span>
+                            </button>
                             {prescriptionFile && (
-                              <p className="mt-2 truncate text-xs font-medium text-gray-600">Selected: {prescriptionFile.name}</p>
+                              <p className="mt-2 truncate text-xs font-medium text-gray-600">Selected: {getSafeFileName(prescriptionFile)}</p>
                             )}
                           </div>
                           <div>
                             <label className="label">Lab report</label>
                             <input
-                              id="upload-lab-report"
-                              className="sr-only"
+                              ref={labReportInputRef}
+                              className="hidden"
                               type="file"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0] || null;
-                                setLabReportFile(file);
-                                if (file) toast.info(`Lab report selected: ${file.name}`);
-                              }}
+                              onChange={handleLabReportFileChange}
                             />
-                            <label
-                              htmlFor="upload-lab-report"
-                              className="group mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-gray-300 bg-gradient-to-b from-white to-gray-50 px-4 py-3 transition-all hover:border-teal-400 hover:shadow-sm"
+                            <button
+                              type="button"
+                              onClick={() => labReportInputRef.current?.click()}
+                              className="group mt-2 flex w-full min-h-[76px] cursor-pointer items-center justify-between rounded-2xl border border-gray-300 bg-gradient-to-b from-white to-gray-50 px-4 py-3 text-left transition-all hover:border-teal-400 hover:shadow-sm"
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex min-w-0 flex-1 items-center gap-3">
                                 <div className="rounded-lg bg-teal-50 p-2 text-teal-700">
                                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-8.25a1.5 1.5 0 00-1.5-1.5h-12a1.5 1.5 0 00-1.5 1.5v12a1.5 1.5 0 001.5 1.5h8.25m5.25-5.25l-6 6m0 0H16.5m-3 0V17.25" />
                                   </svg>
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                   <p className="text-sm font-medium text-gray-900">Upload lab report</p>
                                   <p className="text-xs text-gray-500">Blood tests, scans, and diagnostics</p>
                                 </div>
                               </div>
-                              <span className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition-colors group-hover:bg-teal-100">Choose file</span>
-                            </label>
+                              <span className="ml-3 shrink-0 rounded-lg border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition-colors group-hover:bg-teal-100">Choose file</span>
+                            </button>
                             {labReportFile && (
-                              <p className="mt-2 truncate text-xs font-medium text-gray-600">Selected: {labReportFile.name}</p>
+                              <p className="mt-2 truncate text-xs font-medium text-gray-600">Selected: {getSafeFileName(labReportFile)}</p>
                             )}
                           </div>
                           <div>
                             <label className="label">Other reports</label>
                             <input
-                              id="upload-other-reports"
-                              className="sr-only"
+                              ref={otherReportsInputRef}
+                              className="hidden"
                               type="file"
                               multiple
-                              onChange={(e) => {
-                                const files = Array.from(e.target.files || []);
-                                setOtherReports(files);
-                                if (files.length > 0) toast.info(`${files.length} additional report(s) selected`);
-                              }}
+                              onChange={handleOtherReportsChange}
                             />
-                            <label
-                              htmlFor="upload-other-reports"
-                              className="group mt-2 flex cursor-pointer items-center justify-between rounded-2xl border border-gray-300 bg-gradient-to-b from-white to-gray-50 px-4 py-3 transition-all hover:border-teal-400 hover:shadow-sm"
+                            <button
+                              type="button"
+                              onClick={() => otherReportsInputRef.current?.click()}
+                              className="group mt-2 flex w-full min-h-[76px] cursor-pointer items-center justify-between rounded-2xl border border-gray-300 bg-gradient-to-b from-white to-gray-50 px-4 py-3 text-left transition-all hover:border-teal-400 hover:shadow-sm"
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex min-w-0 flex-1 items-center gap-3">
                                 <div className="rounded-lg bg-teal-50 p-2 text-teal-700">
                                   <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M18 13.5V9a3 3 0 00-3-3h-6a3 3 0 00-3 3v9a3 3 0 003 3h4.5m4.5-4.5h-6m6 0l-2.25-2.25M18 16.5l-2.25 2.25" />
                                   </svg>
                                 </div>
-                                <div>
+                                <div className="min-w-0">
                                   <p className="text-sm font-medium text-gray-900">Upload additional reports</p>
                                   <p className="text-xs text-gray-500">You can select multiple files</p>
                                 </div>
                               </div>
-                              <span className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition-colors group-hover:bg-teal-100">Choose files</span>
-                            </label>
+                              <span className="ml-3 shrink-0 rounded-lg border border-teal-200 bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700 transition-colors group-hover:bg-teal-100">Choose files</span>
+                            </button>
                             {otherReports.length > 0 && (
                               <div className="mt-2 flex flex-wrap gap-2">
-                                {otherReports.slice(0, 3).map((file) => (
-                                  <span key={file.name} className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600">
-                                    {file.name}
+                                {otherReports.slice(0, 3).map((file, index) => (
+                                  <span key={`${getSafeFileName(file)}-${index}`} className="rounded-full border border-gray-200 bg-gray-50 px-3 py-1 text-xs text-gray-600">
+                                    {getSafeFileName(file)}
                                   </span>
                                 ))}
                                 {otherReports.length > 3 && (

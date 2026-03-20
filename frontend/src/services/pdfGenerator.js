@@ -1,11 +1,37 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
+const escapeHtml = (value) => {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
+const formatDisplayDate = (value, withWeekday = false) => {
+  if (!value) return 'Not specified';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Not specified';
+  return date.toLocaleDateString('en-IN', {
+    weekday: withWeekday ? 'long' : undefined,
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
 const consolidateMedicines = (medicineString) => {
   if (!medicineString) return {};
   
   const medicinesByName = {};
-  const mealEmojis = { BREAKFAST: '🌅', LUNCH: '☀️', DINNER: '🌙' };
+  const mealLabels = {
+    BREAKFAST: 'Breakfast',
+    LUNCH: 'Lunch',
+    DINNER: 'Dinner'
+  };
   
   // Parse the string format: "BREAKFAST_BEFORE:\n• Medicine1" or old emoji format
   const sections = medicineString.split('\n\n');
@@ -21,10 +47,9 @@ const consolidateMedicines = (medicineString) => {
       // Try old emoji format for backward compatibility
       mealMatch = headerLine.match(/(\w+)\s+\((\w+)\)/);
       if (mealMatch) {
-        const meal = mealMatch[1];
+        const meal = mealMatch[1].toUpperCase();
         const timing = mealMatch[2];
-        const emoji = mealEmojis[meal] || '';
-        const label = `${emoji} (${timing}) ${meal}`;
+        const label = `${mealLabels[meal] || meal} (${timing})`;
         
         lines.slice(1).forEach((line) => {
           const medicineName = line.replace('• ', '').trim();
@@ -39,10 +64,9 @@ const consolidateMedicines = (medicineString) => {
       return;
     }
     
-    const meal = mealMatch[1];
+    const meal = mealMatch[1].toUpperCase();
     const timing = mealMatch[2] === 'BEFORE' ? 'Before' : 'After';
-    const emoji = mealEmojis[meal] || '';
-    const label = `${emoji} (${timing}) ${meal}`;
+    const label = `${mealLabels[meal] || meal} (${timing} food)`;
     
     // Extract medicine names
     lines.slice(1).forEach((line) => {
@@ -65,115 +89,131 @@ export const generatePrescriptionPDF = async (doctorProfile, patientData, medici
   container.style.position = 'absolute';
   container.style.left = '-9999px';
   container.style.width = '210mm';
-  container.style.padding = '20px';
+  container.style.padding = '12mm';
   container.style.backgroundColor = 'white';
-  container.style.fontFamily = 'Arial, sans-serif';
+  container.style.fontFamily = '"Times New Roman", Georgia, serif';
   
   // Consolidate medicines by name
   const medicinesByName = consolidateMedicines(medicines);
+
+  const doctorFullName = `${doctorProfile?.firstName || ''} ${doctorProfile?.lastName || ''}`.trim() || 'Treating Doctor';
+  const patientFullName = patientData?.fullName || 'Patient';
+  const diagnosisText = diagnosis ? escapeHtml(diagnosis).replace(/\n/g, '<br/>') : '';
+  const issueDate = formatDisplayDate(recordDate, false);
+  const followUpDateText = followUpDate ? formatDisplayDate(followUpDate, true) : 'As advised';
   
-  // Format medicines - consolidated view with emojis
+  // Format medicines - professional prescription rows
   const medicinesHTML = Object.keys(medicinesByName).length > 0
     ? Object.entries(medicinesByName)
-        .map(([name, timings]) => `
-          <div style="margin: 12px 0; padding: 12px; background: #f1f5f9; border-left: 3px solid #0ea5e9; border-radius: 4px;">
-            <p style="margin: 0; font-weight: bold; color: #1e293b; font-size: 13px;">${name}</p>
-            <p style="margin: 4px 0 0 0; color: #475569; font-size: 11px;">${timings.join(', ')}</p>
-          </div>
+        .map(([name, timings], index) => `
+          <tr>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #d1d5db; font-size: 12px; color: #111827; vertical-align: top; width: 44px;">${index + 1}.</td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #d1d5db; font-size: 12px; color: #111827; vertical-align: top; font-weight: 600;">${escapeHtml(name)}</td>
+            <td style="padding: 8px 10px; border-bottom: 1px solid #d1d5db; font-size: 11px; color: #374151; vertical-align: top;">${escapeHtml(timings.join(' | '))}</td>
+          </tr>
         `)
         .join('')
-    : '<p style="color: #999; font-size: 12px;">No medications prescribed</p>';
-
-  // Format follow-up date
-  const followUpHTML = followUpDate ? `
-    <div style="background: #dbeafe; border-left: 4px solid #0ea5e9; padding: 12px; margin: 15px 0; border-radius: 3px;">
-      <p style="margin: 0; color: #0c4a6e; font-size: 13px; font-weight: bold;">
-        📅 Next Visit: ${new Date(followUpDate).toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-      </p>
-    </div>
-  ` : '';
-
-  // Get current date if not provided
-  const dateStr = recordDate ? new Date(recordDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : new Date().toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' });
+    : `
+      <tr>
+        <td colspan="3" style="padding: 10px; border-bottom: 1px solid #d1d5db; font-size: 11px; color: #6b7280; text-align: center;">
+          No medicines prescribed in this consultation.
+        </td>
+      </tr>
+    `;
 
   // Build the HTML prescription
   container.innerHTML = `
-    <div style="border: 2px solid #1e293b; border-radius: 8px; padding: 30px; background: white;">
-      <!-- Header -->
-      <div style="text-align: center; border-bottom: 2px solid #0ea5e9; padding-bottom: 20px; margin-bottom: 25px;">
-        <h1 style="margin: 0; color: #0ea5e9; font-size: 28px; font-weight: bold;">Rx</h1>
-        <p style="margin: 10px 0 0 0; color: #64748b; font-size: 14px;">MEDICAL PRESCRIPTION</p>
+    <div style="border: 1.5px solid #0f172a; background: #fff; color: #111827;">
+      <div style="padding: 18px 24px 14px; border-bottom: 2px solid #0f172a;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="width: 65%; vertical-align: top;">
+              <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: 0.2px;">Dr. ${escapeHtml(doctorFullName)}</h1>
+              <p style="margin: 5px 0 0; font-size: 12px; color: #374151;">${escapeHtml(doctorProfile?.specialization || 'General Practice')}</p>
+              <p style="margin: 3px 0 0; font-size: 11px; color: #4b5563;">Reg. No: ${escapeHtml(doctorProfile?.licenseNumber || 'N/A')}</p>
+              <p style="margin: 3px 0 0; font-size: 11px; color: #4b5563;">${escapeHtml(doctorProfile?.hospitalName || 'Clinic')}</p>
+            </td>
+            <td style="width: 35%; text-align: right; vertical-align: top;">
+              <p style="margin: 0; font-size: 11px; color: #4b5563;">Date</p>
+              <p style="margin: 2px 0 12px; font-size: 13px; font-weight: 700; color: #111827;">${escapeHtml(issueDate)}</p>
+              <p style="margin: 0; font-size: 11px; color: #4b5563;">Prescription ID</p>
+              <p style="margin: 2px 0 0; font-size: 12px; font-weight: 700; color: #111827;">RX-${Date.now().toString().slice(-6)}</p>
+            </td>
+          </tr>
+        </table>
       </div>
 
-      <!-- Doctor Info -->
-      <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 5px;">
-        <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 13px; font-weight: bold;">👨‍⚕️ DOCTOR</h3>
-        <p style="margin: 4px 0; color: #475569; font-size: 12px;">
-          <strong>${doctorProfile.firstName} ${doctorProfile.lastName}</strong>
-        </p>
-        <p style="margin: 4px 0; color: #475569; font-size: 11px;">
-          License: ${doctorProfile.licenseNumber}
-        </p>
-        <p style="margin: 4px 0; color: #475569; font-size: 11px;">
-          ${doctorProfile.specialization}${doctorProfile.hospitalName ? ' • ' + doctorProfile.hospitalName : ''}
-        </p>
+      <div style="padding: 14px 24px 10px; border-bottom: 1px solid #d1d5db; background: #fafafa;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="width: 60%; font-size: 12px; color: #111827;">
+              <span style="color: #6b7280;">Patient:</span>
+              <strong> ${escapeHtml(patientFullName)}</strong>
+            </td>
+            <td style="width: 20%; font-size: 12px; color: #111827;">
+              <span style="color: #6b7280;">Age:</span>
+              <strong> ${escapeHtml(patientData?.age || 'N/A')}</strong>
+            </td>
+            <td style="width: 20%; font-size: 12px; color: #111827;">
+              <span style="color: #6b7280;">Gender:</span>
+              <strong> ${escapeHtml(patientData?.gender || 'N/A')}</strong>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="3" style="padding-top: 6px; font-size: 11px; color: #4b5563;">
+              Contact: ${escapeHtml(patientData?.phoneNumber || 'N/A')}
+            </td>
+          </tr>
+        </table>
       </div>
 
-      <!-- Patient Info -->
-      <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 5px;">
-        <h3 style="margin: 0 0 8px 0; color: #1e293b; font-size: 13px; font-weight: bold;">👤 PATIENT</h3>
-        <p style="margin: 4px 0; color: #475569; font-size: 12px;">
-          <strong>${patientData.fullName || 'N/A'}</strong> | Age ${patientData.age || 'N/A'} ${patientData.gender ? '| ' + patientData.gender : ''}
-        </p>
-        <p style="margin: 4px 0; color: #475569; font-size: 11px;">
-          Phone: ${patientData.phoneNumber || 'N/A'}
-        </p>
-      </div>
-
-      <!-- Visit Details -->
-      ${diagnosis ? `
-      <div style="margin-bottom: 20px; background: #fef3c7; border-left: 4px solid #f59e0b; padding: 12px; border-radius: 3px;">
-        <h3 style="margin: 0 0 6px 0; color: #92400e; font-size: 12px; font-weight: bold;">🔍 Chief Complaint / Diagnosis</h3>
-        <p style="margin: 0; color: #78350f; font-size: 12px; line-height: 1.4;">${diagnosis}</p>
-      </div>
-      ` : ''}
-
-      <!-- Medications/Prescription -->
-      <div style="margin-bottom: 20px;">
-        <h3 style="margin: 0 0 12px 0; color: #1e293b; font-size: 13px; font-weight: bold; border-bottom: 2px solid #0ea5e9; padding-bottom: 8px;">
-          💊 MEDICATIONS
-        </h3>
-        ${medicinesHTML}
-      </div>
-
-      <!-- Follow-up -->
-      ${followUpHTML}
-
-      <!-- Date and Signature -->
-      <div style="margin-top: 40px; display: flex; justify-content: space-between; align-items: flex-end;">
-        <div>
-          <p style="margin: 0; color: #475569; font-size: 11px;">
-            <strong>Issued:</strong> ${dateStr}
-          </p>
-        </div>
-        <div style="text-align: center;">
-          <div style="color: #64748b; font-size: 12px; margin-bottom: 12px; border-bottom: 1px solid #cbd5e1; width: 120px;">
+      <div style="padding: 14px 24px 4px;">
+        <p style="margin: 0; font-size: 22px; font-weight: 700; color: #111827;">Rx</p>
+        ${diagnosisText ? `
+          <div style="margin-top: 10px; border: 1px solid #d1d5db; background: #f9fafb; padding: 10px 12px;">
+            <p style="margin: 0 0 4px; font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">Chief Complaint / Diagnosis</p>
+            <p style="margin: 0; font-size: 12px; color: #111827; line-height: 1.45;">${diagnosisText}</p>
           </div>
-          <p style="margin: 0; color: #475569; font-size: 11px; font-weight: bold;">
-            ${doctorProfile.firstName} ${doctorProfile.lastName.charAt(0)}.
-          </p>
-          <p style="margin: 2px 0 0 0; color: #64748b; font-size: 10px;">
-            Digital Signature
-          </p>
+        ` : ''}
+      </div>
+
+      <div style="padding: 8px 24px 0;">
+        <table style="width: 100%; border-collapse: collapse; border: 1px solid #9ca3af;">
+          <thead>
+            <tr>
+              <th style="text-align: left; padding: 8px 10px; font-size: 11px; border-bottom: 1px solid #9ca3af; background: #f3f4f6; width: 44px;">#</th>
+              <th style="text-align: left; padding: 8px 10px; font-size: 11px; border-bottom: 1px solid #9ca3af; background: #f3f4f6;">Medicine</th>
+              <th style="text-align: left; padding: 8px 10px; font-size: 11px; border-bottom: 1px solid #9ca3af; background: #f3f4f6;">Directions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${medicinesHTML}
+          </tbody>
+        </table>
+      </div>
+
+      <div style="padding: 14px 24px 0;">
+        <div style="border: 1px solid #d1d5db; padding: 10px 12px; background: #fafafa;">
+          <p style="margin: 0; font-size: 11px; color: #374151;"><strong>Follow-up:</strong> ${escapeHtml(followUpDateText)}</p>
         </div>
       </div>
 
-      <!-- Footer -->
-      <div style="margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; text-align: center;">
-        <p style="margin: 0; color: #94a3b8; font-size: 9px; line-height: 1.4;">
-          This is a digitally generated prescription. Follow medication instructions strictly.<br/>
-          Consult your doctor if any side effects occur.
-        </p>
+      <div style="padding: 32px 24px 18px;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="width: 55%; vertical-align: bottom; font-size: 10px; color: #6b7280; line-height: 1.5;">
+              This is a digitally generated prescription.<br/>
+              Please take medicines strictly as directed.
+            </td>
+            <td style="width: 45%; vertical-align: bottom; text-align: right;">
+              <div style="display: inline-block; min-width: 180px; text-align: center;">
+                <div style="height: 36px; border-bottom: 1px solid #9ca3af;"></div>
+                <p style="margin: 6px 0 0; font-size: 11px; color: #111827; font-weight: 700;">Dr. ${escapeHtml(doctorFullName)}</p>
+                <p style="margin: 2px 0 0; font-size: 10px; color: #4b5563;">Authorized Signature</p>
+              </div>
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
   `;
@@ -199,7 +239,18 @@ export const generatePrescriptionPDF = async (doctorProfile, patientData, medici
     const imgWidth = 210; // A4 width in mm
     const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+    heightLeft -= 297;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= 297;
+    }
 
     // Generate filename
     const timestamp = new Date().toISOString().slice(0, 10);
