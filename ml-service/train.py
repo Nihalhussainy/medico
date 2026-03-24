@@ -25,14 +25,14 @@ def main():
 
     # ── 1. Generate synthetic data ──────────────────────────────────────
     print("=" * 60)
-    print("STEP 1 — Generating synthetic medical records …")
+    print("STEP 1 - Generating synthetic medical records...")
     print("=" * 60)
     records_list = generate_records(n=50000, output_path=CSV_PATH)
     import pandas as pd
     df = pd.read_csv(CSV_PATH)
-    print(f"  ✔ {len(df)} records saved to {CSV_PATH}")
+    print(f"  [OK] {len(df)} records saved to {CSV_PATH}")
     print(f"    Diseases: {df['disease'].nunique()}")
-    print(f"    Outcomes — CURED: {(df['outcome']=='CURED').sum()}, "
+    print(f"    Outcomes - CURED: {(df['outcome']=='CURED').sum()}, "
           f"IMPROVED: {(df['outcome']=='IMPROVED').sum()}, "
           f"NO_CHANGE: {(df['outcome']=='NO_CHANGE').sum()}, "
           f"WORSENED: {(df['outcome']=='WORSENED').sum()}")
@@ -40,7 +40,7 @@ def main():
 
     # ── 2. Train Medicine Recommender ───────────────────────────────────
     print("=" * 60)
-    print("STEP 2 — Training Medicine Recommender (KNN) …")
+    print("STEP 2 - Training Medicine Recommender (KNN)...")
     print("=" * 60)
     recommender = MedicineRecommender()
     recommender.train(df)
@@ -49,7 +49,7 @@ def main():
 
     # ── 3. Train Risk Predictor ─────────────────────────────────────────
     print("=" * 60)
-    print("STEP 3 — Training Health Risk Predictor (Gradient Boosting) …")
+    print("STEP 3 - Training Health Risk Predictor (Gradient Boosting + SHAP)...")
     print("=" * 60)
     predictor = HealthRiskPredictor()
     predictor.train(df)

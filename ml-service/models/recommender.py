@@ -188,12 +188,12 @@ class MedicineRecommender:
             path = os.path.join(MODEL_DIR, "recommender.joblib")
         os.makedirs(os.path.dirname(path), exist_ok=True)
         joblib.dump(self, path)
-        print(f"  Recommender saved → {path}")
+        print(f"  Recommender saved -> {path}")
 
     @staticmethod
     def load(path=None):
         if path is None:
             path = os.path.join(MODEL_DIR, "recommender.joblib")
         model = joblib.load(path)
-        print(f"  Recommender loaded ← {path}")
+        print(f"  Recommender loaded <- {path}")
         return model

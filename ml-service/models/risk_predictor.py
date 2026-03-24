@@ -1,19 +1,20 @@
 """
-Health Risk Prediction Model
+Health Risk Prediction Model with SHAP Explainability
 
-Uses Random Forest multi-label classification to predict future disease risks
+Uses Gradient Boosting classification to predict future disease risks
 based on patient demographics, current diagnosis, vitals, and risk factors.
-Also provides precautions and advice for each predicted risk.
+Also provides precautions, advice, and SHAP-based explanations for each prediction.
 """
 
 import os
 import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.preprocessing import LabelEncoder, MultiLabelBinarizer, StandardScaler
+from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report
+from sklearn.calibration import CalibratedClassifierCV
 import joblib
+import shap
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "saved_models")
 
@@ -514,19 +515,22 @@ DEFAULT_PRECAUTION = {
 class HealthRiskPredictor:
     def __init__(self):
         self.models = {}          # one classifier per risk disease
+        self.explainers = {}      # SHAP explainer per model
         self.scaler = StandardScaler()
         self.disease_encoder = LabelEncoder()
         self.gender_encoder = LabelEncoder()
         self.blood_encoder = LabelEncoder()
         self.risk_factor_encoder = None
         self.all_risk_diseases = []
+        self.all_risk_factors = []
+        self.feature_names = []   # human-readable feature names for SHAP
         self.is_trained = False
         self.accuracy_report = {}
 
     # ── Training ────────────────────────────────────────────────────────
 
     def train(self, df: pd.DataFrame):
-        """Train risk prediction models."""
+        """Train risk prediction models with SHAP explainability."""
         # Identify all possible follow-up diagnoses
         all_followups = set()
         for val in df["follow_up_diagnosis"].dropna():
@@ -551,12 +555,16 @@ class HealthRiskPredictor:
                     all_rf.add(rf.strip())
         self.all_risk_factors = sorted(all_rf)
 
+        # Build human-readable feature names for SHAP
+        self._build_feature_names()
+
         # Build feature matrix
         X = self._build_features(df)
         self.scaler.fit(X)
         X_scaled = self.scaler.transform(X)
 
         # Train a binary classifier for each risk disease
+        print(f"  Training models for {len(self.all_risk_diseases)} conditions...")
         for risk_disease in self.all_risk_diseases:
             y = (df["follow_up_diagnosis"].fillna("") == risk_disease).astype(int)
             positive_count = y.sum()
@@ -564,8 +572,8 @@ class HealthRiskPredictor:
             if positive_count < 5:
                 continue  # skip diseases with too few examples
 
-            # Use Gradient Boosting for better accuracy
-            clf = GradientBoostingClassifier(
+            # Use Gradient Boosting with calibration for accurate probabilities
+            base_clf = GradientBoostingClassifier(
                 n_estimators=100, max_depth=4, learning_rate=0.1,
                 random_state=42, min_samples_leaf=5
             )
@@ -574,15 +582,49 @@ class HealthRiskPredictor:
                 X_scaled, y, test_size=0.2, random_state=42, stratify=y
             )
 
+            # Calibrate the classifier for better probability estimates
+            clf = CalibratedClassifierCV(base_clf, method='isotonic', cv=3)
             clf.fit(X_train, y_train)
+
             accuracy = clf.score(X_test, y_test)
             self.models[risk_disease] = clf
             self.accuracy_report[risk_disease] = round(accuracy * 100, 1)
 
+            # Create SHAP explainer using the base estimator
+            # Use the first calibrated classifier's base estimator for SHAP
+            try:
+                base_estimator = clf.calibrated_classifiers_[0].estimator
+                self.explainers[risk_disease] = shap.TreeExplainer(base_estimator)
+            except Exception as e:
+                print(f"    Warning: Could not create SHAP explainer for {risk_disease}: {e}")
+
         self.is_trained = True
         print(f"  Risk Predictor trained for {len(self.models)} conditions")
-        for disease, acc in self.accuracy_report.items():
+        print(f"  SHAP explainers created for {len(self.explainers)} conditions")
+        for disease, acc in list(self.accuracy_report.items())[:5]:
             print(f"    {disease}: {acc}% accuracy")
+        if len(self.accuracy_report) > 5:
+            print(f"    ... and {len(self.accuracy_report) - 5} more conditions")
+
+    def _build_feature_names(self):
+        """Build human-readable feature names for SHAP explanations."""
+        self.feature_names = [
+            "Primary Diagnosis",
+            "Age",
+            "Gender",
+            "Blood Group",
+            "Systolic BP",
+            "Diastolic BP",
+            "Heart Rate",
+            "Temperature",
+            "SpO2 Level",
+            "Severe Condition",
+            "Moderate Condition",
+            "Chronic Condition",
+        ]
+        # Add risk factor names
+        for rf in self.all_risk_factors:
+            self.feature_names.append(rf)
 
     def _build_features(self, data):
         """Build numeric feature matrix."""
@@ -621,6 +663,7 @@ class HealthRiskPredictor:
                       gender: str, blood_group: str = "O+") -> dict:
         """
         Predict health risks for a patient based on their medical history.
+        Returns predictions with SHAP-based explanations.
 
         patient_history: list of dicts with keys:
             disease, severity, bp_systolic, bp_diastolic, heart_rate,
@@ -634,11 +677,12 @@ class HealthRiskPredictor:
         if agg is None:
             return {"risks": [], "message": "Could not process patient history"}
 
-        X = self.scaler.transform([agg])
+        X_scaled = self.scaler.transform([agg])
+        X_unscaled = np.array([agg])  # Keep unscaled for SHAP
 
         risks = []
         for disease, clf in self.models.items():
-            proba = clf.predict_proba(X)
+            proba = clf.predict_proba(X_scaled)
             # Get probability of positive class
             if len(proba[0]) > 1:
                 risk_prob = proba[0][1]
@@ -653,10 +697,16 @@ class HealthRiskPredictor:
                     level = "MODERATE"
 
                 precaution_info = RISK_PRECAUTIONS.get(disease, DEFAULT_PRECAUTION)
+
+                # Get SHAP-based top contributing factors
+                top_factors = self._get_shap_factors(disease, X_unscaled, top_n=5)
+
                 risks.append({
                     "disease": disease,
                     "probability": round(risk_prob * 100, 1),
                     "risk_level": level,
+                    "confidence": self._calculate_confidence(risk_prob),
+                    "top_factors": top_factors,
                     "precautions": precaution_info["precautions"],
                     "advice": precaution_info["advice"],
                 })
@@ -669,7 +719,74 @@ class HealthRiskPredictor:
             "patient_age": current_age,
             "patient_gender": gender,
             "history_records_analyzed": len(patient_history),
+            "explanation_method": "SHAP (SHapley Additive exPlanations)",
         }
+
+    def _get_shap_factors(self, disease: str, X: np.ndarray, top_n: int = 5) -> list:
+        """
+        Calculate SHAP values and return top contributing factors.
+
+        Returns list of dicts: [{"factor": "Smoking", "impact": 15.2, "direction": "increases"}, ...]
+        """
+        if disease not in self.explainers:
+            return self._get_fallback_factors(X)
+
+        try:
+            explainer = self.explainers[disease]
+            shap_values = explainer.shap_values(X)
+
+            # For binary classification, shap_values might be a list [neg_class, pos_class]
+            if isinstance(shap_values, list):
+                shap_values = shap_values[1]  # Use positive class
+
+            # Get SHAP values for this prediction
+            shap_vals = shap_values[0] if len(shap_values.shape) > 1 else shap_values
+
+            # Pair features with their SHAP values
+            feature_impacts = []
+            for i, (name, val) in enumerate(zip(self.feature_names, shap_vals)):
+                if abs(val) > 0.001:  # Only include meaningful contributions
+                    feature_impacts.append({
+                        "factor": name,
+                        "impact": round(abs(val) * 100, 1),  # Convert to percentage-like scale
+                        "direction": "increases risk" if val > 0 else "decreases risk",
+                        "raw_value": round(float(X[0][i]), 2) if i < len(X[0]) else None
+                    })
+
+            # Sort by absolute impact and return top N
+            feature_impacts.sort(key=lambda x: -x["impact"])
+            return feature_impacts[:top_n]
+
+        except Exception as e:
+            print(f"  SHAP calculation error for {disease}: {e}")
+            return self._get_fallback_factors(X)
+
+    def _get_fallback_factors(self, X: np.ndarray) -> list:
+        """Fallback when SHAP is unavailable - return basic feature info."""
+        factors = []
+        basic_features = [
+            ("Age", 1), ("Systolic BP", 4), ("Diastolic BP", 5),
+            ("Heart Rate", 6), ("SpO2 Level", 8)
+        ]
+        for name, idx in basic_features:
+            if idx < len(X[0]):
+                factors.append({
+                    "factor": name,
+                    "impact": None,
+                    "direction": "contributing factor",
+                    "raw_value": round(float(X[0][idx]), 2)
+                })
+        return factors[:5]
+
+    def _calculate_confidence(self, probability: float) -> str:
+        """Calculate confidence level based on probability distance from 0.5."""
+        distance = abs(probability - 0.5)
+        if distance > 0.35:
+            return "HIGH"
+        elif distance > 0.2:
+            return "MODERATE"
+        else:
+            return "LOW"
 
     def _aggregate_history(self, history, age, gender, blood_group):
         """Convert patient history list into a single feature vector."""
@@ -735,12 +852,12 @@ class HealthRiskPredictor:
             path = os.path.join(MODEL_DIR, "risk_predictor.joblib")
         os.makedirs(os.path.dirname(path), exist_ok=True)
         joblib.dump(self, path)
-        print(f"  Risk Predictor saved → {path}")
+        print(f"  Risk Predictor saved -> {path}")
 
     @staticmethod
     def load(path=None):
         if path is None:
             path = os.path.join(MODEL_DIR, "risk_predictor.joblib")
         model = joblib.load(path)
-        print(f"  Risk Predictor loaded ← {path}")
+        print(f"  Risk Predictor loaded <- {path}")
         return model

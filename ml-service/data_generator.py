@@ -1379,7 +1379,7 @@ def generate_records(n=50000, output_path="data/training_data.csv"):
         writer.writeheader()
         writer.writerows(records)
 
-    print(f"Generated {len(records)} records → {output_path}")
+    print(f"Generated {len(records)} records -> {output_path}")
     print(f"  Unique patients: {len(set(r['patient_id'] for r in records))}")
     print(f"  Diseases: {len(set(r['disease'] for r in records))}")
     return records
