@@ -222,9 +222,15 @@ export default function AiInsightsPanel({ patient, history }) {
 
               {recommendations && !recLoading && (
                 <div className="space-y-3">
-                  <p className="text-xs text-gray-500">
-                    Analyzed {recommendations.similar_cases || 0} similar cases · Age-matched: {recommendations.age_matched_cases || 0}
-                  </p>
+                  <div className="rounded-lg bg-blue-50 border border-blue-100 p-2">
+                    <p className="text-xs text-blue-800 font-medium">
+                      Analysis: {recommendations.total_disease_cases || recommendations.similar_cases || 0} total cases for {recommendations.disease}
+                    </p>
+                    <p className="text-xs text-blue-600 mt-0.5">
+                      {recommendations.similar_cases || 0} similar cases · {recommendations.age_matched_cases || 0} age-matched
+                      {recommendations.disease_cure_rate && ` · ${recommendations.disease_cure_rate}% overall cure rate`}
+                    </p>
+                  </div>
 
                   {recommendations.recommendations?.length > 0 ? (
                     <div className="grid gap-2 sm:grid-cols-2">
@@ -240,14 +246,25 @@ export default function AiInsightsPanel({ patient, history }) {
                             </span>
                           </div>
                           <p className="mt-1 text-xs text-gray-500">
-                            {med.cases_used} cases · {med.cured_count} cured
+                            {med.cases_used} cases analyzed
                           </p>
+                          <div className="mt-1 flex gap-2 text-[10px]">
+                            <span className="text-green-600">{med.cured_count} cured</span>
+                            <span className="text-blue-600">{med.improved_count} improved</span>
+                            {med.no_change_count > 0 && <span className="text-gray-500">{med.no_change_count} unchanged</span>}
+                            {med.worsened_count > 0 && <span className="text-red-500">{med.worsened_count} worsened</span>}
+                          </div>
+                          {med.age_matched_rate && (
+                            <p className="mt-1 text-[10px] text-purple-600 font-medium">
+                              Age-matched success: {med.age_matched_rate}%
+                            </p>
+                          )}
                           {med.allergy_warning && (
-                            <p className="mt-1 text-xs font-medium text-red-600">
+                            <p className="mt-1 text-xs font-medium text-red-600 flex items-center gap-1">
                               <WarningIcon /> Allergy warning
                             </p>
                           )}
-                          <div className="mt-2 h-1 w-full rounded-full bg-gray-100">
+                          <div className="mt-2 h-1.5 w-full rounded-full bg-gray-100">
                             <div
                               className={`h-full rounded-full ${
                                 med.success_rate >= 80 ? "bg-green-400" :
@@ -310,11 +327,31 @@ export default function AiInsightsPanel({ patient, history }) {
                           <div className="mt-2 h-1.5 w-full rounded-full bg-white/60">
                             <div className={`h-full rounded-full ${c.badge}`} style={{ width: `${Math.min(r.probability, 100)}%` }} />
                           </div>
+
+                          {/* SHAP Contributing Factors */}
+                          {r.top_factors && r.top_factors.length > 0 && (
+                            <div className="mt-3 pt-2 border-t border-white/50">
+                              <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">Contributing Factors</p>
+                              <div className="space-y-1">
+                                {r.top_factors.slice(0, 3).map((factor, fIdx) => (
+                                  <div key={fIdx} className="flex items-center justify-between text-xs">
+                                    <span className="text-gray-700 truncate">{factor.factor}</span>
+                                    <span className={`ml-2 px-1.5 py-0.5 rounded text-white text-[10px] font-semibold ${
+                                      factor.direction === "increases risk" ? "bg-red-400" : "bg-emerald-400"
+                                    }`}>
+                                      {factor.direction === "increases risk" ? "+" : "-"}{Math.abs(factor.impact).toFixed(0)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
                           {r.precautions?.length > 0 && (
                             <div className="mt-2">
                               <p className="text-xs font-medium text-gray-500">Precautions:</p>
                               <ul className="mt-1 text-xs text-gray-600 space-y-0.5">
-                                {r.precautions.map((p, j) => <li key={j}>• {p}</li>)}
+                                {r.precautions.map((p, j) => <li key={j}>- {p}</li>)}
                               </ul>
                             </div>
                           )}

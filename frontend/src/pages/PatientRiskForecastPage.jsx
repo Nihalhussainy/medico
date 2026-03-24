@@ -188,6 +188,29 @@ export default function PatientRiskForecastPage() {
                   <div className="mt-3 h-2 w-full rounded-full bg-white/70">
                     <div className={`h-2 rounded-full ${theme.badge}`} style={{ width: `${Math.min(risk.probability, 100)}%` }} />
                   </div>
+
+                  {/* SHAP Contributing Factors */}
+                  {risk.top_factors && risk.top_factors.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-white/50">
+                      <p className="text-xs font-medium text-gray-600 mb-2">Why this risk:</p>
+                      <div className="space-y-1.5">
+                        {risk.top_factors.slice(0, 3).map((factor, fIdx) => (
+                          <div key={fIdx} className="flex items-center justify-between text-xs">
+                            <span className="text-gray-700 truncate flex-1">{factor.factor}</span>
+                            <span className={`ml-2 px-1.5 py-0.5 rounded text-white text-[10px] font-medium ${
+                              factor.direction === "increases risk" ? "bg-red-500" : "bg-green-500"
+                            }`}>
+                              {factor.direction === "increases risk" ? "+" : "-"}{Math.abs(factor.impact).toFixed(0)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {risk.confidence && (
+                    <p className="mt-2 text-xs text-gray-500">Confidence: {risk.confidence}</p>
+                  )}
                 </div>
               );
             })}
