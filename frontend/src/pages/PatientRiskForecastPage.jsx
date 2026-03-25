@@ -4,6 +4,7 @@ import Spinner from "../components/Spinner.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import api from "../services/api.js";
 import { buildRiskPatientHistory, getPatientOwnRecords } from "../services/riskPrediction.js";
+import { filterRecordsByProfile } from "../services/familyInsights.js";
 
 const RISK_THEME = {
   HIGH: {
@@ -48,24 +49,82 @@ function levelToMonths(level) {
   return 6;
 }
 
+function calculateAgeFromDOB(dateOfBirth) {
+  if (!dateOfBirth) return null;
+  const dob = new Date(dateOfBirth);
+  if (Number.isNaN(dob.getTime())) return null;
+
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age -= 1;
+  }
+  return age >= 0 ? age : null;
+}
+
+function selectedProfileName(selectedProfile, patientProfile, familyMembers) {
+  if (selectedProfile.type === "patient") {
+    return patientProfile?.fullName || "Self";
+  }
+  const member = familyMembers.find((item) => String(item.id) === String(selectedProfile.id));
+  return member ? `${member.firstName} ${member.lastName}` : "Family Member";
+}
+
+function parseSystolic(vitals) {
+  if (!vitals) return null;
+  const match = String(vitals).match(/(\d{2,3})\s*\//);
+  return match ? Number(match[1]) : null;
+}
+
+function getFactorEvidence(factorName, selectedEntity, latestRecord) {
+  const factor = String(factorName || "").toLowerCase();
+  const age = selectedEntity?.age ?? calculateAgeFromDOB(selectedEntity?.dateOfBirth);
+
+  if (factor.includes("gender")) {
+    return selectedEntity?.gender ? `Current value: ${selectedEntity.gender}` : null;
+  }
+  if (factor.includes("age")) {
+    return age ? `Current value: ${age} years` : null;
+  }
+  if (factor.includes("blood")) {
+    return selectedEntity?.bloodGroup ? `Current value: ${selectedEntity.bloodGroup}` : null;
+  }
+  if (factor.includes("systolic")) {
+    const sys = parseSystolic(latestRecord?.vitals);
+    return sys ? `Latest reading: ${sys} mmHg` : null;
+  }
+  if (factor.includes("primary diagnosis")) {
+    return latestRecord?.diagnosis ? `Latest diagnosis: ${latestRecord.diagnosis}` : null;
+  }
+  if (factor.includes("chronic")) {
+    return "Detected from long-term/chronic terms in record history";
+  }
+
+  return null;
+}
+
 export default function PatientRiskForecastPage() {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [riskLoading, setRiskLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [profile, setProfile] = useState(null);
+  const [patientProfile, setPatientProfile] = useState(null);
+  const [familyMembers, setFamilyMembers] = useState([]);
+  const [selectedProfile, setSelectedProfile] = useState({ type: "patient", id: null });
   const [records, setRecords] = useState([]);
   const [riskResult, setRiskResult] = useState(null);
 
   useEffect(() => {
-    const loadRiskForecast = async () => {
+    const loadRiskData = async () => {
       if (!user?.phoneNumber) {
         setError("Unable to identify patient profile");
-        setLoading(false);
+        setDataLoading(false);
         return;
       }
 
       try {
-        setLoading(true);
+        setDataLoading(true);
         setError(null);
 
         const [profileRes, recordsRes] = await Promise.all([
@@ -73,35 +132,101 @@ export default function PatientRiskForecastPage() {
           api.get(`/records/patient/${user.phoneNumber}`)
         ]);
 
-        const patientProfile = profileRes.data;
-        const medicalRecords = getPatientOwnRecords(recordsRes.data || []);
+        const loadedPatientProfile = profileRes.data;
+        const allRecords = recordsRes.data || [];
 
-        setProfile(patientProfile);
-        setRecords(medicalRecords);
+        setPatientProfile(loadedPatientProfile);
+        setRecords(allRecords);
 
-        if (!medicalRecords.length) {
-          setRiskResult({ risks: [], history_records_analyzed: 0, patient_age: patientProfile?.age, patient_gender: patientProfile?.gender });
-          return;
+        try {
+          const familyRes = await api.get("/family/group");
+          setFamilyMembers(familyRes.data?.members || []);
+        } catch {
+          setFamilyMembers([]);
         }
+      } catch (err) {
+        setError(err.response?.data?.detail || err.response?.data?.error || err.message || "Failed to load risk forecast");
+      } finally {
+        setDataLoading(false);
+      }
+    };
 
-        const patientHistory = buildRiskPatientHistory(medicalRecords);
+    loadRiskData();
+  }, [user?.phoneNumber]);
 
+  useEffect(() => {
+    if (selectedProfile.type === "family") {
+      const exists = familyMembers.some((member) => String(member.id) === String(selectedProfile.id));
+      if (!exists) {
+        setSelectedProfile({ type: "patient", id: null });
+      }
+    }
+  }, [familyMembers, selectedProfile]);
+
+  const filteredRecords = useMemo(() => filterRecordsByProfile(records, selectedProfile), [records, selectedProfile]);
+
+  const latestRecord = useMemo(() => {
+    if (!filteredRecords.length) return null;
+    return [...filteredRecords].sort((a, b) => {
+      const aDate = new Date(a?.recordDate || a?.createdAt || 0).getTime();
+      const bDate = new Date(b?.recordDate || b?.createdAt || 0).getTime();
+      return bDate - aDate;
+    })[0];
+  }, [filteredRecords]);
+
+  const selectedEntity = useMemo(() => {
+    if (selectedProfile.type === "patient") return patientProfile;
+    return familyMembers.find((member) => String(member.id) === String(selectedProfile.id)) || null;
+  }, [selectedProfile, patientProfile, familyMembers]);
+
+  useEffect(() => {
+    const loadRiskForecast = async () => {
+      if (!selectedEntity) {
+        setRiskResult({ risks: [], history_records_analyzed: 0, patient_age: null, patient_gender: null });
+        return;
+      }
+
+      const derivedAge = selectedEntity?.age ?? calculateAgeFromDOB(selectedEntity?.dateOfBirth);
+      const normalizedGender = selectedEntity?.gender === "Female" ? "Female" : "Male";
+      const normalizedBloodGroup = selectedEntity?.bloodGroup || "O+";
+
+      if (!filteredRecords.length) {
+        setRiskResult({
+          risks: [],
+          history_records_analyzed: 0,
+          patient_age: derivedAge,
+          patient_gender: normalizedGender
+        });
+        return;
+      }
+
+      try {
+        setRiskLoading(true);
+        setError(null);
+
+        const historyBase = selectedProfile.type === "patient"
+          ? getPatientOwnRecords(filteredRecords)
+          : filteredRecords;
+
+        const patientHistory = buildRiskPatientHistory(historyBase);
         const { data } = await api.post("/ml/predict-risks", {
           patientHistory,
-          age: patientProfile?.age || 30,
-          gender: patientProfile?.gender === "Female" ? "Female" : "Male",
-          bloodGroup: patientProfile?.bloodGroup || "O+"
+          age: derivedAge || 30,
+          gender: normalizedGender,
+          bloodGroup: normalizedBloodGroup
         });
         setRiskResult(data);
       } catch (err) {
         setError(err.response?.data?.detail || err.response?.data?.error || err.message || "Failed to load risk forecast");
       } finally {
-        setLoading(false);
+        setRiskLoading(false);
       }
     };
 
-    loadRiskForecast();
-  }, [user?.phoneNumber]);
+    if (!dataLoading) {
+      loadRiskForecast();
+    }
+  }, [dataLoading, filteredRecords, selectedEntity, selectedProfile.type]);
 
   const risks = useMemo(() => riskResult?.risks || [], [riskResult]);
 
@@ -136,8 +261,8 @@ export default function PatientRiskForecastPage() {
     });
   }, [risks]);
 
-  if (loading) {
-    return <Spinner label="Analyzing your medical history..." />;
+  if (dataLoading || riskLoading) {
+    return <Spinner label="Analyzing medical history for risk forecast..." />;
   }
 
   return (
@@ -148,18 +273,56 @@ export default function PatientRiskForecastPage() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-sm font-medium text-teal-600">AI Risk Forecast</p>
-            <h1 className="mt-1 text-2xl font-semibold text-gray-900">My Health Risk Forecast</h1>
+            <h1 className="mt-1 text-2xl font-semibold text-gray-900">
+              {selectedProfile.type === "patient"
+                ? "My Health Risk Forecast"
+                : `${selectedProfileName(selectedProfile, patientProfile, familyMembers)}'s Health Risk Forecast`}
+            </h1>
             <p className="mt-2 text-sm text-gray-600">
               Predictions based on your medical records, vitals, and diagnosis history.
             </p>
           </div>
           <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600">
-            Records analyzed: <span className="font-semibold text-gray-900">{riskResult?.history_records_analyzed ?? records.length}</span>
+            Records analyzed: <span className="font-semibold text-gray-900">{riskResult?.history_records_analyzed ?? filteredRecords.length}</span>
           </div>
         </div>
-        {profile && (
+
+        {familyMembers.length > 0 && (
+          <div className="mt-5 border-t border-gray-100 pt-5">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-500">View forecast for</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  selectedProfile.type === "patient"
+                    ? "bg-teal-600 text-white"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+                onClick={() => setSelectedProfile({ type: "patient", id: null })}
+              >
+                {patientProfile?.fullName || "Self"} (Self)
+              </button>
+              {familyMembers.map((member) => (
+                <button
+                  key={member.id}
+                  type="button"
+                  className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                    selectedProfile.type === "family" && String(selectedProfile.id) === String(member.id)
+                      ? "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                  onClick={() => setSelectedProfile({ type: "family", id: member.id })}
+                >
+                  {member.firstName} {member.lastName} ({member.relationship})
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {selectedEntity && (
           <p className="mt-4 text-xs text-gray-500">
-            Profile used: {profile.gender || "Unknown"}, age {profile.age ?? "N/A"}, blood group {profile.bloodGroup || "N/A"}
+            Profile used: {selectedEntity.gender || "Unknown"}, age {selectedEntity.age ?? calculateAgeFromDOB(selectedEntity.dateOfBirth) ?? "N/A"}, blood group {selectedEntity.bloodGroup || "N/A"}
           </p>
         )}
       </div>
@@ -192,19 +355,27 @@ export default function PatientRiskForecastPage() {
                   {/* SHAP Contributing Factors */}
                   {risk.top_factors && risk.top_factors.length > 0 && (
                     <div className="mt-4 pt-3 border-t border-white/50">
-                      <p className="text-xs font-medium text-gray-600 mb-2">Why this risk:</p>
-                      <div className="space-y-1.5">
+                      <p className="mb-2 text-xs font-medium text-gray-600">Model signals from your data:</p>
+                      <div className="space-y-2">
                         {risk.top_factors.slice(0, 3).map((factor, fIdx) => (
-                          <div key={fIdx} className="text-xs">
-                            <span className="text-gray-700">{factor.factor}</span>
+                          <div key={fIdx} className="rounded-md bg-white/50 px-2 py-1.5 text-xs">
+                            <p className="font-medium text-gray-800">{factor.factor}</p>
+                            {getFactorEvidence(factor.factor, selectedEntity, latestRecord) && (
+                              <p className="mt-0.5 text-gray-600">{getFactorEvidence(factor.factor, selectedEntity, latestRecord)}</p>
+                            )}
                           </div>
                         ))}
                       </div>
+                      <p className="mt-2 text-[11px] text-gray-500">
+                        These are contributing signals, not guaranteed causes.
+                      </p>
                     </div>
                   )}
 
                   {risk.confidence && (
-                    <p className="mt-2 text-xs text-gray-500">Confidence: {risk.confidence}</p>
+                    <p className="mt-2 text-xs text-gray-500">
+                      Confidence: {risk.confidence} (based on consistency of similar records)
+                    </p>
                   )}
                 </div>
               );
@@ -277,8 +448,8 @@ export default function PatientRiskForecastPage() {
             </div>
             <h2 className="text-xl font-semibold text-gray-900">No significant risk detected</h2>
             <p className="mt-2 text-sm text-gray-600">
-              {records.length === 0
-                ? "Add medical records to generate your personalized risk forecast."
+              {filteredRecords.length === 0
+                ? `Add medical records for ${selectedProfileName(selectedProfile, patientProfile, familyMembers)} to generate a personalized risk forecast.`
                 : "Your latest records show low immediate risk. Continue routine checkups and healthy habits."}
             </p>
           </div>

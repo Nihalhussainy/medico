@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext.jsx";
 import BackButton from "../components/BackButton.jsx";
 import EmptyState from "../components/EmptyState.jsx";
@@ -114,15 +114,6 @@ export default function PatientLifestyleChatPage() {
     loadData();
   }, [user?.phoneNumber]);
 
-  const summary = useMemo(() => {
-    const latest = records[0];
-    return {
-      totalConsultations: records.length,
-      latestDiagnosis: latest?.diagnosis || "No diagnosis recorded yet",
-      latestAdvice: latest?.advice || "No consultation advice available yet"
-    };
-  }, [records]);
-
   const runRiskAnalysis = async () => {
     if (!mlOnline) {
       toast.error("ML service is currently offline");
@@ -202,8 +193,8 @@ export default function PatientLifestyleChatPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="card fade-up-delay-1 space-y-3 lg:col-span-2">
+      <div className="grid gap-6">
+        <div className="card fade-up-delay-1 space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Assistant Chat</p>
 
           <div className="max-h-[420px] space-y-3 overflow-y-auto rounded-lg border border-gray-200 bg-gray-50 p-3">
@@ -253,29 +244,16 @@ export default function PatientLifestyleChatPage() {
               Ask
             </button>
           </div>
-        </div>
 
-        <div className="card fade-up-delay-2 space-y-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Health Snapshot</p>
-
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-            <p className="text-xs text-gray-500">Consultations</p>
-            <p className="text-xl font-semibold text-gray-900">{summary.totalConsultations}</p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+            <div>
+              <p className="text-xs text-gray-500">Consultations available for analysis</p>
+              <p className="text-sm font-semibold text-gray-900">{records.length}</p>
+            </div>
+            <button type="button" className="button" onClick={runRiskAnalysis} disabled={riskLoading || !mlOnline}>
+              {riskLoading ? "Analyzing..." : "Run AI Risk Check"}
+            </button>
           </div>
-
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-            <p className="text-xs text-gray-500">Latest diagnosis</p>
-            <p className="mt-1 text-sm font-medium text-gray-900">{summary.latestDiagnosis}</p>
-          </div>
-
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-            <p className="text-xs text-gray-500">Latest doctor advice</p>
-            <p className="mt-1 text-sm text-gray-700">{summary.latestAdvice}</p>
-          </div>
-
-          <button type="button" className="button w-full" onClick={runRiskAnalysis} disabled={riskLoading || !mlOnline}>
-            {riskLoading ? "Analyzing..." : "Run AI Risk Check"}
-          </button>
 
           {riskResult?.risks?.length > 0 && (
             <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
@@ -292,6 +270,7 @@ export default function PatientLifestyleChatPage() {
             </div>
           )}
         </div>
+
       </div>
     </div>
   );
