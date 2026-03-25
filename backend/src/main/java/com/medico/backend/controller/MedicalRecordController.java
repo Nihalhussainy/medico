@@ -1,6 +1,7 @@
 package com.medico.backend.controller;
 
 import com.medico.backend.dto.MedicalRecordCreateRequest;
+import com.medico.backend.dto.MedicalRecordFeedbackRequest;
 import com.medico.backend.dto.MedicalRecordResponse;
 import com.medico.backend.dto.MedicalRecordUpdateRequest;
 import com.medico.backend.entity.User;
@@ -72,5 +73,16 @@ public class MedicalRecordController {
         User actor = userService.getCurrentUser();
         medicalRecordService.deleteRecord(recordId, actor, httpRequest.getRemoteAddr());
         return ResponseEntity.noContent().build();
+    }
+
+    @PreAuthorize("hasRole('PATIENT')")
+    @PostMapping("/{recordId}/feedback")
+    public ResponseEntity<MedicalRecordResponse> submitFeedback(
+        @PathVariable Long recordId,
+        @Valid @RequestBody MedicalRecordFeedbackRequest request,
+        HttpServletRequest httpRequest
+    ) {
+        User actor = userService.getCurrentUser();
+        return ResponseEntity.ok(medicalRecordService.submitFeedback(recordId, request, actor, httpRequest.getRemoteAddr()));
     }
 }

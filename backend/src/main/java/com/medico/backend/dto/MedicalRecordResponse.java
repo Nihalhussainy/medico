@@ -3,6 +3,7 @@ package com.medico.backend.dto;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import com.medico.backend.entity.PatientOutcome;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -30,5 +31,7 @@ public class MedicalRecordResponse {
     private LocalDate followUpDate;
     private LocalDate recordDate;
     private Instant createdAt;
+    private PatientOutcome patientOutcome;
+    private Instant patientFeedbackSubmittedAt;
     private List<MedicalFileResponse> files;
 }

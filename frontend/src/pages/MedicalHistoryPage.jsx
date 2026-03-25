@@ -18,6 +18,7 @@ export default function MedicalHistoryPage() {
   const [selectedPerson, setSelectedPerson] = useState({ type: 'patient', id: null });
   const [isLoading, setIsLoading] = useState(true);
   const [patient, setPatient] = useState(null);
+  const [submittingFeedbackId, setSubmittingFeedbackId] = useState(null);
 
   const isOwnRecords = user?.phoneNumber === patientPhoneNumber;
 
@@ -62,6 +63,19 @@ export default function MedicalHistoryPage() {
     const member = familyMembers.find(m => m.id === selectedPerson.id);
     return member ? `${member.firstName} ${member.lastName}` : 'Family Member';
   }, [selectedPerson, patient, familyMembers]);
+
+  const submitFeedback = async (recordId, outcome) => {
+    try {
+      setSubmittingFeedbackId(recordId);
+      const { data } = await api.post(`/records/${recordId}/feedback`, { outcome });
+      setRecords((prev) => prev.map((record) => (record.id === recordId ? data : record)));
+      toast.success(`Condition submitted: ${outcome.replace('_', ' ')}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to submit condition");
+    } finally {
+      setSubmittingFeedbackId(null);
+    }
+  };
 
   if (isLoading) {
     return <Spinner label="Loading medical history..." />;
@@ -143,7 +157,11 @@ export default function MedicalHistoryPage() {
         />
       ) : (
         <div className="fade-up-delay-1">
-          <RecordTimeline records={filteredRecords} />
+          <RecordTimeline
+            records={filteredRecords}
+            onSubmitFeedback={isOwnRecords ? submitFeedback : undefined}
+            submittingFeedbackId={submittingFeedbackId}
+          />
         </div>
       )}
     </div>

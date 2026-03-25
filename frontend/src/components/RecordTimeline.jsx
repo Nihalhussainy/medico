@@ -124,7 +124,21 @@ const ClockIcon = () => (
   </svg>
 );
 
-export default function RecordTimeline({ records, onPrintRecord, onEditRecord, onDeleteRecord, doctorProfile }) {
+const formatOutcomeLabel = (outcome) => {
+  if (!outcome) return "";
+  switch (String(outcome).toUpperCase()) {
+    case "IMPROVED":
+      return "Better";
+    case "NO_CHANGE":
+      return "Same (No Change)";
+    case "WORSENED":
+      return "Bad (Worsened)";
+    default:
+      return outcome;
+  }
+};
+
+export default function RecordTimeline({ records, onPrintRecord, onEditRecord, onDeleteRecord, doctorProfile, onSubmitFeedback, submittingFeedbackId }) {
   const [expandedRecords, setExpandedRecords] = useState({});
   const [showAll, setShowAll] = useState(false);
   const INITIAL_DISPLAY_COUNT = 5;
@@ -254,6 +268,11 @@ export default function RecordTimeline({ records, onPrintRecord, onEditRecord, o
                     {record.files.length} file{record.files.length > 1 ? 's' : ''}
                   </span>
                 )}
+                {record.patientOutcome && (
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-100 text-xs font-medium text-emerald-700">
+                    Condition: {formatOutcomeLabel(record.patientOutcome)}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -368,6 +387,41 @@ export default function RecordTimeline({ records, onPrintRecord, onEditRecord, o
 
                 {/* Action Buttons */}
                 <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center gap-2">
+                  {onSubmitFeedback && !record.patientOutcome && (
+                    <>
+                      <button
+                        type="button"
+                        disabled={submittingFeedbackId === record.id}
+                        onClick={() => onSubmitFeedback(record.id, "IMPROVED")}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border border-emerald-200 text-emerald-700 hover:bg-emerald-50 transition-colors disabled:opacity-60"
+                      >
+                        Better / Improved
+                      </button>
+                      <button
+                        type="button"
+                        disabled={submittingFeedbackId === record.id}
+                        onClick={() => onSubmitFeedback(record.id, "NO_CHANGE")}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border border-violet-200 text-violet-700 hover:bg-violet-50 transition-colors disabled:opacity-60"
+                      >
+                        Same / No Change
+                      </button>
+                      <button
+                        type="button"
+                        disabled={submittingFeedbackId === record.id}
+                        onClick={() => onSubmitFeedback(record.id, "WORSENED")}
+                        className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg border border-rose-200 text-rose-700 hover:bg-rose-50 transition-colors disabled:opacity-60"
+                      >
+                        Bad / Worsened
+                      </button>
+                    </>
+                  )}
+
+                  {record.patientOutcome && (
+                    <span className="text-sm text-emerald-700 font-medium">
+                      Condition: {formatOutcomeLabel(record.patientOutcome)}
+                    </span>
+                  )}
+
                   {onPrintRecord && (
                     <button
                       type="button"

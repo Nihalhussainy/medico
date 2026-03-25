@@ -2,6 +2,7 @@ package com.medico.backend.service;
 
 import com.medico.backend.dto.MedicalFileResponse;
 import com.medico.backend.dto.MedicalRecordCreateRequest;
+import com.medico.backend.dto.MedicalRecordFeedbackRequest;
 import com.medico.backend.dto.MedicalRecordResponse;
 import com.medico.backend.dto.MedicalRecordUpdateRequest;
 import com.medico.backend.entity.AuditAction;
@@ -9,6 +10,7 @@ import com.medico.backend.entity.Doctor;
 import com.medico.backend.entity.FamilyMember;
 import com.medico.backend.entity.MedicalRecord;
 import com.medico.backend.entity.Patient;
+import com.medico.backend.entity.PatientOutcome;
 import com.medico.backend.entity.RoleName;
 import com.medico.backend.entity.User;
 import com.medico.backend.exception.BadRequestException;
@@ -151,8 +153,71 @@ public class MedicalRecordService {
             .followUpDate(record.getFollowUpDate())
             .recordDate(record.getRecordDate())
             .createdAt(record.getCreatedAt())
+            .patientOutcome(record.getPatientOutcome())
+            .patientFeedbackSubmittedAt(record.getPatientFeedbackSubmittedAt())
             .files(files)
             .build();
+    }
+
+    public MedicalRecordResponse submitFeedback(Long recordId, MedicalRecordFeedbackRequest request, User actor, String ipAddress) {
+        MedicalRecord record = medicalRecordRepository.findById(recordId)
+            .orElseThrow(() -> new ResourceNotFoundException("Medical record not found"));
+
+        Patient actorPatient = patientRepository.findByUserId(actor.getId())
+            .orElseThrow(() -> new BadRequestException("Patient profile not found"));
+
+        if (!record.getPatient().getId().equals(actorPatient.getId())) {
+            throw new BadRequestException("You can only submit feedback for your own records");
+        }
+
+        if (record.getPatientOutcome() != null) {
+            throw new BadRequestException("Feedback already submitted for this record");
+        }
+
+        PatientOutcome normalized = normalizeOutcome(request.getOutcome());
+        record.setPatientOutcome(normalized);
+        record.setPatientFeedbackSubmittedAt(Instant.now());
+        medicalRecordRepository.save(record);
+
+        auditLogService.log(actor, AuditAction.RECORD_UPDATE, "MedicalRecordFeedback", record.getId().toString(), ipAddress, null);
+
+        List<MedicalFileResponse> files = medicalFileRepository.findByRecordId(record.getId()).stream()
+            .map(file -> MedicalFileResponse.builder()
+                .id(file.getId())
+                .url(file.getUrl())
+                .fileType(file.getFileType())
+                .originalFileName(file.getOriginalFileName())
+                .category(file.getCategory())
+                .uploadedByRole(file.getUploadedByRole())
+                .uploadedByName(file.getUploadedByName())
+                .createdAt(file.getCreatedAt())
+                .build())
+            .collect(Collectors.toList());
+
+        return toResponse(record, files);
+    }
+
+    private PatientOutcome normalizeOutcome(String raw) {
+        if (raw == null) {
+            throw new BadRequestException("Outcome is required");
+        }
+
+        String value = raw.trim().toUpperCase();
+        switch (value) {
+            case "BETTER":
+            case "IMPROVED":
+                return PatientOutcome.IMPROVED;
+            case "SAME":
+            case "NO_CHANGE":
+            case "NO CHANGE":
+                return PatientOutcome.NO_CHANGE;
+            case "BAD":
+            case "WORSE":
+            case "WORSENED":
+                return PatientOutcome.WORSENED;
+            default:
+                throw new BadRequestException("Invalid outcome. Use BETTER/IMPROVED, SAME/NO_CHANGE, or BAD/WORSENED");
+        }
     }
 
     public MedicalRecordResponse updateRecord(Long recordId, MedicalRecordUpdateRequest request, User actor, String ipAddress) {
