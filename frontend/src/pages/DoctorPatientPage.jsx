@@ -8,6 +8,7 @@ import StructuredMedicinesInput from "../components/StructuredMedicinesInput.jsx
 import { generatePrescriptionPDF } from "../services/pdfGenerator.js";
 import { addRecentPatient, getRecentPatients } from "../services/recentPatientsManager.js";
 import { useToast } from "../components/Toast.jsx";
+import { useConfirm } from "../components/ConfirmDialog.jsx";
 import BackButton from "../components/BackButton.jsx";
 import AiInsightsPanel from "../components/AiInsightsPanel.jsx";
 import { deriveFamilyMembersFromRecords } from "../services/familyInsights.js";
@@ -77,6 +78,7 @@ export default function DoctorPatientPage() {
   const shouldOpenConsultation = searchParams.get('openConsultation') === '1';
   const { user } = useAuth();
   const toast = useToast();
+  const confirm = useConfirm();
   const [patient, setPatient] = useState(null);
 
   // Doctor identifier for sidebar scoping
@@ -411,7 +413,11 @@ export default function DoctorPatientPage() {
   }, [shouldOpenConsultation, doctorHospitalName]);
 
   const handleDeleteRecord = async (record) => {
-    if (!window.confirm(`Are you sure you want to delete this record: "${record.title}"?`)) {
+    const confirmed = await confirm(
+      `Are you sure you want to delete this record: "${record.title}"? This action cannot be undone.`,
+      "Delete Medical Record"
+    );
+    if (!confirmed) {
       return;
     }
 
@@ -438,6 +444,18 @@ export default function DoctorPatientPage() {
   };
 
   const createRecord = async () => {
+    if (!recordData.diagnosis.trim()) {
+      toast.error("Diagnosis is required");
+      return;
+    }
+
+    const isUpdate = editingRecordId;
+    const confirmed = await confirm(
+      `Are you sure you want to ${isUpdate ? "update" : "save"} this medical record for the patient?`,
+      isUpdate ? "Update Medical Record" : "Save Medical Record"
+    );
+    if (!confirmed) return;
+
     setIsCreating(true);
     toast.info(editingRecordId ? "Updating medical record..." : "Saving medical record...");
     try {
@@ -468,7 +486,7 @@ export default function DoctorPatientPage() {
           advice: recordData.advice || null,
           familyMemberId: selectedPerson.type === 'family' ? selectedPerson.id : null
         });
-        toast.success('Record updated successfully');
+        toast.success('Medical record updated successfully! All changes have been saved.');
         setEditingRecordId(null);
       } else {
         // Create new record
@@ -513,7 +531,7 @@ export default function DoctorPatientPage() {
             })
           );
         }
-        toast.success(`Record created successfully`);
+        toast.success(`Medical record created successfully and saved to patient's history!`);
         localStorage.removeItem(`medico_record_draft_${patientPhoneNumber}`);
       }
 

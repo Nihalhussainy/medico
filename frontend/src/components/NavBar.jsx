@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useToast } from "./Toast.jsx";
+import { useConfirm } from "./ConfirmDialog.jsx";
 import BrandLogo from "./BrandLogo.jsx";
 
 const roleLinks = {
@@ -72,11 +74,20 @@ export default function NavBar() {
   const { token, role, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const onLogout = () => {
-    logout();
-    navigate("/login");
+  const onLogout = async () => {
+    const confirmed = await confirm(
+      "You will be logged out and returned to the login page.",
+      "Are you sure you want to logout?"
+    );
+    if (confirmed) {
+      logout();
+      toast.success("You have been logged out successfully");
+      navigate("/login");
+    }
   };
 
   const links = role ? roleLinks[role] || [] : [];

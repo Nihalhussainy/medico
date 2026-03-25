@@ -32,13 +32,21 @@ export default function RegisterPage() {
   const onSubmit = async (event) => {
     event.preventDefault();
     setError(null);
+
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters long");
+      toast.warning("Please use a stronger password (minimum 6 characters)");
+      return;
+    }
+
     setIsLoading(true);
     try {
       await register({
         ...form,
         dateOfBirth: form.dateOfBirth || null
       });
-      toast.success("Account created! Please log in.");
+      toast.success("Registration successful! Your account has been created.");
+      toast.info("Please sign in to continue.");
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");

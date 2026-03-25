@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api.js";
 import { useToast } from "../components/Toast.jsx";
+import { useConfirm } from "../components/ConfirmDialog.jsx";
 import Spinner from "../components/Spinner.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 
@@ -31,6 +32,7 @@ const CloseIcon = () => (
 
 export default function PatientBloodNotifications() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [notifications, setNotifications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [respondingId, setRespondingId] = useState(null);
@@ -51,12 +53,24 @@ export default function PatientBloodNotifications() {
   };
 
   const handleRespond = async (notificationId, response) => {
+    const confirmed = await confirm(
+      response === "INTERESTED"
+        ? "Confirm that you can donate blood for this request?"
+        : "Confirm that you cannot donate for this request?",
+      response === "INTERESTED" ? "Confirm Donation Interest" : "Confirm Not Interested"
+    );
+    if (!confirmed) return;
+
     setRespondingId(notificationId);
     try {
       await api.put(`/blood-donation/notifications/${notificationId}/respond`, {
         response
       });
-      toast.success("Thank you! Your response has been recorded.");
+      toast.success(
+        response === "INTERESTED"
+          ? "Thanks! Your donation interest has been recorded."
+          : "Your response has been recorded."
+      );
       loadNotifications();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to respond");

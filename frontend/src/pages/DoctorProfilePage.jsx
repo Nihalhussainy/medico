@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../components/Toast.jsx";
+import { useConfirm } from "../components/ConfirmDialog.jsx";
 import BackButton from "../components/BackButton.jsx";
 import Spinner from "../components/Spinner.jsx";
 import ImageCropperModal from "../components/ImageCropperModal.jsx";
@@ -11,6 +12,7 @@ export default function DoctorProfilePage() {
   const navigate = useNavigate();
   const { user, updateUser, logout } = useAuth();
   const toast = useToast();
+  const confirm = useConfirm();
 
   const [profile, setProfile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -183,6 +185,12 @@ export default function DoctorProfilePage() {
       return;
     }
 
+    const confirmed = await confirm(
+      "Do you want to save these profile changes?",
+      "Save Profile Changes"
+    );
+    if (!confirmed) return;
+
     try {
       setIsSavingProfile(true);
       const payload = { ...formData };
@@ -206,7 +214,7 @@ export default function DoctorProfilePage() {
       }
 
       setIsEditing(false);
-      toast.success("Profile updated successfully");
+      toast.success("Profile updated successfully! All changes have been applied.");
     } catch (err) {
       setProfileError(err.response?.data?.message || "Failed to update profile");
     } finally {
@@ -232,6 +240,12 @@ export default function DoctorProfilePage() {
       return;
     }
 
+    const confirmed = await confirm(
+      "Are you sure you want to change your password? You may need to log in again.",
+      "Change Password"
+    );
+    if (!confirmed) return;
+
     try {
       setIsSavingPassword(true);
       const payload = {
@@ -247,7 +261,7 @@ export default function DoctorProfilePage() {
 
       setPasswordForm({ newPassword: "", confirmPassword: "" });
       setShowPasswordForm(false);
-      toast.success("Password changed successfully");
+      toast.success("Password changed successfully! Your account is now more secure.");
     } catch (err) {
       setPasswordError(err.response?.data?.message || "Failed to change password");
     } finally {
@@ -261,6 +275,7 @@ export default function DoctorProfilePage() {
     }
     setProfileError(null);
     setIsEditing(false);
+    toast.info("Profile edit cancelled");
   };
 
   if (isLoading) {

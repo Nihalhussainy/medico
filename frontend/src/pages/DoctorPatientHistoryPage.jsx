@@ -3,6 +3,7 @@ import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import RecordTimeline from "../components/RecordTimeline.jsx";
 import { useToast } from "../components/Toast.jsx";
+import { useConfirm } from "../components/ConfirmDialog.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
 import BackButton from "../components/BackButton.jsx";
 import Spinner from "../components/Spinner.jsx";
@@ -11,6 +12,7 @@ import { generatePrescriptionPDF } from "../services/pdfGenerator.js";
 
 export default function DoctorPatientHistoryPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { patientPhoneNumber } = useParams();
@@ -148,10 +150,14 @@ export default function DoctorPatientHistoryPage() {
   };
 
   const handleDeleteRecord = async (record) => {
-    if (!window.confirm(`Delete record "${record.title}"?`)) return;
+    const confirmed = await confirm(
+      `Delete record "${record.title}"? This action cannot be undone.`,
+      "Delete Medical Record"
+    );
+    if (!confirmed) return;
     try {
       await api.delete(`/records/${record.id}`);
-      toast.success('Record deleted');
+      toast.success("Record deleted successfully");
       setRecords(prev => prev.filter(r => r.id !== record.id));
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to delete');

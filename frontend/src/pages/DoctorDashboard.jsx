@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { useToast } from "../components/Toast.jsx";
+import { useConfirm } from "../components/ConfirmDialog.jsx";
 import RecentPatientsSidebar from "../components/RecentPatientsSidebar.jsx";
 
 export default function DoctorDashboard() {
   const navigate = useNavigate();
   const toast = useToast();
+  const confirm = useConfirm();
   const [patientPhone, setPatientPhone] = useState("");
   const [otpDigits, setOtpDigits] = useState(["", "", "", ""]);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -68,6 +70,7 @@ export default function DoctorDashboard() {
 
   const verifyConsent = async () => {
     const otpCode = otpDigits.join("");
+
     setMessage(null);
     setIsVerifying(true);
     try {

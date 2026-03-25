@@ -4,6 +4,7 @@ import EmptyState from "../components/EmptyState.jsx";
 import Spinner from "../components/Spinner.jsx";
 import api from "../services/api.js";
 import { useToast } from "../components/Toast.jsx";
+import { useConfirm } from "../components/ConfirmDialog.jsx";
 
 const initialMember = {
   firstName: "",
@@ -17,6 +18,7 @@ const initialMember = {
 
 export default function PatientFamilyPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [members, setMembers] = useState([]);
@@ -81,6 +83,13 @@ export default function PatientFamilyPage() {
       return;
     }
 
+    const isNew = !editingMemberId;
+    const confirmed = await confirm(
+      `Are you sure you want to ${isNew ? "add" : "update"} this family member?`,
+      isNew ? "Add Family Member" : "Update Family Member"
+    );
+    if (!confirmed) return;
+
     setSaving(true);
     try {
       const payload = {
@@ -95,10 +104,10 @@ export default function PatientFamilyPage() {
 
       if (editingMemberId) {
         await api.put(`/family/members/${editingMemberId}`, payload);
-        toast.success("Family member updated");
+        toast.success("Family member updated successfully!");
       } else {
         await api.post("/family/members", payload);
-        toast.success("Family member added");
+        toast.success("Family member added successfully!");
       }
 
       await refreshGroup();
@@ -111,10 +120,17 @@ export default function PatientFamilyPage() {
   };
 
   const removeMember = async (memberId) => {
+    const memberName = members.find((m) => m.id === memberId);
+    const confirmed = await confirm(
+      `Are you sure you want to remove ${memberName?.firstName} ${memberName?.lastName} from your family?`,
+      "Remove Family Member"
+    );
+    if (!confirmed) return;
+
     setSaving(true);
     try {
       await api.delete(`/family/members/${memberId}`);
-      toast.success("Family member removed");
+      toast.success("Family member removed successfully!");
       await refreshGroup();
       if (editingMemberId === memberId) {
         resetForm();

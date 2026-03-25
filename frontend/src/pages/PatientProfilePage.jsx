@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useToast } from "../components/Toast.jsx";
+import { useConfirm } from "../components/ConfirmDialog.jsx";
 import BackButton from "../components/BackButton.jsx";
 import Spinner from "../components/Spinner.jsx";
 import ImageCropperModal from "../components/ImageCropperModal.jsx";
@@ -11,6 +12,7 @@ export default function PatientProfilePage() {
   const navigate = useNavigate();
   const { user, updateUser, logout } = useAuth();
   const toast = useToast();
+  const confirm = useConfirm();
 
   const [profile, setProfile] = useState(null);
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -182,6 +184,12 @@ export default function PatientProfilePage() {
       return;
     }
 
+    const confirmed = await confirm(
+      "Do you want to save these profile changes?",
+      "Save Profile Changes"
+    );
+    if (!confirmed) return;
+
     setIsSavingProfile(true);
     try {
       const payload = { ...formData };
@@ -204,7 +212,7 @@ export default function PatientProfilePage() {
         return;
       }
 
-      toast.success("Profile updated successfully!");
+      toast.success("Profile saved successfully! All changes have been applied.");
       setIsEditing(false);
     } catch (err) {
       setProfileError(err.response?.data?.message || "Failed to update profile");
@@ -231,6 +239,12 @@ export default function PatientProfilePage() {
       return;
     }
 
+    const confirmed = await confirm(
+      "Are you sure you want to change your password? You may need to log in again with your new password.",
+      "Change Password"
+    );
+    if (!confirmed) return;
+
     setIsSavingPassword(true);
     try {
       const payload = {
@@ -248,7 +262,7 @@ export default function PatientProfilePage() {
       await api.put("/patients/me", payload);
       setPasswordForm({ newPassword: "", confirmPassword: "" });
       setShowPasswordForm(false);
-      toast.success("Password changed successfully");
+      toast.success("Password changed successfully! Your account is now more secure.");
     } catch (err) {
       setPasswordError(err.response?.data?.message || "Failed to change password");
     } finally {

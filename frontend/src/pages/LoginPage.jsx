@@ -24,7 +24,8 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const user = await login(email, password);
-      toast.success(`Welcome back, ${user.firstName || user.email}!`);
+      toast.success("Login successful!");
+      toast.info(`Welcome back, ${user.firstName || user.email}!`);
       if (user.role === "ADMIN") navigate("/admin");
       if (user.role === "DOCTOR") navigate("/doctor");
       if (user.role === "PATIENT") navigate("/patient");

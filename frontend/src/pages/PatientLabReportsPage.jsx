@@ -4,6 +4,7 @@ import BackButton from "../components/BackButton.jsx";
 import EmptyState from "../components/EmptyState.jsx";
 import Spinner from "../components/Spinner.jsx";
 import { useToast } from "../components/Toast.jsx";
+import { useConfirm } from "../components/ConfirmDialog.jsx";
 import api from "../services/api.js";
 
 const formatDate = (value) => {
@@ -23,6 +24,7 @@ const profileLabel = (selected, profile, familyMembers) => {
 export default function PatientLabReportsPage() {
   const { user } = useAuth();
   const toast = useToast();
+  const confirm = useConfirm();
   const [isLoading, setIsLoading] = useState(true);
   const [patientProfile, setPatientProfile] = useState(null);
   const [labReports, setLabReports] = useState([]);
@@ -83,6 +85,12 @@ export default function PatientLabReportsPage() {
       return;
     }
 
+    const confirmed = await confirm(
+      `Are you sure you want to upload ${uploadFile.name}?`,
+      "Upload Lab Report"
+    );
+    if (!confirmed) return;
+
     setIsUploading(true);
     try {
       const formData = new FormData();
@@ -94,7 +102,7 @@ export default function PatientLabReportsPage() {
       const reportsRes = await api.get("/lab-reports/mine");
       setLabReports(reportsRes.data || []);
       setUploadFile(null);
-      toast.success("Lab report uploaded successfully");
+      toast.success("Lab report uploaded successfully and added to your records.");
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to upload lab report");
     } finally {

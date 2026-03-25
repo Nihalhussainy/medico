@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/api.js";
 import { useToast } from "../components/Toast.jsx";
+import { useConfirm } from "../components/ConfirmDialog.jsx";
 import BackButton from "../components/BackButton.jsx";
 import Spinner from "../components/Spinner.jsx";
 import EmptyState from "../components/EmptyState.jsx";
@@ -20,6 +21,7 @@ const CloseIcon = () => (
 
 export default function AdminBloodDonationPage() {
   const toast = useToast();
+  const confirm = useConfirm();
   const [requests, setRequests] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -69,6 +71,12 @@ export default function AdminBloodDonationPage() {
       toast.warning("Blood group, hospital, patient name and contact number are required");
       return;
     }
+
+    const confirmed = await confirm(
+      `Create blood request for ${formData.patientName} (${formData.bloodGroup}) and notify matching donors?`,
+      "Create Blood Request"
+    );
+    if (!confirmed) return;
 
     setIsCreating(true);
 
@@ -122,10 +130,16 @@ export default function AdminBloodDonationPage() {
   };
 
   const handleMarkReceived = async (requestId) => {
+    const confirmed = await confirm(
+      "Mark this blood request as received and close it?",
+      "Close Blood Request"
+    );
+    if (!confirmed) return;
+
     setIsMarkingReceived(requestId);
     try {
       await api.put(`/blood-donation/requests/${requestId}/received`);
-      toast.success("Marked as received and closed.");
+      toast.success("Marked as received and request closed successfully.");
       loadRequests();
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to mark as received");
