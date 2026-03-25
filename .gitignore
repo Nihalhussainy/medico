@@ -9,5 +9,8 @@ __pycache__/
 # Ignore ML models (optional but recommended)
 *.joblib
 
+# Ignore local test scripts (run locally, don't commit)
+**/test_*.py
+
 # Ignore weird system files
 nul
