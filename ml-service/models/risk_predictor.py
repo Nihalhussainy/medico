@@ -14,7 +14,7 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.calibration import CalibratedClassifierCV
 import joblib
-import shap
+shap = None
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "saved_models")
 
@@ -513,6 +513,10 @@ DEFAULT_PRECAUTION = {
 
 
 class HealthRiskPredictor:
+    def set_algorithm(self, algorithm="gb"):
+        """Set the algorithm for risk prediction: 'gb', 'random_forest', or 'xgboost'."""
+        self.algorithm = algorithm
+
     def __init__(self):
         self.models = {}          # one classifier per risk disease
         self.explainers = {}      # SHAP explainer per model
@@ -526,17 +530,40 @@ class HealthRiskPredictor:
         self.feature_names = []   # human-readable feature names for SHAP
         self.is_trained = False
         self.accuracy_report = {}
+        self.df = None
+        self.algorithm = "gb"
+        self.feedback_log = []
+        self.feedback_retrain_threshold = 25
+
+    def _get_shap_module(self):
+        """Lazy-load SHAP so service startup is fast when explainability is not used yet."""
+        global shap
+        if shap is not None:
+            return shap
+        try:
+            import shap as shap_module  # type: ignore[import-not-found]
+            shap = shap_module
+        except Exception:
+            shap = None
+        return shap
 
     # ── Training ────────────────────────────────────────────────────────
 
-    def train(self, df: pd.DataFrame):
+    def train(self, df: pd.DataFrame, algorithm="gb"):
         """Train risk prediction models with SHAP explainability."""
+        self.df = df.copy()
+        self.models = {}
+        self.explainers = {}
+        self.accuracy_report = {}
+
         # Identify all possible follow-up diagnoses
         all_followups = set()
         for val in df["follow_up_diagnosis"].dropna():
             if val and str(val).strip():
                 all_followups.add(str(val).strip())
         self.all_risk_diseases = sorted(all_followups)
+
+        self.set_algorithm(algorithm)
 
         if not self.all_risk_diseases:
             print("  WARNING: No follow-up diagnoses found in data")
@@ -572,29 +599,50 @@ class HealthRiskPredictor:
             if positive_count < 5:
                 continue  # skip diseases with too few examples
 
-            # Use Gradient Boosting with calibration for accurate probabilities
-            base_clf = GradientBoostingClassifier(
-                n_estimators=100, max_depth=4, learning_rate=0.1,
-                random_state=42, min_samples_leaf=5
-            )
+            # Select algorithm
+            if self.algorithm == "random_forest":
+                try:
+                    from sklearn.ensemble import RandomForestClassifier
+                    base_clf = RandomForestClassifier(n_estimators=100, random_state=42)
+                except ImportError:
+                    print("RandomForestClassifier not available. Falling back to Gradient Boosting.")
+                    base_clf = GradientBoostingClassifier(n_estimators=100, max_depth=4, learning_rate=0.1, random_state=42, min_samples_leaf=5)
+            elif self.algorithm == "xgboost":
+                try:
+                    import xgboost as xgb  # type: ignore[import-not-found]
+                    base_clf = xgb.XGBClassifier(n_estimators=100, random_state=42, use_label_encoder=False, eval_metric='logloss')
+                except ImportError:
+                    print("XGBoost not available. Falling back to Gradient Boosting.")
+                    base_clf = GradientBoostingClassifier(n_estimators=100, max_depth=4, learning_rate=0.1, random_state=42, min_samples_leaf=5)
+            else:
+                base_clf = GradientBoostingClassifier(n_estimators=100, max_depth=4, learning_rate=0.1, random_state=42, min_samples_leaf=5)
 
             X_train, X_test, y_train, y_test = train_test_split(
                 X_scaled, y, test_size=0.2, random_state=42, stratify=y
             )
 
             # Calibrate the classifier for better probability estimates
-            clf = CalibratedClassifierCV(base_clf, method='isotonic', cv=3)
-            clf.fit(X_train, y_train)
+            try:
+                clf = CalibratedClassifierCV(base_clf, method='isotonic', cv=3)
+                clf.fit(X_train, y_train)
+            except Exception:
+                # Some classifiers (e.g., XGBoost) may not support calibration
+                clf = base_clf
+                clf.fit(X_train, y_train)
 
             accuracy = clf.score(X_test, y_test)
             self.models[risk_disease] = clf
             self.accuracy_report[risk_disease] = round(accuracy * 100, 1)
 
             # Create SHAP explainer using the base estimator
-            # Use the first calibrated classifier's base estimator for SHAP
             try:
-                base_estimator = clf.calibrated_classifiers_[0].estimator
-                self.explainers[risk_disease] = shap.TreeExplainer(base_estimator)
+                if hasattr(clf, 'calibrated_classifiers_'):
+                    base_estimator = clf.calibrated_classifiers_[0].estimator
+                else:
+                    base_estimator = clf
+                shap_module = self._get_shap_module()
+                if shap_module is not None:
+                    self.explainers[risk_disease] = shap_module.TreeExplainer(base_estimator)
             except Exception as e:
                 print(f"    Warning: Could not create SHAP explainer for {risk_disease}: {e}")
 
@@ -605,6 +653,71 @@ class HealthRiskPredictor:
             print(f"    {disease}: {acc}% accuracy")
         if len(self.accuracy_report) > 5:
             print(f"    ... and {len(self.accuracy_report) - 5} more conditions")
+
+    def online_update(self, new_records):
+        """Append newly observed records and retrain risk models."""
+        if new_records is None:
+            return {"updated": False, "message": "No new records provided"}
+
+        if isinstance(new_records, list):
+            new_df = pd.DataFrame(new_records)
+        elif isinstance(new_records, pd.DataFrame):
+            new_df = new_records.copy()
+        else:
+            return {"updated": False, "message": "new_records must be list or DataFrame"}
+
+        required_cols = [
+            "disease", "age", "gender", "blood_group", "bp_systolic", "bp_diastolic",
+            "heart_rate", "temperature", "spo2", "severity", "is_chronic",
+            "risk_factors", "follow_up_diagnosis"
+        ]
+        missing = [c for c in required_cols if c not in new_df.columns]
+        if missing:
+            return {"updated": False, "message": f"Missing columns for online update: {missing}"}
+
+        if self.df is None:
+            merged = new_df
+        else:
+            merged = pd.concat([self.df, new_df], ignore_index=True)
+
+        self.train(merged, algorithm=self.algorithm)
+        return {"updated": True, "new_records": len(new_df), "total_records": len(merged)}
+
+    def add_feedback(self, patient_snapshot: dict, realized_diagnosis: str):
+        """Store follow-up diagnosis feedback and periodically retrain."""
+        entry = {
+            "disease": patient_snapshot.get("disease", ""),
+            "age": patient_snapshot.get("age", 40),
+            "gender": patient_snapshot.get("gender", "Male"),
+            "blood_group": patient_snapshot.get("blood_group", "O+"),
+            "bp_systolic": patient_snapshot.get("bp_systolic", 130),
+            "bp_diastolic": patient_snapshot.get("bp_diastolic", 80),
+            "heart_rate": patient_snapshot.get("heart_rate", 80),
+            "temperature": patient_snapshot.get("temperature", 98.6),
+            "spo2": patient_snapshot.get("spo2", 97),
+            "severity": patient_snapshot.get("severity", "MODERATE"),
+            "is_chronic": bool(patient_snapshot.get("is_chronic", False)),
+            "risk_factors": patient_snapshot.get("risk_factors", ""),
+            "follow_up_diagnosis": realized_diagnosis,
+        }
+        self.feedback_log.append(entry)
+
+        if len(self.feedback_log) >= self.feedback_retrain_threshold:
+            consumed = len(self.feedback_log)
+            self.online_update(self.feedback_log)
+            self.feedback_log = []
+            return {
+                "feedback_saved": True,
+                "retrained": True,
+                "consumed_feedback_count": consumed,
+            }
+
+        return {
+            "feedback_saved": True,
+            "retrained": False,
+            "pending_feedback_count": len(self.feedback_log),
+            "retrain_threshold": self.feedback_retrain_threshold,
+        }
 
     def _build_feature_names(self):
         """Build human-readable feature names for SHAP explanations."""

@@ -45,6 +45,70 @@ ALLERGY_OPTIONS = [
 # ══════════════════════════════════════════════════════════════════════
 
 DISEASES = {
+        # ─── RARE/CHRONIC/EDGE CASES (custom additions) ───────────────
+        "Sickle Cell Disease": {
+            "specialty": "Hematology",
+            "age_range": (1, 60),
+            "gender_bias": None,
+            "medicines": {
+                "child": [("Hydroxyurea 10mg/kg", 0.80), ("Folic Acid 5mg", 0.75)],
+                "teen": [("Hydroxyurea 15mg/kg", 0.82), ("Folic Acid 5mg", 0.78)],
+                "adult": [("Hydroxyurea 20mg/kg", 0.85), ("Folic Acid 5mg", 0.80), ("Blood Transfusion", 0.90)],
+                "middle": [("Hydroxyurea 20mg/kg", 0.83), ("Blood Transfusion", 0.88)],
+                "senior": [("Blood Transfusion", 0.85)],
+            },
+            "symptoms": ["Pain crisis", "Anemia", "Jaundice", "Swelling of hands/feet", "Frequent infections", "Delayed growth"],
+            "severity_dist": {"MILD": 0.20, "MODERATE": 0.50, "SEVERE": 0.30},
+            "chronic": True,
+            "vitals": {"bp_s": (90, 120), "bp_d": (50, 80), "hr": (80, 120), "temp": (97.5, 99.5), "spo2": (88, 98)},
+            "risk_factors": ["Family history (sickle cell)", "African descent"],
+            "leads_to": {"Stroke": 0.10, "Kidney Disease": 0.08},
+        },
+        "Juvenile Idiopathic Arthritis": {
+            "specialty": "Rheumatology",
+            "age_range": (2, 18),
+            "gender_bias": "F",
+            "medicines": {
+                "child": [("Methotrexate 10mg", 0.80), ("NSAIDs", 0.75), ("Etanercept 25mg", 0.70)],
+                "teen": [("Methotrexate 15mg", 0.82), ("NSAIDs", 0.78), ("Etanercept 25mg", 0.75)],
+            },
+            "symptoms": ["Joint swelling", "Morning stiffness", "Fever", "Rash", "Limping", "Fatigue"],
+            "severity_dist": {"MILD": 0.30, "MODERATE": 0.50, "SEVERE": 0.20},
+            "chronic": True,
+            "vitals": {"bp_s": (90, 120), "bp_d": (50, 80), "hr": (70, 110), "temp": (97.5, 99.5), "spo2": (96, 99)},
+            "risk_factors": ["Family history (arthritis)"],
+            "leads_to": {"Growth Delay": 0.10},
+        },
+        "Alzheimer's Disease": {
+            "specialty": "Geriatrics",
+            "age_range": (60, 100),
+            "gender_bias": "F",
+            "medicines": {
+                "senior": [("Donepezil 5mg", 0.70), ("Memantine 10mg", 0.65), ("Rivastigmine 3mg", 0.60)],
+            },
+            "symptoms": ["Memory loss", "Confusion", "Difficulty with language", "Mood swings", "Disorientation"],
+            "severity_dist": {"MILD": 0.10, "MODERATE": 0.40, "SEVERE": 0.50},
+            "chronic": True,
+            "vitals": {"bp_s": (110, 140), "bp_d": (70, 90), "hr": (60, 90), "temp": (97.0, 99.0), "spo2": (95, 99)},
+            "risk_factors": ["Age > 65", "Family history (dementia)"],
+            "leads_to": {"Cognitive Decline": 0.20},
+        },
+        "Chronic Pain Syndrome": {
+            "specialty": "Pain Management",
+            "age_range": (18, 90),
+            "gender_bias": None,
+            "medicines": {
+                "adult": [("Tramadol 50mg", 0.70), ("Amitriptyline 10mg", 0.65), ("Gabapentin 300mg", 0.60)],
+                "middle": [("Tramadol 50mg", 0.68), ("Amitriptyline 10mg", 0.63)],
+                "senior": [("Tramadol 25mg", 0.65), ("Gabapentin 100mg", 0.60)],
+            },
+            "symptoms": ["Widespread pain", "Fatigue", "Sleep disturbance", "Cognitive difficulties", "Mood changes"],
+            "severity_dist": {"MILD": 0.20, "MODERATE": 0.50, "SEVERE": 0.30},
+            "chronic": True,
+            "vitals": {"bp_s": (110, 140), "bp_d": (70, 90), "hr": (60, 100), "temp": (97.0, 99.0), "spo2": (95, 99)},
+            "risk_factors": ["Chronic illness", "Depression", "Fibromyalgia"],
+            "leads_to": {"Depression": 0.15},
+        },
     # ─── GENERAL / INFECTIOUS (1-12) ───────────────────────────────
     "Common Cold": {
         "specialty": "General",
@@ -63,6 +127,59 @@ DISEASES = {
         "vitals": {"bp_s": (110, 130), "bp_d": (70, 85), "hr": (70, 90), "temp": (98.6, 100.4), "spo2": (95, 99)},
         "risk_factors": ["Air pollution exposure", "Sleep deprivation", "Stress"],
         "leads_to": {"Bronchitis": 0.08, "Sinusitis": 0.12, "Pneumonia": 0.03},
+    },
+    "Headache": {
+        "specialty": "General",
+        "age_range": (5, 80),
+        "gender_bias": None,
+        "medicines": {
+            "child":  [("Paracetamol 250mg", 0.85), ("Ibuprofen 100mg", 0.80)],
+            "teen":   [("Paracetamol 500mg", 0.88), ("Ibuprofen 200mg", 0.82)],
+            "adult":  [("Paracetamol 650mg", 0.90), ("Ibuprofen 400mg", 0.85), ("Aspirin 325mg", 0.80)],
+            "middle": [("Paracetamol 650mg", 0.88), ("Ibuprofen 400mg", 0.83)],
+            "senior": [("Paracetamol 500mg", 0.85), ("Aspirin 75mg", 0.78)],
+        },
+        "symptoms": ["Headache", "Forehead pain", "Temple pain", "Mild nausea", "Photophobia", "Tension in scalp"],
+        "severity_dist": {"MILD": 0.70, "MODERATE": 0.25, "SEVERE": 0.05},
+        "chronic": False,
+        "vitals": {"bp_s": (110, 130), "bp_d": (70, 85), "hr": (70, 90), "temp": (98.6, 99.5), "spo2": (96, 99)},
+        "risk_factors": ["Stress", "Sleep deprivation", "Poor diet"],
+        "leads_to": {"Migraine": 0.10},
+    },
+    "Body Pain": {
+        "specialty": "General",
+        "age_range": (10, 85),
+        "gender_bias": None,
+        "medicines": {
+            "child":  [("Paracetamol 250mg", 0.80), ("Ibuprofen 100mg", 0.75)],
+            "teen":   [("Paracetamol 500mg", 0.85), ("Ibuprofen 200mg", 0.80)],
+            "adult":  [("Paracetamol 650mg", 0.88), ("Ibuprofen 400mg", 0.84), ("Diclofenac 50mg", 0.78)],
+            "middle": [("Paracetamol 650mg", 0.86), ("Ibuprofen 400mg", 0.82), ("Diclofenac 50mg", 0.76)],
+            "senior": [("Paracetamol 500mg", 0.82), ("Diclofenac 25mg", 0.74)],
+        },
+        "symptoms": ["Body pain", "Muscle ache", "Fatigue", "Back pain", "Joint pain", "Generalized discomfort"],
+        "severity_dist": {"MILD": 0.60, "MODERATE": 0.35, "SEVERE": 0.05},
+        "chronic": False,
+        "vitals": {"bp_s": (110, 130), "bp_d": (70, 85), "hr": (70, 90), "temp": (98.6, 99.5), "spo2": (96, 99)},
+        "risk_factors": ["Overexertion", "Poor posture", "Sedentary lifestyle"],
+        "leads_to": {"Muscle Pain": 0.10},
+    },
+    "Migraine": {
+        "specialty": "Neurology",
+        "age_range": (12, 65),
+        "gender_bias": "F",
+        "medicines": {
+            "teen":   [("Paracetamol 500mg", 0.80), ("Ibuprofen 200mg", 0.75), ("Sumatriptan 50mg", 0.70)],
+            "adult":  [("Paracetamol 650mg", 0.82), ("Ibuprofen 400mg", 0.78), ("Sumatriptan 100mg", 0.75), ("Naproxen 250mg", 0.72)],
+            "middle": [("Paracetamol 650mg", 0.80), ("Sumatriptan 100mg", 0.74), ("Naproxen 250mg", 0.70)],
+            "senior": [("Paracetamol 500mg", 0.78), ("Naproxen 125mg", 0.68)],
+        },
+        "symptoms": ["Severe headache", "Throbbing pain", "Nausea", "Vomiting", "Photophobia", "Phonophobia", "Aura", "Neck pain"],
+        "severity_dist": {"MILD": 0.10, "MODERATE": 0.40, "SEVERE": 0.50},
+        "chronic": True,
+        "vitals": {"bp_s": (110, 130), "bp_d": (70, 85), "hr": (70, 90), "temp": (98.6, 99.5), "spo2": (96, 99)},
+        "risk_factors": ["Stress", "Sleep deprivation", "Family history (migraine)", "Hormonal changes"],
+        "leads_to": {},
     },
     "Fever (Viral)": {
         "specialty": "General",
@@ -1063,6 +1180,31 @@ DISEASES = {
 
 
 # ── Helper Functions ────────────────────────────────────────────────────────
+
+def nlp_map_symptoms_to_disease(symptom_text, fallback_map=None):
+    """Map free-text symptoms to disease using spaCy when available, else keyword matching."""
+    if not symptom_text:
+        return None
+
+    normalized = symptom_text.lower()
+    try:
+        import spacy  # type: ignore[import-not-found]
+        nlp = spacy.load("en_core_web_sm")
+        doc = nlp(normalized)
+        for ent in doc.ents:
+            if fallback_map and ent.text in fallback_map:
+                return fallback_map[ent.text]
+    except ImportError:
+        pass
+    except Exception:
+        # Keep generator resilient if NLP model is unavailable/corrupted.
+        pass
+
+    if fallback_map:
+        for key, val in fallback_map.items():
+            if key in normalized:
+                return val
+    return None
 
 def get_age_group(age):
     if age < 13: return "child"

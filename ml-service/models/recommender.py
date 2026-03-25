@@ -17,6 +17,31 @@ MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "saved_models"
 
 
 class MedicineRecommender:
+    def set_algorithm(self, algorithm="knn"):
+        """Set the algorithm for recommendations: 'knn', 'random_forest', or 'xgboost'."""
+        self.algorithm = algorithm
+
+    # Common symptom/synonym mapping for robust disease matching
+    _SYMPTOM_TO_DISEASE = {
+        "pain": "Body Pain",
+        "body pain": "Body Pain",
+        "muscle pain": "Body Pain",
+        "ache": "Body Pain",
+        "muscle ache": "Body Pain",
+        "headache": "Headache",
+        "migraine": "Migraine",
+        "fever": "Fever (Viral)",
+        "cold": "Common Cold",
+        "cough": "Common Cold",
+        "sore throat": "Common Cold",
+        "back pain": "Body Pain",
+        "joint pain": "Body Pain",
+        "throbbing": "Migraine",
+        "forehead pain": "Headache",
+        "temple pain": "Headache",
+        # Add more as needed
+    }
+
     def __init__(self):
         self.knn = None
         self.scaler = StandardScaler()
@@ -28,13 +53,22 @@ class MedicineRecommender:
         self.is_trained = False
         self.med_global_stats = {}
         self.disease_stats = {}
+        self.feedback_log = []
+        self.algorithm = "knn"
+        self.feedback_retrain_threshold = 25
+        self.online_retrain_mode = "fast"
+        self.max_online_history = 20000
+        self.full_retrain_every = 8
+        self._online_retrain_count = 0
 
     # ---- Training ----
 
-    def train(self, df: pd.DataFrame):
+    def train(self, df: pd.DataFrame, algorithm="knn"):
         """Train the recommender on historical data."""
         self.df = df.copy()
         self.df_success = df[df["outcome"].isin(["CURED", "IMPROVED"])].copy()
+
+        self.set_algorithm(algorithm)
 
         if len(self.df_success) < 10:
             raise ValueError("Not enough successful outcomes to train")
@@ -55,14 +89,42 @@ class MedicineRecommender:
         self.scaler.fit(X)
         X_scaled = self.scaler.transform(X)
 
-        # Use more neighbors for better case analysis (up to 500 or 10% of data)
-        n_neighbors = min(500, max(100, len(X_scaled) // 10))
-        self.knn = NearestNeighbors(n_neighbors=n_neighbors, metric="euclidean")
-        self.knn.fit(X_scaled)
+        if self.algorithm == "knn":
+            n_neighbors = min(500, max(100, len(X_scaled) // 10))
+            self.knn = NearestNeighbors(n_neighbors=n_neighbors, metric="euclidean")
+            self.knn.fit(X_scaled)
+            print(f"  KNN neighbors: {n_neighbors}, Diseases: {len(self.disease_encoder.classes_)}")
+        elif self.algorithm == "random_forest":
+            try:
+                from sklearn.ensemble import RandomForestClassifier
+                self.rf = RandomForestClassifier(n_estimators=100, random_state=42)
+                y = self.disease_encoder.transform(self.df["disease"])
+                self.rf.fit(X_scaled, y)
+                print(f"  Random Forest trained for disease prediction.")
+            except ImportError:
+                print("RandomForestClassifier not available. Falling back to KNN.")
+                self.algorithm = "knn"
+                n_neighbors = min(500, max(100, len(X_scaled) // 10))
+                self.knn = NearestNeighbors(n_neighbors=n_neighbors, metric="euclidean")
+                self.knn.fit(X_scaled)
+        elif self.algorithm == "xgboost":
+            try:
+                import xgboost as xgb  # type: ignore[import-not-found]
+                y = self.disease_encoder.transform(self.df["disease"])
+                self.xgb = xgb.XGBClassifier(n_estimators=100, random_state=42, use_label_encoder=False, eval_metric='mlogloss')
+                self.xgb.fit(X_scaled, y)
+                print(f"  XGBoost trained for disease prediction.")
+            except ImportError:
+                print("XGBoost not available. Falling back to KNN.")
+                self.algorithm = "knn"
+                n_neighbors = min(500, max(100, len(X_scaled) // 10))
+                self.knn = NearestNeighbors(n_neighbors=n_neighbors, metric="euclidean")
+                self.knn.fit(X_scaled)
+        else:
+            raise ValueError(f"Unknown algorithm: {self.algorithm}")
 
         self.is_trained = True
         print(f"  Recommender trained on {len(df)} total cases ({len(self.df_success)} successful)")
-        print(f"  KNN neighbors: {n_neighbors}, Diseases: {len(self.disease_encoder.classes_)}")
 
     def _compute_medicine_stats(self):
         """Pre-compute medicine success rates across ALL cases including failures."""
@@ -157,7 +219,8 @@ class MedicineRecommender:
 
     def recommend(self, disease: str, age: int, gender: str,
                   blood_group: str = "O+", allergies: str = "",
-                  top_k: int = 5) -> dict:
+                  top_k: int = 5, patient_history: list = None,
+                  comorbidities=None) -> dict:
         """Return medicine recommendations for the given patient profile."""
         if not self.is_trained:
             return {"error": "Model not trained yet"}
@@ -235,6 +298,10 @@ class MedicineRecommender:
                     if outcome in ["CURED", "IMPROVED"]:
                         stats["age_matched_success"] += 1
 
+        # Patient-specific context used for personalization.
+        history_profile = self._build_history_profile(patient_history)
+        comorbidity_set = self._normalize_comorbidities(comorbidities)
+
         # Build recommendations with realistic success rates
         recommendations = []
         allergy_list = self._parse_allergies(allergies)
@@ -261,9 +328,24 @@ class MedicineRecommender:
             # Check allergy conflict
             is_allergen = any(a in med.lower() for a in allergy_list)
 
+            base_score = success_rate * 100.0
+            personalization_boost, reasons = self._compute_personalization_adjustment(
+                med=med,
+                disease=disease,
+                history_profile=history_profile,
+                comorbidity_set=comorbidity_set,
+            )
+            final_score = max(0.0, min(100.0, base_score + personalization_boost))
+            confidence = self._calculate_recommendation_confidence(
+                total_cases=stats["total"],
+                age_matched_cases=stats["age_matched"],
+                disease_cases=len(analysis_pool),
+            )
+
             recommendations.append({
                 "medicine": med,
                 "success_rate": round(success_rate * 100, 1),
+                "personalized_score": round(final_score, 1),
                 "cases_used": stats["total"],
                 "cured_count": stats["cured"],
                 "improved_count": stats["improved"],
@@ -272,10 +354,18 @@ class MedicineRecommender:
                 "age_matched_cases": stats["age_matched"],
                 "age_matched_rate": round(age_matched_rate * 100, 1) if age_matched_rate else None,
                 "allergy_warning": is_allergen,
+                "confidence": confidence,
+                "explanation": self._build_recommendation_explanation(
+                    med=med,
+                    base_score=base_score,
+                    final_score=final_score,
+                    reasons=reasons,
+                    stats=stats,
+                ),
             })
 
-        # Sort by success rate, then by number of cases
-        recommendations.sort(key=lambda x: (-x["success_rate"], -x["cases_used"]))
+        # Sort by personalized score, then by confidence and number of cases.
+        recommendations.sort(key=lambda x: (-x["personalized_score"], -x["confidence"], -x["cases_used"]))
 
         # Get disease statistics
         disease_info = self.disease_stats.get(disease, {})
@@ -288,10 +378,171 @@ class MedicineRecommender:
             "disease": disease,
             "patient_age": age,
             "patient_gender": gender,
+            "personalization_used": bool(history_profile["med_success"] or comorbidity_set),
             "disease_cure_rate": round(
                 (disease_info.get("cured", 0) + disease_info.get("improved", 0) * 0.7) /
                 max(disease_info.get("total_cases", 1), 1) * 100, 1
             ) if disease_info else None,
+        }
+
+    def _calculate_recommendation_confidence(self, total_cases: int, age_matched_cases: int, disease_cases: int) -> float:
+        """Compute confidence score in range [0, 1] from support size and patient similarity."""
+        case_factor = min(total_cases / 30.0, 1.0)
+        age_factor = min(age_matched_cases / 10.0, 1.0)
+        disease_factor = min(disease_cases / 100.0, 1.0)
+        confidence = 0.35 + 0.4 * case_factor + 0.15 * age_factor + 0.1 * disease_factor
+        return round(min(confidence, 0.98), 3)
+
+    def _build_history_profile(self, patient_history):
+        """Summarize medicine outcomes from patient history for personalization."""
+        med_success = {}
+        med_failures = {}
+        if not patient_history:
+            return {"med_success": med_success, "med_failures": med_failures}
+
+        for row in patient_history:
+            meds = str(row.get("medications", "")).split("|")
+            outcome = str(row.get("outcome", "")).upper().strip()
+            score = 1.0 if outcome == "CURED" else (0.7 if outcome == "IMPROVED" else (0.2 if outcome == "NO_CHANGE" else 0.0))
+            for med in meds:
+                med = med.strip()
+                if not med:
+                    continue
+                if score >= 0.7:
+                    med_success[med] = med_success.get(med, 0.0) + score
+                else:
+                    med_failures[med] = med_failures.get(med, 0.0) + (1.0 - score)
+
+        return {"med_success": med_success, "med_failures": med_failures}
+
+    def _normalize_comorbidities(self, comorbidities):
+        if comorbidities is None:
+            return set()
+        if isinstance(comorbidities, str):
+            return {c.strip().lower() for c in comorbidities.split("|") if c.strip()} | {
+                c.strip().lower() for c in comorbidities.split(",") if c.strip()
+            }
+        if isinstance(comorbidities, list):
+            return {str(c).strip().lower() for c in comorbidities if str(c).strip()}
+        return set()
+
+    def _compute_personalization_adjustment(self, med, disease, history_profile, comorbidity_set):
+        """Return score delta and reasons for personalized ranking."""
+        delta = 0.0
+        reasons = []
+
+        if med in history_profile["med_success"]:
+            bonus = min(history_profile["med_success"][med] * 1.5, 8.0)
+            delta += bonus
+            reasons.append("matched previous positive response")
+
+        if med in history_profile["med_failures"]:
+            penalty = min(history_profile["med_failures"][med] * 1.5, 10.0)
+            delta -= penalty
+            reasons.append("penalized due to prior weak outcome")
+
+        med_l = med.lower()
+        if "kidney" in " ".join(comorbidity_set) and "ibuprofen" in med_l:
+            delta -= 6.0
+            reasons.append("reduced for kidney comorbidity")
+        if "liver" in " ".join(comorbidity_set) and "paracetamol" in med_l:
+            delta -= 6.0
+            reasons.append("reduced for liver comorbidity")
+        if "heart" in " ".join(comorbidity_set) and "decongest" in med_l:
+            delta -= 4.0
+            reasons.append("reduced for cardiac comorbidity")
+
+        return delta, reasons
+
+    def _build_recommendation_explanation(self, med, base_score, final_score, reasons, stats):
+        reason_text = "; ".join(reasons) if reasons else "ranked by observed outcomes and case support"
+        return (
+            f"{med}: base success {base_score:.1f}% from {stats['total']} similar cases; "
+            f"personalized score {final_score:.1f}. {reason_text}."
+        )
+
+    def online_update(self, new_records):
+        """Append new records and retrain model to incorporate latest outcomes."""
+        if new_records is None:
+            return {"updated": False, "message": "No new records provided"}
+
+        if isinstance(new_records, list):
+            new_df = pd.DataFrame(new_records)
+        elif isinstance(new_records, pd.DataFrame):
+            new_df = new_records.copy()
+        else:
+            return {"updated": False, "message": "new_records must be list or DataFrame"}
+
+        required_cols = [
+            "disease", "age", "gender", "blood_group", "bp_systolic", "bp_diastolic",
+            "heart_rate", "temperature", "spo2", "medications", "outcome"
+        ]
+        missing = [c for c in required_cols if c not in new_df.columns]
+        if missing:
+            return {"updated": False, "message": f"Missing columns for online update: {missing}"}
+
+        if self.df is None:
+            merged = new_df
+        else:
+            merged = pd.concat([self.df, new_df], ignore_index=True)
+
+        self._online_retrain_count += 1
+        full_retrain_due = (self._online_retrain_count % self.full_retrain_every == 0)
+        use_fast_mode = (self.online_retrain_mode == "fast" and not full_retrain_due)
+
+        train_df = merged
+        if use_fast_mode and len(merged) > self.max_online_history:
+            train_df = merged.tail(self.max_online_history).copy()
+
+        self.train(train_df, algorithm=self.algorithm)
+
+        # Keep full data snapshot for future periodic full retrains.
+        self.df = merged
+
+        return {
+            "updated": True,
+            "new_records": len(new_df),
+            "total_records": len(merged),
+            "train_records": len(train_df),
+            "mode": "full" if not use_fast_mode else "fast-window",
+        }
+
+    def add_feedback(self, recommendation_context: dict, chosen_medicine: str, outcome: str):
+        """Store clinician/patient feedback and periodically retrain the model."""
+        entry = {
+            "disease": recommendation_context.get("disease", ""),
+            "age": recommendation_context.get("age", 40),
+            "gender": recommendation_context.get("gender", "Male"),
+            "blood_group": recommendation_context.get("blood_group", "O+"),
+            "bp_systolic": recommendation_context.get("bp_systolic", 130),
+            "bp_diastolic": recommendation_context.get("bp_diastolic", 80),
+            "heart_rate": recommendation_context.get("heart_rate", 80),
+            "temperature": recommendation_context.get("temperature", 98.6),
+            "spo2": recommendation_context.get("spo2", 97),
+            "medications": chosen_medicine,
+            "outcome": str(outcome).upper().strip(),
+            "severity": recommendation_context.get("severity", "MODERATE"),
+            "is_chronic": bool(recommendation_context.get("is_chronic", False)),
+            "risk_factors": recommendation_context.get("risk_factors", ""),
+        }
+        self.feedback_log.append(entry)
+
+        should_retrain = len(self.feedback_log) >= self.feedback_retrain_threshold
+        if should_retrain:
+            self.online_update(self.feedback_log)
+            consumed = len(self.feedback_log)
+            self.feedback_log = []
+            return {
+                "feedback_saved": True,
+                "retrained": True,
+                "consumed_feedback_count": consumed,
+            }
+
+        return {
+            "feedback_saved": True,
+            "retrained": False,
+            "pending_feedback_count": len(self.feedback_log),
+            "retrain_threshold": self.feedback_retrain_threshold,
         }
 
     def _parse_allergies(self, allergies):
@@ -306,12 +557,17 @@ class MedicineRecommender:
         """Fuzzy matching on disease names."""
         query_lower = query.lower().strip()
 
-        # Exact substring match
+        # 1. Direct mapping from symptom/synonym
+        mapped = self._SYMPTOM_TO_DISEASE.get(query_lower)
+        if mapped and mapped in self.disease_encoder.classes_:
+            return mapped
+
+        # 2. Substring match
         for d in self.disease_encoder.classes_:
             if query_lower in d.lower() or d.lower() in query_lower:
                 return d
 
-        # Word overlap match
+        # 3. Word overlap match
         query_words = set(query_lower.split())
         best_match = None
         best_overlap = 0
