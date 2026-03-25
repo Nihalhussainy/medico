@@ -334,13 +334,8 @@ export default function AiInsightsPanel({ patient, history }) {
                               <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wide mb-1.5">Contributing Factors</p>
                               <div className="space-y-1">
                                 {r.top_factors.slice(0, 3).map((factor, fIdx) => (
-                                  <div key={fIdx} className="flex items-center justify-between text-xs">
-                                    <span className="text-gray-700 truncate">{factor.factor}</span>
-                                    <span className={`ml-2 px-1.5 py-0.5 rounded text-white text-[10px] font-semibold ${
-                                      factor.direction === "increases risk" ? "bg-red-400" : "bg-emerald-400"
-                                    }`}>
-                                      {factor.direction === "increases risk" ? "+" : "-"}{Math.abs(factor.impact).toFixed(0)}
-                                    </span>
+                                  <div key={fIdx} className="text-xs">
+                                    <span className="text-gray-700">{factor.factor}</span>
                                   </div>
                                 ))}
                               </div>

@@ -195,13 +195,8 @@ export default function PatientRiskForecastPage() {
                       <p className="text-xs font-medium text-gray-600 mb-2">Why this risk:</p>
                       <div className="space-y-1.5">
                         {risk.top_factors.slice(0, 3).map((factor, fIdx) => (
-                          <div key={fIdx} className="flex items-center justify-between text-xs">
-                            <span className="text-gray-700 truncate flex-1">{factor.factor}</span>
-                            <span className={`ml-2 px-1.5 py-0.5 rounded text-white text-[10px] font-medium ${
-                              factor.direction === "increases risk" ? "bg-red-500" : "bg-green-500"
-                            }`}>
-                              {factor.direction === "increases risk" ? "+" : "-"}{Math.abs(factor.impact).toFixed(0)}
-                            </span>
+                          <div key={fIdx} className="text-xs">
+                            <span className="text-gray-700">{factor.factor}</span>
                           </div>
                         ))}
                       </div>
