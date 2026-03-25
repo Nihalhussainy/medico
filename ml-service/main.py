@@ -23,6 +23,13 @@ from models.recommender import MedicineRecommender
 from models.risk_predictor import HealthRiskPredictor
 from models.drug_interactions import check_interactions
 
+try:
+    from rapidfuzz import process, fuzz
+except ImportError:
+    fuzz = None
+    process = None
+
+
 # ── Input Validation Constants ────────────────────────────────────────────
 
 VALID_GENDERS = {"Male", "Female"}
@@ -48,8 +55,45 @@ risk_predictor: HealthRiskPredictor | None = None
 
 # ── Validation Helper Functions ──────────────────────────────────────────────
 
+def _fuzzy_match_disease(input_disease: str, disease_list: list) -> tuple[str, int]:
+    """
+    Fuzzy match a disease name against the list of known diseases.
+    
+    Returns:
+        (matched_disease_name, confidence_score)
+        or (None, 0) if no match above threshold
+    """
+    if not input_disease or not disease_list:
+        return None, 0
+    
+    # If exact match exists, return immediately
+    if input_disease in disease_list:
+        return input_disease, 100
+    
+    # Try fuzzy matching if rapidfuzz available
+    if process is not None and fuzz is not None:
+        try:
+            match, score, _ = process.extractOne(
+                input_disease,
+                disease_list,
+                scorer=fuzz.token_sort_ratio
+            )
+            if score > 70:  # 70% confidence threshold
+                return match, int(score)
+        except Exception:
+            pass
+    
+    # Fallback: case-insensitive exact match
+    input_lower = input_disease.lower().strip()
+    for disease in disease_list:
+        if disease.lower() == input_lower:
+            return disease, 100
+    
+    return None, 0
+
+
 def _validate_disease(disease: str, recommender_obj: MedicineRecommender | None) -> str:
-    """Validate disease against known diseases in the recommender."""
+    """Validate and fuzzy-match disease against known diseases in the recommender."""
     if not disease or not isinstance(disease, str):
         raise HTTPException(400, "Disease must be a non-empty string.")
     disease = disease.strip()
@@ -57,10 +101,16 @@ def _validate_disease(disease: str, recommender_obj: MedicineRecommender | None)
         raise HTTPException(400, "Disease cannot be whitespace-only.")
     if recommender_obj is None or not recommender_obj.is_trained:
         raise HTTPException(503, "Recommender model not loaded. Run train.py first.")
-    if disease not in recommender_obj.disease_encoder.classes_:
-        available = ", ".join(sorted(recommender_obj.disease_encoder.classes_)[:10])
-        raise HTTPException(400, f"Unknown disease '{disease}'. Available: {available}... (Use GET /diseases for full list)")
-    return disease
+    
+    # Try fuzzy matching
+    matched_disease, score = _fuzzy_match_disease(disease, list(recommender_obj.disease_encoder.classes_))
+    
+    if matched_disease:
+        return matched_disease
+    
+    # No match found
+    available = ", ".join(sorted(recommender_obj.disease_encoder.classes_)[:10])
+    raise HTTPException(400, f"Unknown disease '{disease}'. Available: {available}... (Use GET /diseases for full list)")
 
 
 def _validate_medication(medication: str) -> str:
