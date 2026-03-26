@@ -70,7 +70,11 @@ public class OtpConsentService {
         otpConsentRepository.save(consent);
         String patientEmail = patient.getUser().getEmail();
         String doctorName = doctor.getFirstName() + " " + doctor.getLastName();
-        emailService.sendOtpEmail(patientEmail, otp, doctorName);
+        try {
+            emailService.sendOtpEmail(patientEmail, otp, doctorName);
+        } catch (RuntimeException ex) {
+            throw new BadRequestException("Failed to send OTP email. Please verify mail configuration and try again.");
+        }
         auditLogService.log(actor, AuditAction.CONSENT_REQUEST, "OtpConsent", consent.getId().toString(), ipAddress,
             "Doctor requested access to patient records");
 

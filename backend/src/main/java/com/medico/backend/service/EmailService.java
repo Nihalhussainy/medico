@@ -17,15 +17,18 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final String deliveryMode;
     private final int otpExpiryMinutes;
+    private final String mailFrom;
 
     public EmailService(
         JavaMailSender mailSender,
         @Value("${app.otp.delivery}") String deliveryMode,
-        @Value("${app.otp.expiration-minutes}") int otpExpiryMinutes
+        @Value("${app.otp.expiration-minutes}") int otpExpiryMinutes,
+        @Value("${spring.mail.username}") String mailFrom
     ) {
         this.mailSender = mailSender;
         this.deliveryMode = deliveryMode;
         this.otpExpiryMinutes = otpExpiryMinutes;
+        this.mailFrom = mailFrom;
     }
 
     public void sendOtpEmail(String to, String otp, String doctorName) {
@@ -36,6 +39,7 @@ public class EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(mailFrom);
             helper.setTo(to);
             helper.setSubject("Medical Record Access Request - Your OTP Code");
             helper.setText(buildOtpEmailHtml(otp, doctorName), true);
