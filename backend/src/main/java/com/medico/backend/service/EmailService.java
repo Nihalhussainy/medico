@@ -36,6 +36,7 @@ public class EmailService {
             log.info("OTP delivery mode is {}, OTP for {} is {}", deliveryMode, to, otp);
             return;
         }
+        log.info("Attempting to send OTP email to {} from {}", to, mailFrom);
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -44,8 +45,12 @@ public class EmailService {
             helper.setSubject("Medical Record Access Request - Your OTP Code");
             helper.setText(buildOtpEmailHtml(otp, doctorName), true);
             mailSender.send(message);
+            log.info("OTP email sent successfully to {}", to);
         } catch (MessagingException e) {
-            log.error("Failed to send OTP email to {}", to, e);
+            log.error("Failed to send OTP email to {} - MessagingException: {}", to, e.getMessage(), e);
+            throw new RuntimeException("Failed to send OTP email", e);
+        } catch (Exception e) {
+            log.error("Failed to send OTP email to {} - Unexpected error: {}", to, e.getMessage(), e);
             throw new RuntimeException("Failed to send OTP email", e);
         }
     }

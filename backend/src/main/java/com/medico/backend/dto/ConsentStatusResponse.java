@@ -13,4 +13,5 @@ public class ConsentStatusResponse {
     private Instant consentValidUntil;
     private String otp;
     private String destinationEmail;
+    private Boolean emailSent;
 }

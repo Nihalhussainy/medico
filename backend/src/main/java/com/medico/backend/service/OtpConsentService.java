@@ -18,12 +18,15 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class OtpConsentService {
 
+    private static final Logger log = LoggerFactory.getLogger(OtpConsentService.class);
     private final PatientRepository patientRepository;
     private final DoctorRepository doctorRepository;
     private final OtpConsentRepository otpConsentRepository;
@@ -70,10 +73,12 @@ public class OtpConsentService {
         otpConsentRepository.save(consent);
         String patientEmail = patient.getUser().getEmail();
         String doctorName = doctor.getFirstName() + " " + doctor.getLastName();
+        boolean emailSent = true;
         try {
             emailService.sendOtpEmail(patientEmail, otp, doctorName);
         } catch (RuntimeException ex) {
-            throw new BadRequestException("Failed to send OTP email. Please verify mail configuration and try again.");
+            log.error("Failed to send OTP email to {}: {}", patientEmail, ex.getMessage(), ex);
+            emailSent = false;
         }
         auditLogService.log(actor, AuditAction.CONSENT_REQUEST, "OtpConsent", consent.getId().toString(), ipAddress,
             "Doctor requested access to patient records");
@@ -81,8 +86,9 @@ public class OtpConsentService {
         return ConsentStatusResponse.builder()
             .status(consent.getStatus())
             .expiresAt(consent.getExpiresAt())
-            .otp(emailService.isMock() ? otp : null)
+            .otp(emailService.isMock() || !emailSent ? otp : null)
             .destinationEmail(patientEmail)
+            .emailSent(emailSent)
             .build();
     }
 
