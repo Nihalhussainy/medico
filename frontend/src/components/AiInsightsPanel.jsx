@@ -94,6 +94,9 @@ export default function AiInsightsPanel({ patient, history }) {
         disease: recDisease.trim(),
         age, gender, bloodGroup, allergies, topK: 6
       });
+      if (data?.error) {
+        throw new Error(data.detail || data.error);
+      }
       setRecs(data);
     } catch (e) {
       setRecError(e.response?.data?.detail || e.message || "Failed to fetch recommendations");
@@ -111,6 +114,9 @@ export default function AiInsightsPanel({ patient, history }) {
       const { data } = await api.post("/ml/predict-risks", {
         patientHistory, age, gender, bloodGroup: patient?.bloodGroup || "O+"
       });
+      if (data?.error) {
+        throw new Error(data.detail || data.error);
+      }
       setRisks(data);
     } catch (e) {
       setRiskError(e.response?.data?.detail || e.message || "Failed to predict risks");
@@ -124,6 +130,9 @@ export default function AiInsightsPanel({ patient, history }) {
     setIntLoading(true); setIntError(null); setInteractions(null);
     try {
       const { data } = await api.post("/ml/check-interactions", { medications: meds });
+      if (data?.error) {
+        throw new Error(data.detail || data.error);
+      }
       setInteractions(data);
     } catch (e) {
       setIntError(e.response?.data?.detail || e.message || "Failed to check interactions");

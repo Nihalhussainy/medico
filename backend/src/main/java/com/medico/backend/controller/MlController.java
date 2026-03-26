@@ -4,6 +4,7 @@ import com.medico.backend.dto.MlInteractionRequest;
 import com.medico.backend.dto.MlRecommendRequest;
 import com.medico.backend.dto.MlRiskRequest;
 import com.medico.backend.service.MlService;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -38,20 +39,28 @@ public class MlController {
     @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<Map<String, Object>> recommendMedicine(
             @RequestBody MlRecommendRequest request) {
-        return ResponseEntity.ok(mlService.recommendMedicine(request));
+        return fromMlResponse(mlService.recommendMedicine(request));
     }
 
     @PostMapping("/predict-risks")
     @PreAuthorize("hasAnyRole('DOCTOR','PATIENT')")
     public ResponseEntity<Map<String, Object>> predictRisks(
             @RequestBody MlRiskRequest request) {
-        return ResponseEntity.ok(mlService.predictRisks(request));
+        return fromMlResponse(mlService.predictRisks(request));
     }
 
     @PostMapping("/check-interactions")
     @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<Map<String, Object>> checkInteractions(
             @RequestBody MlInteractionRequest request) {
-        return ResponseEntity.ok(mlService.checkInteractions(request));
+        return fromMlResponse(mlService.checkInteractions(request));
+    }
+
+    private ResponseEntity<Map<String, Object>> fromMlResponse(Map<String, Object> response) {
+        Object statusCode = response.get("statusCode");
+        if (statusCode instanceof Number code && code.intValue() >= 400) {
+            return ResponseEntity.status(HttpStatusCode.valueOf(code.intValue())).body(response);
+        }
+        return ResponseEntity.ok(response);
     }
 }

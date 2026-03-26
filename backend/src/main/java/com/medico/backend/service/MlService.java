@@ -6,6 +6,7 @@ import com.medico.backend.dto.MlRiskRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
@@ -63,6 +64,8 @@ public class MlService {
             ResponseEntity<Map> response = restTemplate.postForEntity(
                     mlBaseUrl + "/recommend-medicine", entity, Map.class);
             return response.getBody();
+        } catch (HttpStatusCodeException e) {
+            return upstreamErrorResponse("Medicine recommendation failed", e);
         } catch (RestClientException e) {
             return errorResponse("Medicine recommendation failed", e);
         }
@@ -104,6 +107,8 @@ public class MlService {
             ResponseEntity<Map> response = restTemplate.postForEntity(
                     mlBaseUrl + "/predict-risks", entity, Map.class);
             return response.getBody();
+        } catch (HttpStatusCodeException e) {
+            return upstreamErrorResponse("Risk prediction failed", e);
         } catch (RestClientException e) {
             return errorResponse("Risk prediction failed", e);
         }
@@ -125,6 +130,8 @@ public class MlService {
             ResponseEntity<Map> response = restTemplate.postForEntity(
                     mlBaseUrl + "/check-interactions", entity, Map.class);
             return response.getBody();
+        } catch (HttpStatusCodeException e) {
+            return upstreamErrorResponse("Drug interaction check failed", e);
         } catch (RestClientException e) {
             return errorResponse("Drug interaction check failed", e);
         }
@@ -148,6 +155,16 @@ public class MlService {
         Map<String, Object> error = new HashMap<>();
         error.put("error", message);
         error.put("detail", e.getMessage());
+        error.put("statusCode", HttpStatus.BAD_GATEWAY.value());
+        error.put("ml_service_url", mlBaseUrl);
+        return error;
+    }
+
+    private Map<String, Object> upstreamErrorResponse(String message, HttpStatusCodeException e) {
+        Map<String, Object> error = new HashMap<>();
+        error.put("error", message);
+        error.put("detail", e.getResponseBodyAsString());
+        error.put("statusCode", e.getStatusCode().value());
         error.put("ml_service_url", mlBaseUrl);
         return error;
     }
