@@ -6,11 +6,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
-public class LocalFileStorageService {
+@ConditionalOnProperty(value = "app.storage.type", havingValue = "LOCAL", matchIfMissing = true)
+public class LocalFileStorageService implements FileStorageService {
 
     private final Path uploadPath;
     private final String baseUrl;
@@ -23,6 +25,7 @@ public class LocalFileStorageService {
         this.baseUrl = baseUrl;
     }
 
+    @Override
     public StorageResult store(MultipartFile file) throws IOException {
         Files.createDirectories(uploadPath);
         String original = file.getOriginalFilename() == null ? "file" : file.getOriginalFilename();

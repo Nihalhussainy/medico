@@ -28,20 +28,20 @@ public class LabReportService {
     private final MedicalRecordRepository medicalRecordRepository;
     private final MedicalFileRepository medicalFileRepository;
     private final PatientLabReportRepository patientLabReportRepository;
-    private final LocalFileStorageService localFileStorageService;
+    private final FileStorageService fileStorageService;
 
     public LabReportService(
         PatientRepository patientRepository,
         MedicalRecordRepository medicalRecordRepository,
         MedicalFileRepository medicalFileRepository,
         PatientLabReportRepository patientLabReportRepository,
-        LocalFileStorageService localFileStorageService
+        FileStorageService fileStorageService
     ) {
         this.patientRepository = patientRepository;
         this.medicalRecordRepository = medicalRecordRepository;
         this.medicalFileRepository = medicalFileRepository;
         this.patientLabReportRepository = patientLabReportRepository;
-        this.localFileStorageService = localFileStorageService;
+        this.fileStorageService = fileStorageService;
     }
 
     public List<LabReportItemResponse> listMine(User actor) {
@@ -119,7 +119,7 @@ public class LabReportService {
         Patient patient = patientRepository.findByUserId(actor.getId())
             .orElseThrow(() -> new BadRequestException("Patient profile not found"));
 
-        StorageResult uploadResult = localFileStorageService.store(file);
+        StorageResult uploadResult = fileStorageService.store(file);
 
         PatientLabReport report = PatientLabReport.builder()
             .patient(patient)

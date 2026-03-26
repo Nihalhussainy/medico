@@ -30,7 +30,7 @@ public class MedicalFileService {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
     private final OtpConsentService otpConsentService;
-    private final LocalFileStorageService localFileStorageService;
+    private final FileStorageService fileStorageService;
     private final AuditLogService auditLogService;
 
     public MedicalFileService(
@@ -39,7 +39,7 @@ public class MedicalFileService {
         DoctorRepository doctorRepository,
         PatientRepository patientRepository,
         OtpConsentService otpConsentService,
-        LocalFileStorageService localFileStorageService,
+        FileStorageService fileStorageService,
         AuditLogService auditLogService
     ) {
         this.medicalRecordRepository = medicalRecordRepository;
@@ -47,7 +47,7 @@ public class MedicalFileService {
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
         this.otpConsentService = otpConsentService;
-        this.localFileStorageService = localFileStorageService;
+        this.fileStorageService = fileStorageService;
         this.auditLogService = auditLogService;
     }
 
@@ -79,7 +79,7 @@ public class MedicalFileService {
             throw new BadRequestException("Not allowed to upload files");
         }
 
-        StorageResult uploadResult = localFileStorageService.store(file);
+        StorageResult uploadResult = fileStorageService.store(file);
         String url = uploadResult.getUrl();
         String publicId = uploadResult.getStorageKey();
 
