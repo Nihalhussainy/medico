@@ -329,7 +329,7 @@ class HistoryRecord(BaseModel):
     bp_systolic: float = Field(default=120, ge=60, le=250, description="Systolic blood pressure (mmHg)")
     bp_diastolic: float = Field(default=80, ge=30, le=150, description="Diastolic blood pressure (mmHg)")
     heart_rate: float = Field(default=80, ge=30, le=200, description="Heart rate (bpm)")
-    temperature: float = Field(default=98.6, ge=32.0, le=42.0, description="Body temperature (Celsius)")
+    temperature: float = Field(default=98.6, description="Body temperature (F or C; Celsius is auto-converted)")
     spo2: float = Field(default=97, ge=50.0, le=100.0, description="Oxygen saturation (%)")
     risk_factors: str = Field(default="", max_length=500, description="Comma-separated risk factors")
     is_chronic: bool = Field(default=False, description="Is this a chronic condition?")
@@ -356,6 +356,18 @@ class HistoryRecord(BaseModel):
         if v < 0:
             raise ValueError("Blood pressure cannot be negative")
         return v
+
+    @field_validator("temperature", mode="before")
+    @classmethod
+    def normalize_temperature(cls, v):
+        # Accept both Celsius and Fahrenheit input and normalize to Fahrenheit
+        # because the training data stores body temperature in F values.
+        temp = float(v)
+        if temp <= 45.0:
+            temp = (temp * 9.0 / 5.0) + 32.0
+        if temp < 86.0 or temp > 113.0:
+            raise ValueError("Temperature out of valid range")
+        return round(temp, 2)
 
 
 class RiskRequest(BaseModel):

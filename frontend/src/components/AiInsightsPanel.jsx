@@ -80,10 +80,23 @@ export default function AiInsightsPanel({ patient, history }) {
 
   const extractErrorMessage = (err, fallback) => {
     const raw = err?.response?.data?.detail || err?.message;
+    const stringifyValidationDetails = (details) => {
+      if (!Array.isArray(details)) return null;
+      const messages = details
+        .map((item) => item?.msg)
+        .filter(Boolean);
+      return messages.length ? messages.join("; ") : null;
+    };
+
+    const nestedFromResponse = stringifyValidationDetails(err?.response?.data?.detail);
+    if (nestedFromResponse) return nestedFromResponse;
+
     if (typeof raw === "string") {
       try {
         const parsed = JSON.parse(raw);
         if (typeof parsed?.detail === "string") return parsed.detail;
+        const nestedFromParsed = stringifyValidationDetails(parsed?.detail);
+        if (nestedFromParsed) return nestedFromParsed;
       } catch {
         // raw string is already human readable
       }
