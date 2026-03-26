@@ -9,6 +9,11 @@ __pycache__/
 # Ignore ML models (optional but recommended)
 *.joblib
 
+# Keep production ML service models versioned for deployment
+!ml-service/data/saved_models/
+!ml-service/data/saved_models/recommender.joblib
+!ml-service/data/saved_models/risk_predictor.joblib
+
 # Ignore local test scripts (run locally, don't commit)
 **/test_*.py
 
