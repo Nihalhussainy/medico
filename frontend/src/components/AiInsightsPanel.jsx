@@ -76,6 +76,7 @@ export default function AiInsightsPanel({ patient, history }) {
 
   /* ML health */
   const [mlOnline, setMlOnline]           = useState(null);
+  const [knownDiseases, setKnownDiseases] = useState([]);
 
   const extractErrorMessage = (err, fallback) => {
     const raw = err?.response?.data?.detail || err?.message;
@@ -92,6 +93,9 @@ export default function AiInsightsPanel({ patient, history }) {
 
   useEffect(() => {
     api.get("/ml/health").then(r => setMlOnline(r.data?.status === "ok")).catch(() => setMlOnline(false));
+    api.get("/ml/diseases")
+      .then(r => setKnownDiseases(Array.isArray(r.data?.diseases) ? r.data.diseases : []))
+      .catch(() => setKnownDiseases([]));
   }, []);
 
   /* Medicine Recommendation */
@@ -229,7 +233,11 @@ export default function AiInsightsPanel({ patient, history }) {
                   value={recDisease}
                   onChange={e => setRecDisease(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && fetchRecommendations()}
+                  list="known-diseases"
                 />
+                <datalist id="known-diseases">
+                  {knownDiseases.map(d => <option key={d} value={d} />)}
+                </datalist>
                 <button
                   className="button whitespace-nowrap"
                   onClick={fetchRecommendations}

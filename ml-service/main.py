@@ -10,6 +10,7 @@ Endpoints:
 """
 
 import os, sys
+import re
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -55,6 +56,46 @@ risk_predictor: HealthRiskPredictor | None = None
 
 # ── Validation Helper Functions ──────────────────────────────────────────────
 
+def _canonicalize_disease_name(text: str) -> str:
+    """Normalize disease names for tolerant matching."""
+    compact = re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+    return re.sub(r"\s+", " ", compact)
+
+
+def _build_disease_variants(label: str) -> set[str]:
+    """Generate normalized variants from a disease label for robust matching."""
+    variants: set[str] = set()
+    normalized_label = label.strip()
+    if not normalized_label:
+        return variants
+
+    variants.add(normalized_label)
+    variants.add(_canonicalize_disease_name(normalized_label))
+
+    # Split parenthetical form: "Vertigo (BPPV)" -> "Vertigo", "BPPV"
+    core = re.sub(r"\([^)]*\)", "", normalized_label).strip()
+    paren_parts = re.findall(r"\(([^)]*)\)", normalized_label)
+
+    if core:
+        variants.add(core)
+        variants.add(_canonicalize_disease_name(core))
+
+    for part in paren_parts:
+        part = part.strip()
+        if part:
+            variants.add(part)
+            variants.add(_canonicalize_disease_name(part))
+
+    # Add acronym from main words: "Irritable Bowel Syndrome" -> "ibs"
+    words = re.findall(r"[A-Za-z0-9]+", core or normalized_label)
+    if len(words) >= 2:
+        acronym = "".join(w[0] for w in words if w)
+        if len(acronym) >= 2:
+            variants.add(acronym)
+            variants.add(acronym.upper())
+
+    return {v for v in variants if v}
+
 def _fuzzy_match_disease(input_disease: str, disease_list: list) -> tuple[str, int]:
     """
     Fuzzy match a disease name against the list of known diseases.
@@ -70,34 +111,63 @@ def _fuzzy_match_disease(input_disease: str, disease_list: list) -> tuple[str, i
     aliases = {
         "diabetes": "Type 2 Diabetes",
         "diabetes mellitus": "Type 2 Diabetes",
+        "type 2 diabetes": "Type 2 Diabetes",
+        "type ii diabetes": "Type 2 Diabetes",
         "high bp": "Hypertension",
         "high blood pressure": "Hypertension",
         "bp": "Hypertension",
         "low bp": "Hypotension",
         "sugar": "Type 2 Diabetes",
         "thyroid": "Hypothyroidism",
+        "vertigo": "Vertigo (BPPV)",
+        "bppv": "Vertigo (BPPV)",
+        "dizziness": "Vertigo (BPPV)",
+        "spinning sensation": "Vertigo (BPPV)",
     }
     input_normalized = input_disease.strip()
     alias_match = aliases.get(input_normalized.lower())
     if alias_match and alias_match in disease_list:
         return alias_match, 100
     
+    canonical_input = _canonicalize_disease_name(input_normalized)
+
+    # Build variants map once per request for all known labels.
+    variant_map: list[tuple[str, str]] = []
+    for label in disease_list:
+        for variant in _build_disease_variants(label):
+            variant_map.append((variant, label))
+
     # If exact match exists, return immediately
     if input_normalized in disease_list:
         return input_normalized, 100
+
+    # Exact or canonical match over generated variants.
+    for variant, label in variant_map:
+        if input_normalized == variant or canonical_input == _canonicalize_disease_name(variant):
+            return label, 100
     
     # Try fuzzy matching if rapidfuzz available
     if process is not None and fuzz is not None:
         try:
+            candidate_variants = [variant for variant, _ in variant_map]
             match, score, _ = process.extractOne(
                 input_normalized,
-                disease_list,
+                candidate_variants,
                 scorer=fuzz.token_set_ratio
             )
             if score >= 60:  # permit partial matches like "diabetes" -> "Type 2 Diabetes"
-                return match, int(score)
+                for variant, label in variant_map:
+                    if variant == match:
+                        return label, int(score)
         except Exception:
             pass
+
+    # Substring fallback catches forms like "vertigo" when label is "Vertigo (BPPV)".
+    input_lower = canonical_input
+    for variant, label in variant_map:
+        variant_lower = _canonicalize_disease_name(variant)
+        if input_lower in variant_lower or variant_lower in input_lower:
+            return label, 70
     
     # Fallback: case-insensitive exact match
     input_lower = input_normalized.lower()
@@ -125,6 +195,37 @@ def _validate_disease(disease: str, recommender_obj: MedicineRecommender | None)
         return matched_disease
     
     # No match found
+    suggestions = []
+    if process is not None and fuzz is not None:
+        try:
+            variant_map: list[tuple[str, str]] = []
+            for label in list(recommender_obj.disease_encoder.classes_):
+                for variant in _build_disease_variants(label):
+                    variant_map.append((variant, label))
+
+            candidates = process.extract(
+                disease,
+                [variant for variant, _ in variant_map],
+                scorer=fuzz.token_set_ratio,
+                limit=12,
+            )
+            seen = set()
+            for variant, score, _ in candidates:
+                if score < 45:
+                    continue
+                for v, label in variant_map:
+                    if v == variant and label not in seen:
+                        seen.add(label)
+                        suggestions.append(label)
+                        break
+                if len(suggestions) >= 5:
+                    break
+        except Exception:
+            suggestions = []
+
+    if suggestions:
+        raise HTTPException(400, f"Unknown disease '{disease}'. Did you mean: {', '.join(suggestions)}?")
+
     available = ", ".join(sorted(recommender_obj.disease_encoder.classes_)[:10])
     raise HTTPException(400, f"Unknown disease '{disease}'. Available: {available}... (Use GET /diseases for full list)")
 
@@ -324,6 +425,20 @@ async def health():
         "recommender_loaded": recommender is not None and recommender.is_trained,
         "risk_predictor_loaded": risk_predictor is not None and risk_predictor.is_trained,
     }
+
+
+@app.get("/")
+async def root_status():
+    return {
+        "service": "medico-ml",
+        "status": "ok",
+        "health": "/health",
+    }
+
+
+@app.head("/")
+async def root_status_head():
+    return
 
 
 @app.head("/health")
