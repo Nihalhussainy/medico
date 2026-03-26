@@ -310,6 +310,12 @@ async def health():
     }
 
 
+@app.head("/health")
+async def health_head():
+    # Some uptime monitors probe with HEAD; mirror health availability via 200.
+    return
+
+
 @app.get("/diseases")
 async def list_diseases():
     if recommender is None or not recommender.is_trained:
