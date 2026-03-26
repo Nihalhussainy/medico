@@ -7,6 +7,8 @@ import com.medico.backend.dto.UserResponse;
 import com.medico.backend.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.Map;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,5 +33,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody AuthRequest request, HttpServletRequest httpRequest) {
         return ResponseEntity.ok(authService.login(request, httpRequest));
+    }
+
+    @GetMapping("/healthz")
+    public ResponseEntity<Map<String, String>> healthz() {
+        return ResponseEntity.ok(Map.of("status", "ok"));
     }
 }
