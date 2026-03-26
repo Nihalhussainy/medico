@@ -65,26 +65,42 @@ def _fuzzy_match_disease(input_disease: str, disease_list: list) -> tuple[str, i
     """
     if not input_disease or not disease_list:
         return None, 0
+
+    # Common aliases used by end users; map them before fuzzy matching.
+    aliases = {
+        "diabetes": "Type 2 Diabetes",
+        "diabetes mellitus": "Type 2 Diabetes",
+        "high bp": "Hypertension",
+        "high blood pressure": "Hypertension",
+        "bp": "Hypertension",
+        "low bp": "Hypotension",
+        "sugar": "Type 2 Diabetes",
+        "thyroid": "Hypothyroidism",
+    }
+    input_normalized = input_disease.strip()
+    alias_match = aliases.get(input_normalized.lower())
+    if alias_match and alias_match in disease_list:
+        return alias_match, 100
     
     # If exact match exists, return immediately
-    if input_disease in disease_list:
-        return input_disease, 100
+    if input_normalized in disease_list:
+        return input_normalized, 100
     
     # Try fuzzy matching if rapidfuzz available
     if process is not None and fuzz is not None:
         try:
             match, score, _ = process.extractOne(
-                input_disease,
+                input_normalized,
                 disease_list,
-                scorer=fuzz.token_sort_ratio
+                scorer=fuzz.token_set_ratio
             )
-            if score > 70:  # 70% confidence threshold
+            if score >= 60:  # permit partial matches like "diabetes" -> "Type 2 Diabetes"
                 return match, int(score)
         except Exception:
             pass
     
     # Fallback: case-insensitive exact match
-    input_lower = input_disease.lower().strip()
+    input_lower = input_normalized.lower()
     for disease in disease_list:
         if disease.lower() == input_lower:
             return disease, 100
@@ -338,15 +354,12 @@ async def recommend_medicine(req: RecommendRequest):
     if recommender is None or not recommender.is_trained:
         raise HTTPException(503, "Recommender model not loaded. Run train.py first.")
 
-    # Validate disease
-    try:
-        _validate_disease(req.disease, recommender)
-    except HTTPException as e:
-        raise e
+    # Validate disease and normalize to a trained label.
+    normalized_disease = _validate_disease(req.disease, recommender)
 
     try:
         result = recommender.recommend(
-            disease=req.disease,
+            disease=normalized_disease,
             age=req.age,
             gender=req.gender,
             blood_group=req.blood_group,
@@ -378,17 +391,27 @@ async def predict_risks(req: RiskRequest):
     # Validate all diseases in history
     if not req.patient_history:
         raise HTTPException(400, "Patient history cannot be empty")
-    
+    normalized_history = []
     try:
         for i, record in enumerate(req.patient_history):
-            _validate_disease(record.disease, recommender)
+            normalized_disease = _validate_disease(record.disease, recommender)
+            normalized_history.append({
+                "disease": normalized_disease,
+                "severity": record.severity,
+                "bp_systolic": record.bp_systolic,
+                "bp_diastolic": record.bp_diastolic,
+                "heart_rate": record.heart_rate,
+                "temperature": record.temperature,
+                "spo2": record.spo2,
+                "risk_factors": record.risk_factors,
+                "is_chronic": record.is_chronic,
+            })
     except HTTPException as e:
         raise HTTPException(400, f"History record {i}: {str(e)}")
 
     try:
-        history_dicts = [h.model_dump() for h in req.patient_history]
         result = risk_predictor.predict_risks(
-            patient_history=history_dicts,
+            patient_history=normalized_history,
             current_age=req.age,
             gender=req.gender,
             blood_group=req.blood_group,

@@ -77,6 +77,19 @@ export default function AiInsightsPanel({ patient, history }) {
   /* ML health */
   const [mlOnline, setMlOnline]           = useState(null);
 
+  const extractErrorMessage = (err, fallback) => {
+    const raw = err?.response?.data?.detail || err?.message;
+    if (typeof raw === "string") {
+      try {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed?.detail === "string") return parsed.detail;
+      } catch {
+        // raw string is already human readable
+      }
+    }
+    return raw || fallback;
+  };
+
   useEffect(() => {
     api.get("/ml/health").then(r => setMlOnline(r.data?.status === "ok")).catch(() => setMlOnline(false));
   }, []);
@@ -99,7 +112,7 @@ export default function AiInsightsPanel({ patient, history }) {
       }
       setRecs(data);
     } catch (e) {
-      setRecError(e.response?.data?.detail || e.message || "Failed to fetch recommendations");
+      setRecError(extractErrorMessage(e, "Failed to fetch recommendations"));
     } finally { setRecLoading(false); }
   }, [recDisease, patient]);
 
@@ -119,7 +132,7 @@ export default function AiInsightsPanel({ patient, history }) {
       }
       setRisks(data);
     } catch (e) {
-      setRiskError(e.response?.data?.detail || e.message || "Failed to predict risks");
+      setRiskError(extractErrorMessage(e, "Failed to predict risks"));
     } finally { setRiskLoading(false); }
   }, [history, patient]);
 
@@ -135,7 +148,7 @@ export default function AiInsightsPanel({ patient, history }) {
       }
       setInteractions(data);
     } catch (e) {
-      setIntError(e.response?.data?.detail || e.message || "Failed to check interactions");
+      setIntError(extractErrorMessage(e, "Failed to check interactions"));
     } finally { setIntLoading(false); }
   }, [intMeds]);
 
