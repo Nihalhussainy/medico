@@ -179,7 +179,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (110, 130), "bp_d": (70, 85), "hr": (70, 90), "temp": (98.6, 99.5), "spo2": (96, 99)},
         "risk_factors": ["Stress", "Sleep deprivation", "Family history (migraine)", "Hormonal changes"],
-        "leads_to": {},
+        "leads_to": {"Chronic Migraine": 0.15, "Depression": 0.10, "Anxiety Disorder": 0.12, "Stroke": 0.03, "Cervical Spondylosis": 0.06},
     },
     "Fever (Viral)": {
         "specialty": "General",
@@ -375,7 +375,7 @@ DISEASES = {
         "chronic": False,
         "vitals": {"bp_s": (110, 130), "bp_d": (70, 85), "hr": (68, 88), "temp": (98.2, 99.8), "spo2": (96, 99)},
         "risk_factors": ["Air pollution exposure", "Dust mites"],
-        "leads_to": {},
+        "leads_to": {"Dry Eye Syndrome": 0.08, "Allergic Rhinitis": 0.06},
     },
 
     # ─── CARDIOVASCULAR (13-18) ────────────────────────────────────
@@ -393,7 +393,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (140, 190), "bp_d": (90, 120), "hr": (70, 100), "temp": (97.8, 99.0), "spo2": (95, 99)},
         "risk_factors": ["Smoking", "Alcohol", "Obesity", "High BMI", "Sedentary lifestyle", "Family history (hypertension)", "Stress", "High cholesterol"],
-        "leads_to": {"Heart Disease": 0.15, "Stroke": 0.10, "Kidney Disease": 0.08, "Retinopathy": 0.05},
+        "leads_to": {"Heart Disease": 0.18, "Stroke": 0.15, "Kidney Disease": 0.12, "Retinopathy": 0.08, "Heart Failure (CHF)": 0.12, "Atrial Fibrillation": 0.08, "Coronary Artery Disease": 0.14, "Type 2 Diabetes": 0.06, "Dementia": 0.05},
     },
     "Hypotension": {
         "specialty": "Cardiology",
@@ -409,7 +409,7 @@ DISEASES = {
         "chronic": False,
         "vitals": {"bp_s": (70, 95), "bp_d": (40, 62), "hr": (55, 85), "temp": (97.5, 98.8), "spo2": (95, 99)},
         "risk_factors": ["Dehydration", "Anemia"],
-        "leads_to": {"Syncope": 0.08},
+        "leads_to": {"Syncope": 0.12, "Falls/Fractures": 0.08, "Head Injury": 0.04},
     },
     "Coronary Artery Disease": {
         "specialty": "Cardiology",
@@ -424,7 +424,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (130, 180), "bp_d": (80, 110), "hr": (55, 100), "temp": (97.5, 99.0), "spo2": (92, 98)},
         "risk_factors": ["Smoking", "Obesity", "High cholesterol", "Family history (heart disease)", "Sedentary lifestyle", "Stress"],
-        "leads_to": {"Heart Disease": 0.20, "Stroke": 0.12, "Heart Failure": 0.10},
+        "leads_to": {"Heart Disease": 0.22, "Stroke": 0.14, "Heart Failure (CHF)": 0.15, "Atrial Fibrillation": 0.10, "Depression": 0.08},
     },
     "Heart Failure (CHF)": {
         "specialty": "Cardiology",
@@ -439,7 +439,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (100, 150), "bp_d": (60, 95), "hr": (65, 110), "temp": (97.5, 99.2), "spo2": (88, 96)},
         "risk_factors": ["Smoking", "Obesity", "Family history (heart disease)", "High cholesterol"],
-        "leads_to": {"Kidney Disease": 0.12, "Stroke": 0.08, "Pulmonary Edema": 0.10},
+        "leads_to": {"Kidney Disease": 0.18, "Stroke": 0.12, "Pulmonary Edema": 0.15, "Atrial Fibrillation": 0.14, "Depression": 0.12, "Anemia": 0.10, "Sleep Apnea": 0.08},
     },
     "Atrial Fibrillation": {
         "specialty": "Cardiology",
@@ -454,7 +454,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (110, 160), "bp_d": (65, 100), "hr": (90, 160), "temp": (97.5, 99.0), "spo2": (93, 98)},
         "risk_factors": ["Smoking", "Alcohol", "Obesity", "Family history (heart disease)"],
-        "leads_to": {"Stroke": 0.15, "Heart Failure": 0.10},
+        "leads_to": {"Stroke": 0.20, "Heart Failure (CHF)": 0.14, "Dementia": 0.08, "Depression": 0.06},
     },
     "Hyperlipidemia": {
         "specialty": "Cardiology",
@@ -470,7 +470,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (115, 145), "bp_d": (72, 92), "hr": (65, 88), "temp": (97.8, 99.0), "spo2": (96, 99)},
         "risk_factors": ["Obesity", "Poor diet", "Sedentary lifestyle", "Family history (heart disease)", "High cholesterol"],
-        "leads_to": {"Heart Disease": 0.12, "Stroke": 0.08, "Coronary Artery Disease": 0.10},
+        "leads_to": {"Heart Disease": 0.18, "Stroke": 0.12, "Coronary Artery Disease": 0.16, "NAFLD (Fatty Liver)": 0.10, "Pancreatitis": 0.04},
     },
 
     # ─── ENDOCRINE / METABOLIC (19-24) ────────────────────────────
@@ -488,7 +488,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (120, 160), "bp_d": (75, 100), "hr": (68, 95), "temp": (97.5, 99.2), "spo2": (94, 99)},
         "risk_factors": ["Obesity", "High BMI", "Sedentary lifestyle", "Family history (diabetes)", "Poor diet", "Stress"],
-        "leads_to": {"Heart Disease": 0.12, "Kidney Disease": 0.10, "Neuropathy": 0.15, "Retinopathy": 0.12, "Foot Ulcer": 0.08, "Stroke": 0.06},
+        "leads_to": {"Heart Disease": 0.15, "Kidney Disease": 0.14, "Neuropathy": 0.18, "Retinopathy": 0.15, "Foot Ulcer": 0.10, "Stroke": 0.10, "Hypertension": 0.16, "Hyperlipidemia": 0.15, "Depression": 0.10, "NAFLD (Fatty Liver)": 0.12},
     },
     "Type 1 Diabetes": {
         "specialty": "Endocrinology",
@@ -504,7 +504,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (100, 135), "bp_d": (65, 88), "hr": (72, 100), "temp": (97.5, 99.5), "spo2": (94, 99)},
         "risk_factors": ["Family history (diabetes)"],
-        "leads_to": {"Neuropathy": 0.12, "Retinopathy": 0.10, "Kidney Disease": 0.08},
+        "leads_to": {"Neuropathy": 0.15, "Retinopathy": 0.14, "Kidney Disease": 0.12, "Heart Disease": 0.10, "Depression": 0.08},
     },
     "Hypothyroidism": {
         "specialty": "Endocrinology",
@@ -520,7 +520,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (100, 130), "bp_d": (60, 82), "hr": (55, 72), "temp": (96.5, 98.2), "spo2": (96, 99)},
         "risk_factors": ["Family history (diabetes)", "Stress"],
-        "leads_to": {"Depression": 0.10, "Heart Disease": 0.05, "Obesity": 0.08},
+        "leads_to": {"Depression": 0.12, "Heart Disease": 0.08, "Obesity": 0.10, "Hyperlipidemia": 0.12, "Heart Failure (CHF)": 0.06, "Anemia": 0.06, "Cognitive Impairment": 0.05},
     },
     "Hyperthyroidism": {
         "specialty": "Endocrinology",
@@ -536,7 +536,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (120, 155), "bp_d": (65, 88), "hr": (90, 130), "temp": (98.8, 100.5), "spo2": (95, 99)},
         "risk_factors": ["Stress", "Family history (diabetes)"],
-        "leads_to": {"Atrial Fibrillation": 0.10, "Osteoporosis": 0.08, "Anxiety Disorder": 0.12},
+        "leads_to": {"Atrial Fibrillation": 0.15, "Osteoporosis": 0.12, "Anxiety Disorder": 0.14, "Heart Failure (CHF)": 0.08, "Eye Disease": 0.10},
     },
     "Anemia (Iron Deficiency)": {
         "specialty": "Hematology",
@@ -591,7 +591,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (105, 140), "bp_d": (65, 90), "hr": (78, 110), "temp": (97.8, 99.5), "spo2": (88, 97)},
         "risk_factors": ["Air pollution exposure", "Smoking", "Dust mites", "Family history (diabetes)"],
-        "leads_to": {"COPD": 0.08, "Pneumonia": 0.06, "Bronchitis": 0.10},
+        "leads_to": {"COPD": 0.10, "Pneumonia": 0.08, "Bronchitis": 0.12, "Anxiety Disorder": 0.10, "Depression": 0.08, "GERD": 0.08, "Allergic Rhinitis": 0.15, "Chronic Sinusitis": 0.06},
     },
     "Bronchitis": {
         "specialty": "Pulmonology",
@@ -609,7 +609,7 @@ DISEASES = {
         "chronic": False,
         "vitals": {"bp_s": (105, 135), "bp_d": (65, 88), "hr": (75, 100), "temp": (98.6, 101.5), "spo2": (92, 98)},
         "risk_factors": ["Smoking", "Air pollution exposure"],
-        "leads_to": {"COPD": 0.06, "Pneumonia": 0.08, "Asthma": 0.04},
+        "leads_to": {"COPD": 0.08, "Pneumonia": 0.10, "Asthma": 0.06, "Chronic Bronchitis": 0.12},
     },
     "Pneumonia": {
         "specialty": "Pulmonology",
@@ -627,7 +627,7 @@ DISEASES = {
         "chronic": False,
         "vitals": {"bp_s": (95, 140), "bp_d": (55, 88), "hr": (85, 120), "temp": (100.5, 104.0), "spo2": (85, 96)},
         "risk_factors": ["Smoking", "Air pollution exposure", "Previous surgery"],
-        "leads_to": {"COPD": 0.05, "Lung Fibrosis": 0.04, "Sepsis": 0.06},
+        "leads_to": {"COPD": 0.06, "Lung Fibrosis": 0.05, "Sepsis": 0.08, "Respiratory Failure": 0.06, "Heart Failure (CHF)": 0.04},
     },
     "COPD": {
         "specialty": "Pulmonology",
@@ -642,7 +642,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (110, 145), "bp_d": (65, 92), "hr": (80, 110), "temp": (97.8, 100.5), "spo2": (84, 94)},
         "risk_factors": ["Smoking", "Air pollution exposure", "Occupational hazard"],
-        "leads_to": {"Heart Failure": 0.08, "Pneumonia": 0.12, "Lung Cancer": 0.06},
+        "leads_to": {"Heart Failure (CHF)": 0.14, "Pneumonia": 0.15, "Lung Cancer": 0.10, "Depression": 0.12, "Anxiety Disorder": 0.10, "Osteoporosis": 0.08, "Respiratory Failure": 0.10},
     },
     "Sinusitis": {
         "specialty": "ENT",
@@ -713,7 +713,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (110, 135), "bp_d": (68, 88), "hr": (68, 90), "temp": (97.8, 99.2), "spo2": (96, 99)},
         "risk_factors": ["Obesity", "Smoking", "Alcohol", "Poor diet", "Stress"],
-        "leads_to": {"Barrett's Esophagus": 0.06, "Esophageal Stricture": 0.04, "Peptic Ulcer": 0.08},
+        "leads_to": {"Barrett's Esophagus": 0.10, "Esophageal Stricture": 0.06, "Peptic Ulcer": 0.10, "Asthma": 0.06, "Chronic Cough": 0.08, "Laryngitis": 0.06, "Sleep Disorders": 0.06},
     },
     "Peptic Ulcer": {
         "specialty": "Gastroenterology",
@@ -729,7 +729,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (105, 135), "bp_d": (65, 88), "hr": (70, 95), "temp": (97.8, 99.5), "spo2": (96, 99)},
         "risk_factors": ["Smoking", "Alcohol", "Stress"],
-        "leads_to": {"GI Bleeding": 0.08, "Gastric Cancer": 0.03},
+        "leads_to": {"GI Bleeding": 0.10, "Gastric Cancer": 0.04, "Anemia": 0.08, "GERD": 0.06},
     },
     "IBS (Irritable Bowel Syndrome)": {
         "specialty": "Gastroenterology",
@@ -745,7 +745,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (110, 130), "bp_d": (68, 85), "hr": (68, 88), "temp": (97.8, 99.0), "spo2": (96, 99)},
         "risk_factors": ["Stress", "Poor diet"],
-        "leads_to": {"Depression": 0.08, "Anxiety Disorder": 0.10},
+        "leads_to": {"Depression": 0.14, "Anxiety Disorder": 0.16, "Chronic Fatigue": 0.08, "GERD": 0.08, "Fibromyalgia": 0.06},
     },
     "Liver Disease (Fatty Liver / NAFLD)": {
         "specialty": "Gastroenterology",
@@ -761,7 +761,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (115, 140), "bp_d": (70, 90), "hr": (68, 90), "temp": (97.8, 99.2), "spo2": (95, 99)},
         "risk_factors": ["Obesity", "High BMI", "Alcohol", "Poor diet", "Sedentary lifestyle"],
-        "leads_to": {"Liver Cirrhosis": 0.10, "Type 2 Diabetes": 0.08, "Heart Disease": 0.05},
+        "leads_to": {"Liver Cirrhosis": 0.15, "Type 2 Diabetes": 0.12, "Heart Disease": 0.10, "Hepatocellular Carcinoma": 0.05, "Hyperlipidemia": 0.10, "Hypertension": 0.08},
     },
     "Kidney Stones": {
         "specialty": "Urology",
@@ -777,7 +777,7 @@ DISEASES = {
         "chronic": False,
         "vitals": {"bp_s": (120, 160), "bp_d": (75, 98), "hr": (85, 115), "temp": (98.2, 101.5), "spo2": (95, 99)},
         "risk_factors": ["Obesity", "Poor diet", "Family history (diabetes)"],
-        "leads_to": {"Kidney Infection": 0.08, "Kidney Disease": 0.05},
+        "leads_to": {"Kidney Infection": 0.10, "Kidney Disease": 0.08, "UTI (Urinary Tract Infection)": 0.06, "Hypertension": 0.05},
     },
 
     # ─── MUSCULOSKELETAL (37-42) ──────────────────────────────────
@@ -927,7 +927,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (100, 130), "bp_d": (60, 85), "hr": (60, 88), "temp": (97.5, 99.0), "spo2": (96, 99)},
         "risk_factors": ["Stress", "Alcohol", "Drug abuse", "Sleep deprivation"],
-        "leads_to": {"Anxiety Disorder": 0.15, "Insomnia": 0.12, "Substance Abuse": 0.06, "Heart Disease": 0.04},
+        "leads_to": {"Anxiety Disorder": 0.18, "Insomnia": 0.15, "Substance Abuse": 0.10, "Heart Disease": 0.08, "Type 2 Diabetes": 0.06, "Hypertension": 0.06, "Chronic Pain Syndrome": 0.08, "Dementia": 0.05, "Obesity": 0.08},
     },
     "Anxiety Disorder": {
         "specialty": "Psychiatry",
@@ -944,7 +944,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (115, 145), "bp_d": (72, 95), "hr": (80, 110), "temp": (97.8, 99.5), "spo2": (96, 99)},
         "risk_factors": ["Stress", "Sleep deprivation", "Drug abuse"],
-        "leads_to": {"Depression": 0.12, "Insomnia": 0.15, "Hypertension": 0.06},
+        "leads_to": {"Depression": 0.16, "Insomnia": 0.18, "Hypertension": 0.10, "IBS (Irritable Bowel Syndrome)": 0.12, "GERD": 0.08, "Heart Disease": 0.06, "Substance Abuse": 0.08, "Migraine": 0.10},
     },
     "Insomnia": {
         "specialty": "Psychiatry",
@@ -960,7 +960,7 @@ DISEASES = {
         "chronic": True,
         "vitals": {"bp_s": (110, 140), "bp_d": (68, 90), "hr": (68, 92), "temp": (97.5, 99.0), "spo2": (96, 99)},
         "risk_factors": ["Stress", "Sleep deprivation"],
-        "leads_to": {"Depression": 0.10, "Anxiety Disorder": 0.08, "Hypertension": 0.05},
+        "leads_to": {"Depression": 0.14, "Anxiety Disorder": 0.12, "Hypertension": 0.08, "Type 2 Diabetes": 0.05, "Heart Disease": 0.05, "Obesity": 0.06},
     },
     "Peripheral Neuropathy": {
         "specialty": "Neurology",
@@ -1096,7 +1096,7 @@ DISEASES = {
         "chronic": False,
         "vitals": {"bp_s": (110, 130), "bp_d": (68, 85), "hr": (68, 86), "temp": (97.8, 99.2), "spo2": (97, 99)},
         "risk_factors": ["Obesity", "Family history (diabetes)"],
-        "leads_to": {},
+        "leads_to": {"Skin Allergy (Urticaria)": 0.06, "Eczema (Atopic Dermatitis)": 0.05},
     },
 
     # ─── MISCELLANEOUS (56-60) ───────────────────────────────────
@@ -1175,6 +1175,41 @@ DISEASES = {
         "vitals": {"bp_s": (115, 145), "bp_d": (70, 92), "hr": (65, 88), "temp": (97.5, 99.0), "spo2": (96, 99)},
         "risk_factors": ["Obesity", "Sedentary lifestyle"],
         "leads_to": {"UTI (Urinary Tract Infection)": 0.08, "Kidney Infection": 0.04},
+    },
+    # ─── CHRONIC CONDITIONS (added for risk prediction) ───────────────
+    "Chronic Migraine": {
+        "specialty": "Neurology",
+        "age_range": (15, 65),
+        "gender_bias": "F",
+        "medicines": {
+            "teen":   [("Propranolol 40mg", 0.80), ("Topiramate 25mg", 0.75), ("Sumatriptan 50mg", 0.78)],
+            "adult":  [("Propranolol 80mg", 0.85), ("Topiramate 50mg", 0.82), ("Botox injections", 0.78), ("Sumatriptan 100mg", 0.80), ("Valproate 500mg", 0.75)],
+            "middle": [("Propranolol 80mg", 0.82), ("Topiramate 50mg", 0.80), ("Botox injections", 0.76), ("Amitriptyline 25mg", 0.78)],
+            "senior": [("Propranolol 40mg", 0.76), ("Amitriptyline 10mg", 0.74)],
+        },
+        "symptoms": ["Frequent severe headaches (15+ days/month)", "Throbbing pain", "Nausea", "Light sensitivity", "Sound sensitivity", "Fatigue", "Cognitive difficulties"],
+        "severity_dist": {"MILD": 0.05, "MODERATE": 0.35, "SEVERE": 0.60},
+        "chronic": True,
+        "vitals": {"bp_s": (110, 135), "bp_d": (70, 88), "hr": (68, 92), "temp": (98.0, 99.5), "spo2": (96, 99)},
+        "risk_factors": ["Stress", "Sleep deprivation", "Family history (migraine)", "Medication overuse"],
+        "leads_to": {"Depression": 0.15, "Anxiety Disorder": 0.18, "Stroke": 0.04},
+    },
+    "Chronic Sinusitis": {
+        "specialty": "ENT",
+        "age_range": (15, 70),
+        "gender_bias": None,
+        "medicines": {
+            "teen":   [("Fluticasone Nasal Spray", 0.85), ("Amoxicillin+Clavulanate 625mg", 0.80), ("Montelukast 10mg", 0.78), ("Saline Nasal Irrigation", 0.82)],
+            "adult":  [("Fluticasone Nasal Spray", 0.88), ("Mometasone Nasal Spray", 0.86), ("Amoxicillin+Clavulanate 625mg", 0.82), ("Doxycycline 100mg", 0.78), ("Montelukast 10mg", 0.76)],
+            "middle": [("Mometasone Nasal Spray", 0.85), ("Amoxicillin+Clavulanate 625mg", 0.80), ("Saline Nasal Irrigation", 0.82)],
+            "senior": [("Fluticasone Nasal Spray", 0.82), ("Saline Nasal Irrigation", 0.80)],
+        },
+        "symptoms": ["Persistent nasal congestion", "Facial pain/pressure", "Thick nasal discharge", "Reduced smell", "Post-nasal drip", "Fatigue", "Cough", "Headache"],
+        "severity_dist": {"MILD": 0.20, "MODERATE": 0.55, "SEVERE": 0.25},
+        "chronic": True,
+        "vitals": {"bp_s": (110, 130), "bp_d": (68, 85), "hr": (66, 88), "temp": (98.0, 99.5), "spo2": (95, 99)},
+        "risk_factors": ["Air pollution exposure", "Allergic Rhinitis", "Asthma", "Nasal polyps"],
+        "leads_to": {"Asthma": 0.12, "Bronchitis": 0.08, "Sleep Apnea": 0.06},
     },
 }
 

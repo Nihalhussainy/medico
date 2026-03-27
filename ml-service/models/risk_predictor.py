@@ -7,6 +7,7 @@ Also provides precautions, advice, and SHAP-based explanations for each predicti
 """
 
 import os
+import re
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import GradientBoostingClassifier
@@ -15,6 +16,489 @@ from sklearn.model_selection import train_test_split
 from sklearn.calibration import CalibratedClassifierCV
 import joblib
 shap = None
+
+# Import rapidfuzz for fuzzy disease matching
+try:
+    from rapidfuzz import process as rf_process, fuzz as rf_fuzz
+except ImportError:
+    rf_process = None
+    rf_fuzz = None
+
+# ── Disease Name Normalization & Fuzzy Matching ─────────────────────────────
+
+# Common disease aliases to canonical names
+DISEASE_ALIASES = {
+    "sinus": "Sinusitis",
+    "sinuses": "Sinusitis",
+    "sinus problem": "Sinusitis",
+    "sinus infection": "Sinusitis",
+    "cold": "Common Cold",
+    "cough and cold": "Common Cold",
+    "flu": "Influenza",
+    "sugar": "Type 2 Diabetes",
+    "diabetes": "Type 2 Diabetes",
+    "bp": "Hypertension",
+    "high bp": "Hypertension",
+    "blood pressure": "Hypertension",
+    "high blood pressure": "Hypertension",
+    "heart problem": "Heart Disease",
+    "heart attack": "Heart Disease",
+    "migraine headache": "Migraine",
+    "severe headache": "Migraine",
+    "stomach pain": "Gastritis",
+    "acidity": "Gastritis",
+    "acid reflux": "GERD",
+    "reflux": "GERD",
+    "heartburn": "GERD",
+    "anxiety": "Anxiety Disorder",
+    "depression": "Depression",
+    "asthma attack": "Asthma",
+    "breathing problem": "Asthma",
+    "back pain": "Lower Back Pain",
+    "backache": "Lower Back Pain",
+    "kidney stone": "Kidney Stones",
+    "urine infection": "UTI (Urinary Tract Infection)",
+    "uti": "UTI (Urinary Tract Infection)",
+    "skin allergy": "Skin Allergy (Urticaria)",
+    "allergy": "Allergic Rhinitis",
+    "thyroid": "Hypothyroidism",
+    "arthritis": "Arthritis (Osteoarthritis)",
+    "joint pain": "Arthritis (Osteoarthritis)",
+    "vertigo": "Vertigo (BPPV)",
+    "dizziness": "Vertigo (BPPV)",
+    "chest pain": "Heart Disease",
+    "tb": "Tuberculosis (Pulmonary)",
+    "tuberculosis": "Tuberculosis (Pulmonary)",
+}
+
+
+def _canonicalize_disease_name(name: str) -> str:
+    """Normalize disease name: lowercase, remove punctuation, collapse whitespace."""
+    name = name.lower().strip()
+    name = re.sub(r"[^\w\s]", " ", name)
+    name = re.sub(r"\s+", " ", name).strip()
+    return name
+
+
+def _parse_compound_diagnosis(diagnosis: str) -> list:
+    """
+    Parse compound diagnoses like 'Gastritis and Cold' into individual diseases.
+    Returns list of individual disease names.
+    """
+    if not diagnosis:
+        return []
+
+    # Split by common separators: 'and', '&', ',', 'with', '+'
+    parts = re.split(r'\s+and\s+|\s*&\s*|\s*,\s*|\s+with\s+|\s*\+\s*', diagnosis, flags=re.IGNORECASE)
+
+    diseases = []
+    for part in parts:
+        part = part.strip()
+        if part:
+            diseases.append(part)
+
+    return diseases if diseases else [diagnosis]
+
+
+def _fuzzy_match_disease(input_disease: str, known_diseases: list, threshold: int = 60) -> tuple:
+    """
+    Fuzzy match an input disease name against known diseases.
+    Returns (matched_disease, score) or (None, 0) if no match.
+    """
+    if not input_disease or not known_diseases:
+        return None, 0
+
+    input_normalized = input_disease.strip()
+    input_canonical = _canonicalize_disease_name(input_normalized)
+
+    # Check direct alias first
+    if input_canonical in DISEASE_ALIASES:
+        alias_target = DISEASE_ALIASES[input_canonical]
+        if alias_target in known_diseases:
+            return alias_target, 100
+
+    # Exact match (case-insensitive)
+    for disease in known_diseases:
+        if _canonicalize_disease_name(disease) == input_canonical:
+            return disease, 100
+
+    # Substring match
+    for disease in known_diseases:
+        disease_canonical = _canonicalize_disease_name(disease)
+        if input_canonical in disease_canonical or disease_canonical in input_canonical:
+            return disease, 85
+
+    # Fuzzy match using rapidfuzz
+    if rf_process is not None and rf_fuzz is not None:
+        try:
+            # Build variants for better matching
+            variants = []
+            for disease in known_diseases:
+                variants.append((disease, disease))
+                # Add canonical form
+                variants.append((_canonicalize_disease_name(disease), disease))
+                # Add core without parentheses: "Vertigo (BPPV)" -> "Vertigo"
+                core = re.sub(r"\([^)]*\)", "", disease).strip()
+                if core and core != disease:
+                    variants.append((core, disease))
+                    variants.append((_canonicalize_disease_name(core), disease))
+
+            variant_names = [v[0] for v in variants]
+            result = rf_process.extractOne(
+                input_normalized,
+                variant_names,
+                scorer=rf_fuzz.token_set_ratio
+            )
+            if result:
+                match, score, _ = result
+                if score >= threshold:
+                    for variant_name, original in variants:
+                        if variant_name == match:
+                            return original, int(score)
+        except Exception:
+            pass
+
+    return None, 0
+
+
+def _extract_diseases_from_history(patient_history: list, known_diseases: list) -> set:
+    """
+    Extract and normalize disease names from patient history.
+    Handles compound diagnoses and fuzzy matching.
+    """
+    matched_diseases = set()
+
+    for record in patient_history:
+        diagnosis = str(record.get("disease", "")).strip()
+        if not diagnosis:
+            continue
+
+        # Parse compound diagnosis
+        individual_diseases = _parse_compound_diagnosis(diagnosis)
+
+        for disease in individual_diseases:
+            # Try fuzzy matching
+            matched, score = _fuzzy_match_disease(disease, known_diseases)
+            if matched and score >= 60:
+                matched_diseases.add(matched)
+
+    return matched_diseases
+
+
+# ── Intelligent Clinical Analysis Functions ─────────────────────────────────
+
+def _analyze_disease_frequency(patient_history: list, known_diseases: list) -> dict:
+    """
+    Analyze disease frequency and patterns in patient history.
+    Returns dict: {disease_name: {count, severity_trend, is_recurring, latest_severity}}
+    """
+    disease_stats = {}
+
+    for i, record in enumerate(patient_history):
+        diagnosis = str(record.get("disease", "")).strip()
+        if not diagnosis:
+            continue
+
+        # Parse compound diagnoses
+        individual_diseases = _parse_compound_diagnosis(diagnosis)
+        severity = str(record.get("severity", "MODERATE")).upper()
+        severity_score = {"MILD": 1, "MODERATE": 2, "SEVERE": 3}.get(severity, 2)
+
+        for disease_name in individual_diseases:
+            matched, score = _fuzzy_match_disease(disease_name, known_diseases)
+            if not matched or score < 60:
+                continue
+
+            if matched not in disease_stats:
+                disease_stats[matched] = {
+                    "count": 0,
+                    "severities": [],
+                    "is_chronic": False,
+                    "record_indices": [],
+                }
+
+            disease_stats[matched]["count"] += 1
+            disease_stats[matched]["severities"].append(severity_score)
+            disease_stats[matched]["record_indices"].append(i)
+
+            if record.get("is_chronic") or record.get("isChronic"):
+                disease_stats[matched]["is_chronic"] = True
+
+    # Calculate trends and flags
+    for disease, stats in disease_stats.items():
+        severities = stats["severities"]
+        stats["is_recurring"] = stats["count"] >= 2
+        stats["latest_severity"] = severities[-1] if severities else 2
+
+        # Severity trend: positive = getting worse, negative = improving
+        if len(severities) >= 2:
+            first_half = sum(severities[:len(severities)//2]) / max(1, len(severities)//2)
+            second_half = sum(severities[len(severities)//2:]) / max(1, len(severities) - len(severities)//2)
+            stats["severity_trend"] = second_half - first_half
+        else:
+            stats["severity_trend"] = 0
+
+        # Clinical significance score (0-1)
+        # Based on frequency, chronicity, and severity
+        freq_score = min(1.0, stats["count"] / 5)  # Max out at 5 visits
+        chronic_bonus = 0.3 if stats["is_chronic"] else 0
+        severity_bonus = (stats["latest_severity"] - 1) / 4  # 0-0.5
+        trend_bonus = max(0, stats["severity_trend"]) / 4  # Getting worse = bad
+
+        stats["clinical_significance"] = min(1.0, freq_score * 0.4 + chronic_bonus + severity_bonus + trend_bonus)
+
+    return disease_stats
+
+
+def _analyze_vitals_patterns(patient_history: list) -> dict:
+    """
+    Analyze vital signs patterns across all visits.
+    Returns abnormality scores and trends.
+    """
+    vitals = {
+        "bp_systolic": [],
+        "bp_diastolic": [],
+        "heart_rate": [],
+        "spo2": [],
+        "temperature": [],
+    }
+
+    # Normal ranges
+    normal_ranges = {
+        "bp_systolic": (90, 130),
+        "bp_diastolic": (60, 85),
+        "heart_rate": (60, 100),
+        "spo2": (95, 100),
+        "temperature": (97.0, 99.5),
+    }
+
+    for record in patient_history:
+        for vital in vitals:
+            val = record.get(vital) or record.get(vital.replace("_", ""))
+            if val is not None:
+                try:
+                    vitals[vital].append(float(val))
+                except (ValueError, TypeError):
+                    pass
+
+    analysis = {}
+    for vital, values in vitals.items():
+        if not values:
+            continue
+
+        avg = sum(values) / len(values)
+        low, high = normal_ranges[vital]
+
+        # Calculate abnormality score
+        if avg < low:
+            abnormality = (low - avg) / low
+        elif avg > high:
+            abnormality = (avg - high) / high
+        else:
+            abnormality = 0
+
+        # Count consistently abnormal readings
+        abnormal_count = sum(1 for v in values if v < low or v > high)
+        consistency = abnormal_count / len(values) if values else 0
+
+        analysis[vital] = {
+            "average": round(avg, 1),
+            "abnormality_score": min(1.0, abnormality),
+            "consistency": consistency,  # How often it's abnormal
+            "readings_count": len(values),
+            "trend": (values[-1] - values[0]) / max(1, abs(values[0])) if len(values) >= 2 else 0,
+        }
+
+    # Overall cardiovascular risk from vitals
+    cv_risk = 0
+    if "bp_systolic" in analysis:
+        cv_risk += analysis["bp_systolic"]["abnormality_score"] * analysis["bp_systolic"]["consistency"] * 0.4
+    if "bp_diastolic" in analysis:
+        cv_risk += analysis["bp_diastolic"]["abnormality_score"] * analysis["bp_diastolic"]["consistency"] * 0.3
+    if "heart_rate" in analysis:
+        cv_risk += analysis["heart_rate"]["abnormality_score"] * analysis["heart_rate"]["consistency"] * 0.2
+    if "spo2" in analysis:
+        cv_risk += analysis["spo2"]["abnormality_score"] * analysis["spo2"]["consistency"] * 0.1
+
+    analysis["cardiovascular_risk_from_vitals"] = min(1.0, cv_risk)
+
+    return analysis
+
+
+def _get_age_risk_multipliers(age: int) -> dict:
+    """
+    Get age-based risk multipliers for different disease categories.
+    """
+    multipliers = {}
+
+    # Cardiovascular risks increase significantly with age
+    if age < 30:
+        multipliers["cardiovascular"] = 0.3
+        multipliers["metabolic"] = 0.4
+        multipliers["degenerative"] = 0.2
+        multipliers["mental_health"] = 1.0
+    elif age < 45:
+        multipliers["cardiovascular"] = 0.6
+        multipliers["metabolic"] = 0.7
+        multipliers["degenerative"] = 0.4
+        multipliers["mental_health"] = 1.0
+    elif age < 60:
+        multipliers["cardiovascular"] = 1.0
+        multipliers["metabolic"] = 1.0
+        multipliers["degenerative"] = 0.8
+        multipliers["mental_health"] = 0.9
+    elif age < 75:
+        multipliers["cardiovascular"] = 1.4
+        multipliers["metabolic"] = 1.2
+        multipliers["degenerative"] = 1.3
+        multipliers["mental_health"] = 0.8
+    else:
+        multipliers["cardiovascular"] = 1.6
+        multipliers["metabolic"] = 1.3
+        multipliers["degenerative"] = 1.5
+        multipliers["mental_health"] = 0.7
+
+    return multipliers
+
+
+def _get_disease_category(disease: str) -> str:
+    """Categorize disease for age-based risk adjustment."""
+    cardiovascular = {"Heart Disease", "Stroke", "Heart Failure", "Coronary Artery Disease",
+                      "Atrial Fibrillation", "Hypertension", "Hyperlipidemia"}
+    metabolic = {"Type 2 Diabetes", "Obesity", "NAFLD", "Kidney Disease", "Hyperthyroidism",
+                 "Hypothyroidism", "Hyperlipidemia"}
+    degenerative = {"Arthritis", "Osteoporosis", "Dementia", "Alzheimer", "Parkinson",
+                    "Cervical Spondylosis", "COPD", "Chronic Kidney Disease"}
+    mental_health = {"Depression", "Anxiety Disorder", "Insomnia", "Chronic Pain Syndrome"}
+
+    disease_lower = disease.lower()
+    for d in cardiovascular:
+        if d.lower() in disease_lower or disease_lower in d.lower():
+            return "cardiovascular"
+    for d in metabolic:
+        if d.lower() in disease_lower or disease_lower in d.lower():
+            return "metabolic"
+    for d in degenerative:
+        if d.lower() in disease_lower or disease_lower in d.lower():
+            return "degenerative"
+    for d in mental_health:
+        if d.lower() in disease_lower or disease_lower in d.lower():
+            return "mental_health"
+
+    return "general"
+
+
+def _calculate_clinical_relevance(
+    target_disease: str,
+    disease_stats: dict,
+    vitals_analysis: dict,
+    risk_factors: set,
+    age: int,
+    followup_transition: dict,
+    risk_factor_transition: dict,
+) -> tuple:
+    """
+    Calculate clinical relevance score for predicting a target disease.
+    Returns (relevance_score, reasoning_factors).
+
+    This considers:
+    - Recurring conditions in history
+    - Vital signs patterns
+    - Age-appropriate risk
+    - Risk factor accumulation
+    """
+    relevance = 0.0
+    reasoning = []
+
+    # 1. Check disease transitions from RECURRING conditions only
+    for source_disease, stats in disease_stats.items():
+        # Only consider clinically significant occurrences
+        if stats["clinical_significance"] < 0.2:
+            continue  # Skip one-time minor issues
+
+        transition_prob = followup_transition.get(source_disease, {}).get(target_disease, 0.0)
+        if transition_prob > 0:
+            # Weight by clinical significance of the source condition
+            weighted_transition = transition_prob * stats["clinical_significance"]
+
+            # Bonus for recurring conditions
+            if stats["is_recurring"]:
+                weighted_transition *= 1.5
+                reasoning.append(f"Recurring {source_disease} ({stats['count']} visits)")
+
+            # Bonus for chronic conditions
+            if stats["is_chronic"]:
+                weighted_transition *= 1.3
+                reasoning.append(f"Chronic {source_disease}")
+
+            # Bonus for worsening trend
+            if stats["severity_trend"] > 0.3:
+                weighted_transition *= 1.2
+                reasoning.append(f"{source_disease} worsening over time")
+
+            relevance += weighted_transition
+
+    # 2. Risk factor contributions
+    for rf in risk_factors:
+        rf_transition = risk_factor_transition.get(rf, {}).get(target_disease, 0.0)
+        if rf_transition > 0:
+            relevance += rf_transition * 0.5
+            if rf_transition > 0.1:
+                reasoning.append(f"Risk factor: {rf}")
+
+    # 3. Vitals-based risk (for cardiovascular conditions)
+    category = _get_disease_category(target_disease)
+    if category == "cardiovascular" and "cardiovascular_risk_from_vitals" in vitals_analysis:
+        vitals_risk = vitals_analysis["cardiovascular_risk_from_vitals"]
+        if vitals_risk > 0.2:
+            relevance += vitals_risk * 0.3
+            reasoning.append("Abnormal vital signs pattern")
+
+    # 4. Age-based adjustment
+    age_multipliers = _get_age_risk_multipliers(age)
+    age_mult = age_multipliers.get(category, 1.0)
+    if age_mult != 1.0:
+        relevance *= age_mult
+        if age_mult > 1.0:
+            reasoning.append(f"Age-related risk (age {age})")
+
+    return min(1.0, relevance), reasoning
+
+
+def _should_predict_risk(
+    disease_stats: dict,
+    vitals_analysis: dict,
+    risk_factors: set,
+    history_length: int,
+) -> bool:
+    """
+    Determine if we should make any risk predictions at all.
+    Returns False if the patient has minimal/one-time issues.
+    """
+    # Need at least 1 visit
+    if history_length < 1:
+        return False
+
+    # Check for any clinically significant conditions
+    has_significant = any(
+        stats["clinical_significance"] >= 0.25
+        for stats in disease_stats.values()
+    )
+
+    # Check for chronic conditions
+    has_chronic = any(stats["is_chronic"] for stats in disease_stats.values())
+
+    # Check for recurring conditions
+    has_recurring = any(stats["is_recurring"] for stats in disease_stats.values())
+
+    # Check for significant vitals issues
+    has_vitals_issues = vitals_analysis.get("cardiovascular_risk_from_vitals", 0) > 0.3
+
+    # Check for multiple risk factors
+    has_risk_factors = len(risk_factors) >= 2
+
+    return has_significant or has_chronic or has_recurring or has_vitals_issues or has_risk_factors
+
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "saved_models")
 
@@ -869,28 +1353,31 @@ class HealthRiskPredictor:
     def predict_risks(self, patient_history: list, current_age: int,
                       gender: str, blood_group: str = "O+") -> dict:
         """
-        Predict health risks for a patient based on their medical history.
-        Returns predictions with SHAP-based explanations.
+        INTELLIGENT Risk Prediction based on:
+        - Disease frequency and recurrence patterns
+        - Vital signs trends across visits
+        - Age-adjusted risk factors
+        - Severity progression over time
+        - Clinical significance (not simple 1:1 disease mapping)
 
-        patient_history: list of dicts with keys:
-            disease, severity, bp_systolic, bp_diastolic, heart_rate,
-            temperature, spo2, risk_factors, is_chronic
+        Only predicts risks for chronic/recurring/clinically significant conditions.
+        One-time acute issues do NOT trigger risk predictions.
         """
         if not self.is_trained or not self.models:
             return {"error": "Model not trained yet", "risks": []}
 
         self._ensure_transition_priors()
 
-        # Aggregate patient history into a single feature vector
-        agg = self._aggregate_history(patient_history, current_age, gender, blood_group)
-        if agg is None:
-            return {"risks": [], "message": "Could not process patient history"}
+        # ═══ STEP 1: Intelligent Clinical Analysis ═══
+        known_diseases = list(self.followup_transition.keys())
 
-        X_scaled = self.scaler.transform([agg])
-        X_unscaled = np.array([agg])  # Keep unscaled for SHAP
+        # Analyze disease frequency and patterns
+        disease_stats = _analyze_disease_frequency(patient_history, known_diseases)
 
-        # Context used for relevance-aware filtering
-        history_diseases = {str(h.get("disease", "")).strip() for h in patient_history if str(h.get("disease", "")).strip()}
+        # Analyze vital signs patterns
+        vitals_analysis = _analyze_vitals_patterns(patient_history)
+
+        # Collect all risk factors
         history_rf = set()
         for h in patient_history:
             for rf in str(h.get("risk_factors", "")).split("|"):
@@ -898,80 +1385,135 @@ class HealthRiskPredictor:
                 if rf:
                     history_rf.add(rf)
 
+        # ═══ STEP 2: Check if Risk Prediction is Warranted ═══
+        # Don't predict risks for patients with only one-time minor issues
+        if not _should_predict_risk(disease_stats, vitals_analysis, history_rf, len(patient_history)):
+            return {
+                "risks": [],
+                "patient_age": current_age,
+                "patient_gender": gender,
+                "history_records_analyzed": len(patient_history),
+                "message": "No significant risk patterns detected. Medical history shows only minor/one-time conditions.",
+                "analysis_summary": {
+                    "conditions_analyzed": len(disease_stats),
+                    "recurring_conditions": sum(1 for s in disease_stats.values() if s["is_recurring"]),
+                    "chronic_conditions": sum(1 for s in disease_stats.values() if s["is_chronic"]),
+                    "risk_factors_count": len(history_rf),
+                }
+            }
+
+        # ═══ STEP 3: Prepare ML Features ═══
+        agg = self._aggregate_history(patient_history, current_age, gender, blood_group)
+        if agg is None:
+            return {"risks": [], "message": "Could not process patient history"}
+
+        X_scaled = self.scaler.transform([agg])
+        X_unscaled = np.array([agg])
+
+        # ═══ STEP 4: Intelligent Risk Calculation ═══
         risks = []
-        for disease, clf in self.models.items():
+        age_multipliers = _get_age_risk_multipliers(current_age)
+
+        for target_disease, clf in self.models.items():
+            # Get ML model probability
             proba = clf.predict_proba(X_scaled)
-            # Aggregate-history probability
-            agg_prob = proba[0][1] if len(proba[0]) > 1 else 0.0
-            # Per-record weighted probability (uses full history signal)
-            hist_prob = self._history_model_probability(
-                disease=disease,
-                clf=clf,
-                history=patient_history,
-                current_age=current_age,
-                gender=gender,
-                blood_group=blood_group,
+            model_prob = proba[0][1] if len(proba[0]) > 1 else 0.0
+
+            # Calculate clinical relevance intelligently
+            clinical_relevance, reasoning = _calculate_clinical_relevance(
+                target_disease=target_disease,
+                disease_stats=disease_stats,
+                vitals_analysis=vitals_analysis,
+                risk_factors=history_rf,
+                age=current_age,
+                followup_transition=self.followup_transition,
+                risk_factor_transition=self.risk_factor_transition,
             )
-            # Blend both so risk reflects complete longitudinal history.
-            risk_prob = (0.65 * float(agg_prob)) + (0.35 * float(hist_prob))
 
-            # Relevance from observed transitions in training data
-            disease_relevance = 0.0
-            for hd in history_diseases:
-                disease_relevance = max(
-                    disease_relevance,
-                    self.followup_transition.get(hd, {}).get(disease, 0.0),
-                )
+            # Skip if no clinical relevance (prevents random disease mappings)
+            if clinical_relevance < 0.05:
+                continue
 
-            rf_relevance = 0.0
-            for rf in history_rf:
-                rf_relevance = max(
-                    rf_relevance,
-                    self.risk_factor_transition.get(rf, {}).get(disease, 0.0),
-                )
+            # Apply age-based adjustment to model probability
+            category = _get_disease_category(target_disease)
+            age_mult = age_multipliers.get(category, 1.0)
+            adjusted_model_prob = float(model_prob) * age_mult
 
-            prior_relevance = max(disease_relevance, rf_relevance)
+            # Combine model probability with clinical relevance
+            # Weight clinical relevance more heavily for realistic predictions
+            # Model: 40%, Clinical Relevance: 60%
+            combined_prob = (0.4 * adjusted_model_prob) + (0.6 * clinical_relevance)
 
-            # Blend model confidence with learned clinical transition relevance.
-            adjusted_prob = (0.75 * float(risk_prob)) + (0.25 * float(prior_relevance))
+            # Minimum threshold for showing a prediction
+            min_threshold = 0.10
 
-            # Filter noisy unrelated candidates while keeping strong model signals.
-            if adjusted_prob > 0.12 and (prior_relevance >= 0.03 or risk_prob >= 0.35):
-                level = "LOW"
-                if adjusted_prob > 0.4:
+            # Require either strong clinical relevance OR strong model signal
+            if combined_prob >= min_threshold and clinical_relevance >= 0.08:
+                # Determine risk level with age-adjusted thresholds
+                if combined_prob > 0.50:
                     level = "HIGH"
-                elif adjusted_prob > 0.2:
+                elif combined_prob > 0.25:
                     level = "MODERATE"
+                else:
+                    level = "LOW"
 
-                precaution_info = RISK_PRECAUTIONS.get(disease, DEFAULT_PRECAUTION)
+                precaution_info = RISK_PRECAUTIONS.get(target_disease, DEFAULT_PRECAUTION)
+                top_factors = self._get_shap_factors(target_disease, X_unscaled, top_n=5)
 
-                # Get SHAP-based top contributing factors
-                top_factors = self._get_shap_factors(disease, X_unscaled, top_n=5)
+                # Add reasoning from clinical analysis
+                if reasoning:
+                    for r in reasoning[:3]:  # Top 3 reasons
+                        top_factors.insert(0, {
+                            "factor": r,
+                            "impact": round(clinical_relevance * 50, 1),
+                            "direction": "increases risk",
+                            "source": "clinical_pattern"
+                        })
 
                 risks.append({
-                    "disease": disease,
-                    "probability": round(adjusted_prob * 100, 1),
-                    "model_probability": round(float(risk_prob) * 100, 1),
-                    "aggregate_model_probability": round(float(agg_prob) * 100, 1),
-                    "history_model_probability": round(float(hist_prob) * 100, 1),
-                    "relevance_score": round(float(prior_relevance) * 100, 1),
+                    "disease": target_disease,
+                    "probability": round(combined_prob * 100, 1),
+                    "model_probability": round(adjusted_model_prob * 100, 1),
+                    "clinical_relevance": round(clinical_relevance * 100, 1),
                     "risk_level": level,
-                    "confidence": self._calculate_confidence(adjusted_prob),
-                    "top_factors": top_factors,
+                    "confidence": self._calculate_confidence(combined_prob),
+                    "reasoning": reasoning[:3] if reasoning else [],
+                    "top_factors": top_factors[:5],
                     "precautions": precaution_info["precautions"],
                     "advice": precaution_info["advice"],
                 })
 
-        # Sort by probability descending
+        # Sort by probability descending and limit
         risks.sort(key=lambda x: -x["probability"])
         risks = risks[:8]
+
+        # ═══ STEP 5: Build Analysis Summary ═══
+        analysis_summary = {
+            "total_visits": len(patient_history),
+            "conditions_analyzed": len(disease_stats),
+            "recurring_conditions": [
+                {"name": d, "count": s["count"], "chronic": s["is_chronic"]}
+                for d, s in disease_stats.items()
+                if s["is_recurring"] or s["is_chronic"]
+            ],
+            "vitals_status": {
+                "cardiovascular_risk": round(vitals_analysis.get("cardiovascular_risk_from_vitals", 0) * 100, 1),
+                "abnormal_readings": {
+                    k: v for k, v in vitals_analysis.items()
+                    if isinstance(v, dict) and v.get("consistency", 0) > 0.3
+                }
+            },
+            "risk_factors": list(history_rf),
+            "age_risk_category": "elevated" if current_age >= 50 else "standard",
+        }
 
         return {
             "risks": risks,
             "patient_age": current_age,
             "patient_gender": gender,
             "history_records_analyzed": len(patient_history),
-            "explanation_method": "SHAP (SHapley Additive exPlanations)",
+            "analysis_summary": analysis_summary,
+            "explanation_method": "Intelligent Clinical Analysis + ML + SHAP",
         }
 
     def _get_shap_factors(self, disease: str, X: np.ndarray, top_n: int = 5) -> list:
