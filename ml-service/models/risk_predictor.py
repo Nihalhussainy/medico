@@ -239,13 +239,26 @@ def _analyze_disease_frequency(patient_history: list, known_diseases: list) -> d
             stats["severity_trend"] = 0
 
         # Clinical significance score (0-1)
-        # Based on frequency, chronicity, and severity
-        freq_score = min(1.0, stats["count"] / 5)  # Max out at 5 visits
-        chronic_bonus = 0.3 if stats["is_chronic"] else 0
-        severity_bonus = (stats["latest_severity"] - 1) / 4  # 0-0.5
-        trend_bonus = max(0, stats["severity_trend"]) / 4  # Getting worse = bad
+        # CRITICAL: Single occurrences should have VERY LOW significance
+        # Only recurring or chronic conditions should be clinically significant
 
-        stats["clinical_significance"] = min(1.0, freq_score * 0.4 + chronic_bonus + severity_bonus + trend_bonus)
+        if stats["is_recurring"]:
+            # Recurring = count >= 2: high significance
+            freq_score = min(1.0, stats["count"] / 4)  # Scales: 0.5 at 2 visits, 1.0 at 4+
+            chronic_bonus = 0.3 if stats["is_chronic"] else 0
+            severity_bonus = (stats["latest_severity"] - 1) / 4  # 0-0.5
+            trend_bonus = max(0, stats["severity_trend"]) / 3  # Getting worse = bad
+            stats["clinical_significance"] = min(1.0, freq_score * 0.5 + chronic_bonus + severity_bonus + trend_bonus)
+        elif stats["is_chronic"]:
+            # Chronic but first occurrence: moderate significance
+            stats["clinical_significance"] = 0.35 + (stats["latest_severity"] - 1) * 0.1
+        else:
+            # Single occurrence, non-chronic: VERY LOW significance (0.05-0.15)
+            # Only severe single occurrences get slight consideration
+            if stats["latest_severity"] >= 3:  # SEVERE
+                stats["clinical_significance"] = 0.15
+            else:
+                stats["clinical_significance"] = 0.05  # Essentially filtered out
 
     return disease_stats
 
@@ -410,11 +423,12 @@ def _calculate_clinical_relevance(
     relevance = 0.0
     reasoning = []
 
-    # 1. Check disease transitions from RECURRING conditions only
+    # 1. Check disease transitions from RECURRING/CHRONIC conditions only
     for source_disease, stats in disease_stats.items():
-        # Only consider clinically significant occurrences
-        if stats["clinical_significance"] < 0.2:
-            continue  # Skip one-time minor issues
+        # Only consider clinically significant occurrences (recurring/chronic/severe)
+        # Single mild/moderate visits are filtered out here
+        if stats["clinical_significance"] < 0.25:
+            continue  # Skip one-time minor/moderate issues
 
         transition_prob = followup_transition.get(source_disease, {}).get(target_disease, 0.0)
         if transition_prob > 0:
@@ -480,8 +494,9 @@ def _should_predict_risk(
         return False
 
     # Check for any clinically significant conditions
+    # Threshold increased: only recurring/chronic/severe conditions qualify
     has_significant = any(
-        stats["clinical_significance"] >= 0.25
+        stats["clinical_significance"] >= 0.30
         for stats in disease_stats.values()
     )
 
@@ -1449,6 +1464,20 @@ class HealthRiskPredictor:
 
             # Require either strong clinical relevance OR strong model signal
             if combined_prob >= min_threshold and clinical_relevance >= 0.08:
+                # Keep only predictions that have patient-history-linked evidence.
+                has_history_linked_reason = any(
+                    str(r).startswith("Recurring")
+                    or str(r).startswith("Chronic")
+                    or str(r).startswith("Risk factor")
+                    or str(r).startswith("Abnormal vital signs pattern")
+                    for r in (reasoning or [])
+                )
+
+                # For LOW risks, be strict: must be history-linked.
+                # For MOD/HIGH, allow strong model signal to pass.
+                if combined_prob < 0.25 and not has_history_linked_reason:
+                    continue
+
                 # Determine risk level with age-adjusted thresholds
                 if combined_prob > 0.50:
                     level = "HIGH"
@@ -1539,11 +1568,12 @@ class HealthRiskPredictor:
             # Pair features with their SHAP values
             feature_impacts = []
             for i, (name, val) in enumerate(zip(self.feature_names, shap_vals)):
-                if abs(val) > 0.001:  # Only include meaningful contributions
+                # Surface only factors that increase risk for clearer clinical explanations.
+                if val > 0.001:
                     feature_impacts.append({
                         "factor": name,
-                        "impact": round(abs(val) * 100, 1),  # Convert to percentage-like scale
-                        "direction": "increases risk" if val > 0 else "decreases risk",
+                        "impact": round(float(val) * 100, 1),
+                        "direction": "increases risk",
                         "raw_value": round(float(X[0][i]), 2) if i < len(X[0]) else None
                     })
 

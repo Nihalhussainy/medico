@@ -77,28 +77,37 @@ function parseSystolic(vitals) {
   return match ? Number(match[1]) : null;
 }
 
-function getFactorEvidence(factorName, selectedEntity, latestRecord) {
-  const factor = String(factorName || "").toLowerCase();
+function getFactorEvidence(factor, selectedEntity, latestRecord) {
+  const factorName = factor?.factor;
+  const factorKey = String(factorName || "").toLowerCase();
+  const rawValue = factor?.raw_value;
   const age = selectedEntity?.age ?? calculateAgeFromDOB(selectedEntity?.dateOfBirth);
 
-  if (factor.includes("gender")) {
+  if (factorKey.includes("gender")) {
     return selectedEntity?.gender ? `Current value: ${selectedEntity.gender}` : null;
   }
-  if (factor.includes("age")) {
+  if (factorKey.includes("age")) {
     return age ? `Current value: ${age} years` : null;
   }
-  if (factor.includes("blood")) {
+  if (factorKey.includes("blood")) {
     return selectedEntity?.bloodGroup ? `Current value: ${selectedEntity.bloodGroup}` : null;
   }
-  if (factor.includes("systolic")) {
+  if (factorKey.includes("systolic")) {
     const sys = parseSystolic(latestRecord?.vitals);
     return sys ? `Latest reading: ${sys} mmHg` : null;
   }
-  if (factor.includes("primary diagnosis")) {
+  if (factorKey.includes("primary diagnosis")) {
     return latestRecord?.diagnosis ? `Latest diagnosis: ${latestRecord.diagnosis}` : null;
   }
-  if (factor.includes("chronic")) {
-    return "Detected from long-term/chronic terms in record history";
+  if (factorKey.includes("chronic")) {
+    if (rawValue && Number(rawValue) > 0) {
+      return "Detected from long-term/chronic terms in record history";
+    }
+    return null;
+  }
+
+  if (typeof rawValue === "number") {
+    return `Model value: ${rawValue}`;
   }
 
   return null;
@@ -357,11 +366,14 @@ export default function PatientRiskForecastPage() {
                     <div className="mt-4 pt-3 border-t border-white/50">
                       <p className="mb-2 text-xs font-medium text-gray-600">Model signals from your data:</p>
                       <div className="space-y-2">
-                        {risk.top_factors.slice(0, 3).map((factor, fIdx) => (
+                        {risk.top_factors
+                          .filter((factor) => factor?.direction !== "decreases risk")
+                          .slice(0, 3)
+                          .map((factor, fIdx) => (
                           <div key={fIdx} className="rounded-md bg-white/50 px-2 py-1.5 text-xs">
                             <p className="font-medium text-gray-800">{factor.factor}</p>
-                            {getFactorEvidence(factor.factor, selectedEntity, latestRecord) && (
-                              <p className="mt-0.5 text-gray-600">{getFactorEvidence(factor.factor, selectedEntity, latestRecord)}</p>
+                            {getFactorEvidence(factor, selectedEntity, latestRecord) && (
+                              <p className="mt-0.5 text-gray-600">{getFactorEvidence(factor, selectedEntity, latestRecord)}</p>
                             )}
                           </div>
                         ))}
@@ -369,6 +381,17 @@ export default function PatientRiskForecastPage() {
                       <p className="mt-2 text-[11px] text-gray-500">
                         These are contributing signals, not guaranteed causes.
                       </p>
+                    </div>
+                  )}
+
+                  {risk.reasoning && risk.reasoning.length > 0 && (
+                    <div className="mt-3 rounded-md bg-white/60 p-2 text-xs text-gray-700">
+                      <p className="font-medium text-gray-800">Why this risk appears:</p>
+                      <ul className="mt-1 list-disc pl-4">
+                        {risk.reasoning.slice(0, 3).map((reason, ridx) => (
+                          <li key={ridx}>{reason}</li>
+                        ))}
+                      </ul>
                     </div>
                   )}
 
