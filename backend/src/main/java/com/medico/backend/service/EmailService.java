@@ -17,17 +17,20 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final String deliveryMode;
     private final int otpExpiryMinutes;
+    private final String smtpUsername;
     private final String mailFrom;
 
     public EmailService(
         JavaMailSender mailSender,
         @Value("${app.otp.delivery}") String deliveryMode,
         @Value("${app.otp.expiration-minutes}") int otpExpiryMinutes,
-        @Value("${spring.mail.username}") String mailFrom
+        @Value("${spring.mail.username:}") String smtpUsername,
+        @Value("${spring.mail.from:}") String mailFrom
     ) {
         this.mailSender = mailSender;
         this.deliveryMode = deliveryMode;
         this.otpExpiryMinutes = otpExpiryMinutes;
+        this.smtpUsername = smtpUsername;
         this.mailFrom = mailFrom;
     }
 
@@ -35,11 +38,20 @@ public class EmailService {
         if (!"EMAIL".equalsIgnoreCase(deliveryMode)) {
             throw new IllegalStateException("OTP delivery is disabled. Set app.otp.delivery=EMAIL for real OTP delivery.");
         }
-        log.info("Attempting to send OTP email to {} from {}", to, mailFrom);
+
+        String effectiveFrom = mailFrom != null && !mailFrom.isBlank() ? mailFrom : smtpUsername;
+        if (effectiveFrom == null || effectiveFrom.isBlank()) {
+            throw new IllegalStateException("Missing sender email. Configure spring.mail.from with a Brevo-verified sender.");
+        }
+        if (effectiveFrom.toLowerCase().endsWith("@smtp-brevo.com")) {
+            throw new IllegalStateException("Invalid sender email for Brevo. Use a verified sender/domain email for spring.mail.from.");
+        }
+
+        log.info("Attempting to send OTP email to {} from {}", to, effectiveFrom);
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(mailFrom);
+            helper.setFrom(effectiveFrom);
             helper.setTo(to);
             helper.setSubject("Medical Record Access Request - Your OTP Code");
             helper.setText(buildOtpEmailHtml(otp, doctorName), true);
