@@ -429,26 +429,38 @@ def _calculate_clinical_relevance(
     relevance = 0.0
     reasoning = []
 
-    # 0. Direct diagnosis continuity: if target closely matches recent diagnoses,
-    # retain a baseline relevance even when transition priors are sparse.
+    # 0. Check if we're predicting the SAME disease patient has (recurring pattern)
+    # Only allow if count >= 2 (showing a pattern)
     target_norm = _canonicalize_disease_name(target_disease)
+    same_disease_count = 0
+    same_disease_stats = None
     for source_disease, stats in disease_stats.items():
         source_norm = _canonicalize_disease_name(source_disease)
-        is_overlap = (
+        is_exact_match = (
             target_norm == source_norm
             or target_norm in source_norm
             or source_norm in target_norm
         )
-        if not is_overlap:
-            continue
+        if is_exact_match:
+            same_disease_count = stats["count"]
+            same_disease_stats = stats
+            if same_disease_count < 2:
+                # Only 1 occurrence - don't predict as risk
+                return 0.0, ["Single occurrence - no recurring pattern"]
+            # 2+ occurrences: will add relevance for recurrence below
+            break
 
-        continuity = 0.10 + (stats.get("clinical_significance", 0.0) * 0.35)
-        if stats.get("is_recurring"):
-            continuity += 0.08
-        if stats.get("is_chronic"):
-            continuity += 0.07
-        relevance += continuity
-        reasoning.append(f"Recent diagnosis continuity: {source_disease}")
+    # For recurring same disease (count >= 2), add base relevance
+    if same_disease_count >= 2 and same_disease_stats:
+        # Higher base for recurrence: 0.25 for 2x, 0.35 for 3x, 0.45 for 4x+
+        base_recurrence = 0.25 + min(0.5, (same_disease_count - 2) * 0.10)
+        # Don't reduce by clinical_significance - being recurring IS clinically significant
+        # Just multiply by severity to weight worse cases higher
+        severity_mult = 1.0 + (same_disease_stats["latest_severity"] - 2) * 0.2
+        relevance += base_recurrence * severity_mult
+        reasoning.append(f"Recurring pattern: {same_disease_count} occurrences")
+        # Early return for same-disease case (don't check transitions)
+        return min(1.0, relevance), reasoning
 
     # 1. Check disease transitions from history conditions
     for source_disease, stats in disease_stats.items():
@@ -1497,6 +1509,28 @@ class HealthRiskPredictor:
             # Model: 40%, Clinical Relevance: 60%
             combined_prob = (0.4 * adjusted_model_prob) + (0.6 * clinical_relevance)
 
+            # Check if this is a SAME disease prediction (recurring pattern)
+            # If so, apply count-based caps for realism
+            target_norm = _canonicalize_disease_name(target_disease)
+            same_disease_count = 0
+            for source_disease, stats in disease_stats.items():
+                source_norm = _canonicalize_disease_name(source_disease)
+                is_exact_match = (
+                    target_norm == source_norm
+                    or target_norm in source_norm
+                    or source_norm in target_norm
+                )
+                if is_exact_match:
+                    same_disease_count = stats["count"]
+                    break
+
+            # Cap probability for recurring same disease with exactly 2 occurrences
+            if same_disease_count == 2:
+                combined_prob = min(combined_prob, 0.20)  # Cap at 20%
+            elif same_disease_count >= 3:
+                # For 3+ occurrences, allow normal calculation but no artificial cap
+                pass
+
             # Minimum threshold for showing a prediction
             # Lowered from 0.08 to 0.06 to capture strong clinical transitions (e.g., Gastritis->GERD)
             # even when ML model is weak on multi-condition aggregates
@@ -1504,6 +1538,13 @@ class HealthRiskPredictor:
 
             # Require either meaningful clinical relevance OR strong model signal
             if combined_prob >= min_threshold and clinical_relevance >= 0.05:
+                # Add note about recurring same disease
+                if same_disease_count >= 2:
+                    if same_disease_count == 2:
+                        reasoning.append(f"Recurring condition: {target_disease} (2 occurrences - establishing pattern)")
+                    else:
+                        reasoning.append(f"Recurring condition: {target_disease} ({same_disease_count} occurrences)")
+
                 # Check if prediction has history-linked evidence
                 has_history_linked_reason = any(
                     str(r).startswith("Recurring")
