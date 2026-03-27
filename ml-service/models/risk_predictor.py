@@ -197,6 +197,7 @@ def _extract_diseases_from_history(patient_history: list, known_diseases: list) 
 def _analyze_disease_frequency(patient_history: list, known_diseases: list) -> dict:
     """
     Analyze disease frequency and patterns in patient history.
+    Recent occurrences weighted more heavily than old ones (recency matters).
     Returns dict: {disease_name: {count, severity_trend, is_recurring, latest_severity}}
     """
     disease_stats = {}
@@ -211,6 +212,11 @@ def _analyze_disease_frequency(patient_history: list, known_diseases: list) -> d
         severity = str(record.get("severity", "MODERATE")).upper()
         severity_score = {"MILD": 1, "MODERATE": 2, "SEVERE": 3}.get(severity, 2)
 
+        # Temporal weight: recent visits (higher index) get more weight
+        # More recent (later in history) = higher weight
+        temporal_weight = 1.0 if len(patient_history) <= 1 else 1.0 + (i / len(patient_history)) * 0.5
+        # This scales: first visit = 1.0x, last visit = 1.5x
+
         for disease_name in individual_diseases:
             matched, score = _fuzzy_match_disease(disease_name, known_diseases)
             if not matched or score < 60:
@@ -222,9 +228,11 @@ def _analyze_disease_frequency(patient_history: list, known_diseases: list) -> d
                     "severities": [],
                     "is_chronic": False,
                     "record_indices": [],
+                    "weighted_count": 0.0,  # NEW: counts recent occurrences more
                 }
 
             disease_stats[matched]["count"] += 1
+            disease_stats[matched]["weighted_count"] += temporal_weight
             disease_stats[matched]["severities"].append(severity_score)
             disease_stats[matched]["record_indices"].append(i)
 
@@ -251,7 +259,8 @@ def _analyze_disease_frequency(patient_history: list, known_diseases: list) -> d
 
         if stats["is_recurring"]:
             # Recurring = count >= 2: HIGH significance
-            freq_score = min(1.0, stats["count"] / 4)  # Scales: 0.5 at 2 visits, 1.0 at 4+
+            # Use weighted count for recency bonus
+            freq_score = min(1.0, stats["weighted_count"] / 4)  # Scales based on recency
             chronic_bonus = 0.3 if stats["is_chronic"] else 0
             severity_bonus = (stats["latest_severity"] - 1) / 4  # 0-0.5
             trend_bonus = max(0, stats["severity_trend"]) / 3  # Getting worse = bad
@@ -272,7 +281,7 @@ def _analyze_disease_frequency(patient_history: list, known_diseases: list) -> d
 def _analyze_vitals_patterns(patient_history: list) -> dict:
     """
     Analyze vital signs patterns across all visits.
-    Returns abnormality scores and trends.
+    Returns abnormality scores, trends, and velocity (rate of change).
     """
     vitals = {
         "bp_systolic": [],
@@ -320,12 +329,22 @@ def _analyze_vitals_patterns(patient_history: list) -> dict:
         abnormal_count = sum(1 for v in values if v < low or v > high)
         consistency = abnormal_count / len(values) if values else 0
 
+        # Calculate velocity (rate of change per reading)
+        # Positive velocity = worsening (going away from normal)
+        velocity = 0
+        if len(values) >= 3:
+            mid_point = len(values) // 2
+            earlier_avg = sum(values[:mid_point]) / max(1, mid_point)
+            later_avg = sum(values[mid_point:]) / max(1, (len(values) - mid_point))
+            velocity = later_avg - earlier_avg
+
         analysis[vital] = {
             "average": round(avg, 1),
             "abnormality_score": min(1.0, abnormality),
             "consistency": consistency,  # How often it's abnormal
             "readings_count": len(values),
             "trend": (values[-1] - values[0]) / max(1, abs(values[0])) if len(values) >= 2 else 0,
+            "velocity": round(velocity, 2),  # NEW: Direction of change
         }
 
     # Overall cardiovascular risk from vitals
@@ -405,6 +424,65 @@ def _get_disease_category(disease: str) -> str:
             return "mental_health"
 
     return "general"
+
+
+def _get_comorbidity_multiplier(disease_stats: dict, target_disease: str) -> tuple:
+    """
+    Calculate comorbidity interaction multiplier.
+    Some disease combinations dramatically increase risk.
+
+    Returns (multiplier, reason)
+    """
+    multiplier = 1.0
+    reason = None
+
+    # Normalize target disease name
+    target_norm = _canonicalize_disease_name(target_disease)
+
+    disease_names = {_canonicalize_disease_name(d): d for d in disease_stats.keys()}
+
+    # Critical interactions (proven medical literature)
+    interactions = {
+        # Diabetes + Hypertension → Kidney/Cardiovascular risk
+        ("diabetes", "hypertension"): (2.5, "Diabetes + Hypertension significantly increases kidney/CV risk"),
+        ("type 2 diabetes", "hypertension"): (2.5, "Diabetes + Hypertension significantly increases kidney/CV risk"),
+
+        # Diabetes + Smoking → Stroke risk
+        ("diabetes", "smoking"): (3.2, "Diabetes + Smoking multiplies stroke risk"),
+
+        # Hypertension + Smoking → Cardiovascular risk
+        ("hypertension", "smoking"): (2.8, "Hypertension + Smoking increases heart attack/stroke risk"),
+
+        # Multiple chronic diseases
+    }
+
+    # Check for interactions involving target disease
+    if "kidney" in target_norm or "nephro" in target_norm:
+        # Diabetes + Hypertension → Kidney disease
+        has_diabetes = any("diabetes" in n for n in disease_names.keys())
+        has_hypertension = any("hypertension" in n for n in disease_names.keys())
+        if has_diabetes and has_hypertension:
+            recurring_diabetes = disease_stats.get(disease_names.get("diabetes") or disease_names.get("type 2 diabetes"), {}).get("is_recurring", False)
+            recurring_hypertension = disease_stats.get(disease_names.get("hypertension"), {}).get("is_recurring", False)
+            if recurring_diabetes or recurring_hypertension:
+                multiplier = 2.5
+                reason = "Diabetes + Hypertension interaction (kidney risk)"
+
+    if "stroke" in target_norm or "cerebrovascular" in target_norm:
+        # Hypertension + Smoking → Stroke risk
+        has_hypertension = any("hypertension" in n for n in disease_names.keys())
+        if has_hypertension:
+            multiplier = max(multiplier, 2.2)
+            reason = "Hypertension increases stroke risk"
+
+    if "heart" in target_norm or "cardiovascular" in target_norm:
+        # Count risk factors
+        chronic_count = sum(1 for s in disease_stats.values() if s.get("is_recurring") or s.get("is_chronic"))
+        if chronic_count >= 2:
+            multiplier = 1.5 + (chronic_count - 2) * 0.3
+            reason = f"Multiple chronic conditions ({chronic_count}) increase cardiovascular risk"
+
+    return multiplier, reason
 
 
 def _calculate_clinical_relevance(
@@ -518,6 +596,18 @@ def _calculate_clinical_relevance(
         if vitals_risk > 0.2:
             relevance += vitals_risk * 0.3
             reasoning.append("Abnormal vital signs pattern")
+
+        # Boost if vitals are worsening (velocity positive)
+        if "bp_systolic" in vitals_analysis and vitals_analysis["bp_systolic"].get("velocity", 0) > 5:
+            relevance += 0.08
+            reasoning.append("BP worsening trend (velocity increasing)")
+
+    # 3b. Comorbidity interactions (proven medical multipliers)
+    comorbidity_mult, comorbidity_reason = _get_comorbidity_multiplier(disease_stats, target_disease)
+    if comorbidity_mult > 1.0:
+        relevance *= comorbidity_mult
+        if comorbidity_reason:
+            reasoning.append(comorbidity_reason)
 
     # 4. Age-based adjustment
     age_multipliers = _get_age_risk_multipliers(age)
