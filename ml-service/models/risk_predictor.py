@@ -423,34 +423,42 @@ def _calculate_clinical_relevance(
     relevance = 0.0
     reasoning = []
 
-    # 1. Check disease transitions from RECURRING/CHRONIC conditions only
+    # 1. Check disease transitions from history conditions
     for source_disease, stats in disease_stats.items():
-        # Only consider clinically significant occurrences (recurring/chronic/severe)
-        # Single mild/moderate visits are filtered out here
-        if stats["clinical_significance"] < 0.25:
-            continue  # Skip one-time minor/moderate issues
-
         transition_prob = followup_transition.get(source_disease, {}).get(target_disease, 0.0)
-        if transition_prob > 0:
-            # Weight by clinical significance of the source condition
-            weighted_transition = transition_prob * stats["clinical_significance"]
+        if transition_prob <= 0:
+            continue
 
-            # Bonus for recurring conditions
-            if stats["is_recurring"]:
-                weighted_transition *= 1.5
-                reasoning.append(f"Recurring {source_disease} ({stats['count']} visits)")
+        clinical_significance = stats["clinical_significance"]
 
-            # Bonus for chronic conditions
-            if stats["is_chronic"]:
-                weighted_transition *= 1.3
-                reasoning.append(f"Chronic {source_disease}")
-
-            # Bonus for worsening trend
-            if stats["severity_trend"] > 0.3:
-                weighted_transition *= 1.2
-                reasoning.append(f"{source_disease} worsening over time")
-
+        # For one-time/acute conditions, keep only stronger known transitions at low weight.
+        if clinical_significance < 0.25:
+            if transition_prob < 0.12:
+                continue
+            weighted_transition = transition_prob * max(0.08, clinical_significance) * 0.55
+            reasoning.append(f"Recent diagnosis: {source_disease}")
             relevance += weighted_transition
+            continue
+
+        # Weight by clinical significance of the source condition
+        weighted_transition = transition_prob * clinical_significance
+
+        # Bonus for recurring conditions
+        if stats["is_recurring"]:
+            weighted_transition *= 1.5
+            reasoning.append(f"Recurring {source_disease} ({stats['count']} visits)")
+
+        # Bonus for chronic conditions
+        if stats["is_chronic"]:
+            weighted_transition *= 1.3
+            reasoning.append(f"Chronic {source_disease}")
+
+        # Bonus for worsening trend
+        if stats["severity_trend"] > 0.3:
+            weighted_transition *= 1.2
+            reasoning.append(f"{source_disease} worsening over time")
+
+        relevance += weighted_transition
 
     # 2. Risk factor contributions
     for rf in risk_factors:
@@ -509,10 +517,30 @@ def _should_predict_risk(
     # Check for significant vitals issues
     has_vitals_issues = vitals_analysis.get("cardiovascular_risk_from_vitals", 0) > 0.3
 
+    # Detect meaningful non-cardiovascular vital abnormalities (e.g., fever patterns)
+    temp = vitals_analysis.get("temperature", {})
+    has_temp_issue = bool(
+        isinstance(temp, dict)
+        and temp.get("abnormality_score", 0) > 0.15
+        and temp.get("consistency", 0) > 0.35
+    )
+
+    # Allow forecasting when multiple distinct conditions are present even if each is recent.
+    distinct_conditions = len(disease_stats)
+    has_multi_condition_pattern = history_length >= 3 and distinct_conditions >= 3
+
     # Check for multiple risk factors
     has_risk_factors = len(risk_factors) >= 2
 
-    return has_significant or has_chronic or has_recurring or has_vitals_issues or has_risk_factors
+    return (
+        has_significant
+        or has_chronic
+        or has_recurring
+        or has_vitals_issues
+        or has_temp_issue
+        or has_risk_factors
+        or has_multi_condition_pattern
+    )
 
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "saved_models")
