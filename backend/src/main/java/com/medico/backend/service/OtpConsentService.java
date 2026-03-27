@@ -70,25 +70,24 @@ public class OtpConsentService {
             .status(ConsentStatus.PENDING)
             .expiresAt(expiresAt)
             .build();
-        otpConsentRepository.save(consent);
         String patientEmail = patient.getUser().getEmail();
         String doctorName = doctor.getFirstName() + " " + doctor.getLastName();
-        boolean emailSent = true;
         try {
             emailService.sendOtpEmail(patientEmail, otp, doctorName);
         } catch (RuntimeException ex) {
             log.error("Failed to send OTP email to {}: {}", patientEmail, ex.getMessage(), ex);
-            emailSent = false;
+            throw new BadRequestException("Failed to send OTP. Please try again after configuring a valid email provider.");
         }
+        otpConsentRepository.save(consent);
         auditLogService.log(actor, AuditAction.CONSENT_REQUEST, "OtpConsent", consent.getId().toString(), ipAddress,
             "Doctor requested access to patient records");
 
         return ConsentStatusResponse.builder()
             .status(consent.getStatus())
             .expiresAt(consent.getExpiresAt())
-            .otp(emailService.isMock() || !emailSent ? otp : null)
+            .otp(null)
             .destinationEmail(patientEmail)
-            .emailSent(emailSent)
+            .emailSent(true)
             .build();
     }
 

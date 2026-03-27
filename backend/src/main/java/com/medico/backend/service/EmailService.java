@@ -33,8 +33,7 @@ public class EmailService {
 
     public void sendOtpEmail(String to, String otp, String doctorName) {
         if (!"EMAIL".equalsIgnoreCase(deliveryMode)) {
-            log.info("OTP delivery mode is {}, OTP for {} is {}", deliveryMode, to, otp);
-            return;
+            throw new IllegalStateException("OTP delivery is disabled. Set app.otp.delivery=EMAIL for real OTP delivery.");
         }
         log.info("Attempting to send OTP email to {} from {}", to, mailFrom);
         try {
@@ -136,6 +135,6 @@ public class EmailService {
     }
 
     public boolean isMock() {
-        return !"EMAIL".equalsIgnoreCase(deliveryMode);
+        return false;
     }
 }
