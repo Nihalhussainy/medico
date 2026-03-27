@@ -11,8 +11,28 @@ function parseHR(vitals) {
   return match ? Number(match[1]) : null;
 }
 
+function parseTemperature(vitals) {
+  if (!vitals) return null;
+  const match = vitals.match(/(?:temp|temperature)\s*[:=]?\s*(\d{2,3}(?:\.\d+)?)\s*([FC])?/i);
+  if (!match) return null;
+  const value = Number(match[1]);
+  const unit = (match[2] || "F").toUpperCase();
+  if (Number.isNaN(value)) return null;
+  return unit === "C" ? value : value;
+}
+
+function parseSpO2(vitals) {
+  if (!vitals) return null;
+  const match = vitals.match(/(?:spo2|oxygen\s*saturation)\s*[:=]?\s*(\d{2,3})\s*%?/i);
+  return match ? Number(match[1]) : null;
+}
+
 function inferSeverity(record) {
   const text = `${record?.diagnosis || ""} ${record?.description || ""}`.toLowerCase();
+  const bpSys = parseBP(record?.vitals, "sys");
+  const bpDia = parseBP(record?.vitals, "dia");
+  const spo2 = parseSpO2(record?.vitals);
+  if ((bpSys && bpSys >= 160) || (bpDia && bpDia >= 100) || (spo2 && spo2 <= 92)) return "SEVERE";
   if (/(critical|severe|acute|emergency|uncontrolled)/.test(text)) return "SEVERE";
   if (/(mild|stable|improved|follow-up)/.test(text)) return "MILD";
   return "MODERATE";
@@ -35,15 +55,29 @@ export function getPatientOwnRecords(records) {
 }
 
 export function buildRiskPatientHistory(records) {
-  return (records || []).map((record) => ({
-    disease: record.diagnosis || record.title || "General Checkup",
-    severity: inferSeverity(record),
-    bpSystolic: parseBP(record.vitals, "sys") || 120,
-    bpDiastolic: parseBP(record.vitals, "dia") || 80,
-    heartRate: parseHR(record.vitals) || 78,
-    temperature: 98.6,
-    spo2: 97,
-    riskFactors: inferRiskFactors(record),
-    isChronic: /chronic|long-term|ongoing/i.test(`${record.diagnosis || ""} ${record.description || ""}`)
-  }));
+  const history = records || [];
+  const diagnosisCounts = history.reduce((acc, record) => {
+    const key = (record?.diagnosis || record?.title || "General Checkup").trim().toLowerCase();
+    acc[key] = (acc[key] || 0) + 1;
+    return acc;
+  }, {});
+
+  return history.map((record) => {
+    const disease = record.diagnosis || record.title || "General Checkup";
+    const diagnosisKey = disease.trim().toLowerCase();
+    const chronicByPattern = /chronic|long-term|ongoing|persistent|recurrent/i.test(`${record.diagnosis || ""} ${record.description || ""}`);
+    const chronicByFrequency = (diagnosisCounts[diagnosisKey] || 0) >= 2;
+
+    return {
+      disease,
+      severity: inferSeverity(record),
+      bpSystolic: parseBP(record.vitals, "sys") || 120,
+      bpDiastolic: parseBP(record.vitals, "dia") || 80,
+      heartRate: parseHR(record.vitals) || 78,
+      temperature: parseTemperature(record.vitals) || 98.6,
+      spo2: parseSpO2(record.vitals) || 97,
+      riskFactors: inferRiskFactors(record),
+      isChronic: chronicByPattern || chronicByFrequency,
+    };
+  });
 }

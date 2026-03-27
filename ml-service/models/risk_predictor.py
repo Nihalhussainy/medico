@@ -534,6 +534,8 @@ class HealthRiskPredictor:
         self.algorithm = "gb"
         self.feedback_log = []
         self.feedback_retrain_threshold = 25
+        self.followup_transition = {}
+        self.risk_factor_transition = {}
 
     def _get_shap_module(self):
         """Lazy-load SHAP so service startup is fast when explainability is not used yet."""
@@ -555,6 +557,8 @@ class HealthRiskPredictor:
         self.models = {}
         self.explainers = {}
         self.accuracy_report = {}
+        self.followup_transition = {}
+        self.risk_factor_transition = {}
 
         # Identify all possible follow-up diagnoses
         all_followups = set()
@@ -581,6 +585,9 @@ class HealthRiskPredictor:
                 if rf.strip():
                     all_rf.add(rf.strip())
         self.all_risk_factors = sorted(all_rf)
+
+        # Learn prior transition probabilities to improve relevance at inference time.
+        self._build_transition_priors(df)
 
         # Build human-readable feature names for SHAP
         self._build_feature_names()
@@ -653,6 +660,55 @@ class HealthRiskPredictor:
             print(f"    {disease}: {acc}% accuracy")
         if len(self.accuracy_report) > 5:
             print(f"    ... and {len(self.accuracy_report) - 5} more conditions")
+
+    def _ensure_transition_priors(self):
+        """Backfill transition priors for models loaded from older joblib snapshots."""
+        if not hasattr(self, "followup_transition") or self.followup_transition is None:
+            self.followup_transition = {}
+        if not hasattr(self, "risk_factor_transition") or self.risk_factor_transition is None:
+            self.risk_factor_transition = {}
+
+        if (not self.followup_transition or not self.risk_factor_transition) and self.df is not None:
+            try:
+                self._build_transition_priors(self.df)
+            except Exception:
+                # Keep prediction available even if prior extraction fails.
+                self.followup_transition = self.followup_transition or {}
+                self.risk_factor_transition = self.risk_factor_transition or {}
+
+    def _build_transition_priors(self, df: pd.DataFrame):
+        """Build disease->followup and risk-factor->followup priors from training data."""
+        valid = df[df["follow_up_diagnosis"].notna() & (df["follow_up_diagnosis"].astype(str).str.strip() != "")].copy()
+        if valid.empty:
+            return
+
+        # Disease transition priors: P(follow_up | primary disease)
+        for disease, grp in valid.groupby("disease"):
+            total = len(grp)
+            counts = grp["follow_up_diagnosis"].value_counts()
+            self.followup_transition[disease] = {
+                followup: float(count / total)
+                for followup, count in counts.items()
+            }
+
+        # Risk-factor priors: P(follow_up | risk factor)
+        rf_counts = {}
+        rf_totals = {}
+        for _, row in valid.iterrows():
+            follow = str(row["follow_up_diagnosis"]).strip()
+            factors = [f.strip() for f in str(row.get("risk_factors", "")).split("|") if f.strip()]
+            for rf in factors:
+                rf_totals[rf] = rf_totals.get(rf, 0) + 1
+                key = (rf, follow)
+                rf_counts[key] = rf_counts.get(key, 0) + 1
+
+        for rf, total in rf_totals.items():
+            transitions = {}
+            for (rf_name, follow), cnt in rf_counts.items():
+                if rf_name == rf:
+                    transitions[follow] = float(cnt / total)
+            if transitions:
+                self.risk_factor_transition[rf] = transitions
 
     def online_update(self, new_records):
         """Append newly observed records and retrain risk models."""
@@ -770,6 +826,44 @@ class HealthRiskPredictor:
         ])
         return features.astype(float)
 
+    def _severity_weight(self, severity: str) -> float:
+        sev = str(severity or "MODERATE").upper()
+        if sev == "SEVERE":
+            return 1.6
+        if sev == "MILD":
+            return 0.9
+        return 1.2
+
+    def _history_model_probability(self, disease: str, clf, history: list, current_age: int,
+                                   gender: str, blood_group: str) -> float:
+        """Estimate model probability using all history records with severity/chronic weighting."""
+        if not history:
+            return 0.0
+
+        weighted_sum = 0.0
+        total_weight = 0.0
+
+        # Use up to the last 20 records to keep inference responsive.
+        for h in history[:20]:
+            vec = self._aggregate_history([h], current_age, gender, blood_group)
+            if vec is None:
+                continue
+
+            x_scaled = self.scaler.transform([vec])
+            proba = clf.predict_proba(x_scaled)
+            p = proba[0][1] if len(proba[0]) > 1 else 0.0
+
+            w = self._severity_weight(h.get("severity", "MODERATE"))
+            if h.get("is_chronic"):
+                w += 0.3
+
+            weighted_sum += float(p) * w
+            total_weight += w
+
+        if total_weight <= 0:
+            return 0.0
+        return float(weighted_sum / total_weight)
+
     # ── Prediction ──────────────────────────────────────────────────────
 
     def predict_risks(self, patient_history: list, current_age: int,
@@ -785,6 +879,8 @@ class HealthRiskPredictor:
         if not self.is_trained or not self.models:
             return {"error": "Model not trained yet", "risks": []}
 
+        self._ensure_transition_priors()
+
         # Aggregate patient history into a single feature vector
         agg = self._aggregate_history(patient_history, current_age, gender, blood_group)
         if agg is None:
@@ -793,20 +889,58 @@ class HealthRiskPredictor:
         X_scaled = self.scaler.transform([agg])
         X_unscaled = np.array([agg])  # Keep unscaled for SHAP
 
+        # Context used for relevance-aware filtering
+        history_diseases = {str(h.get("disease", "")).strip() for h in patient_history if str(h.get("disease", "")).strip()}
+        history_rf = set()
+        for h in patient_history:
+            for rf in str(h.get("risk_factors", "")).split("|"):
+                rf = rf.strip()
+                if rf:
+                    history_rf.add(rf)
+
         risks = []
         for disease, clf in self.models.items():
             proba = clf.predict_proba(X_scaled)
-            # Get probability of positive class
-            if len(proba[0]) > 1:
-                risk_prob = proba[0][1]
-            else:
-                risk_prob = 0.0
+            # Aggregate-history probability
+            agg_prob = proba[0][1] if len(proba[0]) > 1 else 0.0
+            # Per-record weighted probability (uses full history signal)
+            hist_prob = self._history_model_probability(
+                disease=disease,
+                clf=clf,
+                history=patient_history,
+                current_age=current_age,
+                gender=gender,
+                blood_group=blood_group,
+            )
+            # Blend both so risk reflects complete longitudinal history.
+            risk_prob = (0.65 * float(agg_prob)) + (0.35 * float(hist_prob))
 
-            if risk_prob > 0.05:  # only include non-trivial risks
+            # Relevance from observed transitions in training data
+            disease_relevance = 0.0
+            for hd in history_diseases:
+                disease_relevance = max(
+                    disease_relevance,
+                    self.followup_transition.get(hd, {}).get(disease, 0.0),
+                )
+
+            rf_relevance = 0.0
+            for rf in history_rf:
+                rf_relevance = max(
+                    rf_relevance,
+                    self.risk_factor_transition.get(rf, {}).get(disease, 0.0),
+                )
+
+            prior_relevance = max(disease_relevance, rf_relevance)
+
+            # Blend model confidence with learned clinical transition relevance.
+            adjusted_prob = (0.75 * float(risk_prob)) + (0.25 * float(prior_relevance))
+
+            # Filter noisy unrelated candidates while keeping strong model signals.
+            if adjusted_prob > 0.12 and (prior_relevance >= 0.03 or risk_prob >= 0.35):
                 level = "LOW"
-                if risk_prob > 0.4:
+                if adjusted_prob > 0.4:
                     level = "HIGH"
-                elif risk_prob > 0.2:
+                elif adjusted_prob > 0.2:
                     level = "MODERATE"
 
                 precaution_info = RISK_PRECAUTIONS.get(disease, DEFAULT_PRECAUTION)
@@ -816,9 +950,13 @@ class HealthRiskPredictor:
 
                 risks.append({
                     "disease": disease,
-                    "probability": round(risk_prob * 100, 1),
+                    "probability": round(adjusted_prob * 100, 1),
+                    "model_probability": round(float(risk_prob) * 100, 1),
+                    "aggregate_model_probability": round(float(agg_prob) * 100, 1),
+                    "history_model_probability": round(float(hist_prob) * 100, 1),
+                    "relevance_score": round(float(prior_relevance) * 100, 1),
                     "risk_level": level,
-                    "confidence": self._calculate_confidence(risk_prob),
+                    "confidence": self._calculate_confidence(adjusted_prob),
                     "top_factors": top_factors,
                     "precautions": precaution_info["precautions"],
                     "advice": precaution_info["advice"],
@@ -826,6 +964,7 @@ class HealthRiskPredictor:
 
         # Sort by probability descending
         risks.sort(key=lambda x: -x["probability"])
+        risks = risks[:8]
 
         return {
             "risks": risks,
@@ -906,10 +1045,23 @@ class HealthRiskPredictor:
         if not history:
             return None
 
-        # Use the most recent record's disease as primary
-        latest = history[0]
+        # Choose a clinically meaningful primary disease from history.
+        disease_scores = {}
+        for h in history:
+            d = str(h.get("disease", "")).strip()
+            if not d:
+                continue
+            severity = str(h.get("severity", "MODERATE")).upper()
+            weight = 1.0
+            if severity == "SEVERE":
+                weight = 1.8
+            elif severity == "MODERATE":
+                weight = 1.3
+            if h.get("is_chronic"):
+                weight += 0.5
+            disease_scores[d] = disease_scores.get(d, 0.0) + weight
 
-        disease = latest.get("disease", "")
+        disease = max(disease_scores, key=disease_scores.get) if disease_scores else ""
         if disease not in self.disease_encoder.classes_:
             # Try fuzzy
             for d in self.disease_encoder.classes_:
