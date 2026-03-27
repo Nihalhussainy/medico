@@ -1684,6 +1684,9 @@ class HealthRiskPredictor:
                     "advice": precaution_info["advice"],
                 })
 
+        # Keep only diseases strictly above 10% risk probability.
+        risks = [r for r in risks if r.get("probability", 0) > 10.0]
+
         # Sort by probability descending and limit
         risks.sort(key=lambda x: -x["probability"])
         risks = risks[:8]
@@ -1775,6 +1778,7 @@ class HealthRiskPredictor:
             })
 
         risks.sort(key=lambda x: -x["probability"])
+        risks = [r for r in risks if r.get("probability", 0) > 10.0]
         risks = risks[:top_k]
 
         return {
