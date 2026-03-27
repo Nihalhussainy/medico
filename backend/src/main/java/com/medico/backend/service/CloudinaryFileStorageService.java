@@ -33,13 +33,17 @@ public class CloudinaryFileStorageService implements FileStorageService {
     public StorageResult store(MultipartFile file) throws IOException {
         String original = file.getOriginalFilename() == null ? "file" : file.getOriginalFilename();
         String publicId = "medico/" + UUID.randomUUID();
+        String contentType = file.getContentType() == null ? "" : file.getContentType().toLowerCase();
+        String resourceType = contentType.startsWith("image/") ? "image" : "raw";
 
         @SuppressWarnings("unchecked")
         Map<String, Object> uploadResult = cloudinary.uploader().upload(
             file.getBytes(),
             ObjectUtils.asMap(
                 "public_id", publicId,
-                "resource_type", "auto",
+                "resource_type", resourceType,
+                "type", "upload",
+                "access_mode", "public",
                 "filename_override", original,
                 "use_filename", false,
                 "overwrite", true
