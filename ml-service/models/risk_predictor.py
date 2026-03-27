@@ -423,6 +423,27 @@ def _calculate_clinical_relevance(
     relevance = 0.0
     reasoning = []
 
+    # 0. Direct diagnosis continuity: if target closely matches recent diagnoses,
+    # retain a baseline relevance even when transition priors are sparse.
+    target_norm = _canonicalize_disease_name(target_disease)
+    for source_disease, stats in disease_stats.items():
+        source_norm = _canonicalize_disease_name(source_disease)
+        is_overlap = (
+            target_norm == source_norm
+            or target_norm in source_norm
+            or source_norm in target_norm
+        )
+        if not is_overlap:
+            continue
+
+        continuity = 0.10 + (stats.get("clinical_significance", 0.0) * 0.35)
+        if stats.get("is_recurring"):
+            continuity += 0.08
+        if stats.get("is_chronic"):
+            continuity += 0.07
+        relevance += continuity
+        reasoning.append(f"Recent diagnosis continuity: {source_disease}")
+
     # 1. Check disease transitions from history conditions
     for source_disease, stats in disease_stats.items():
         transition_prob = followup_transition.get(source_disease, {}).get(target_disease, 0.0)
@@ -1413,6 +1434,10 @@ class HealthRiskPredictor:
 
         # ═══ STEP 1: Intelligent Clinical Analysis ═══
         known_diseases = list(self.followup_transition.keys())
+        if not known_diseases:
+            known_diseases = list(getattr(self.disease_encoder, "classes_", []))
+        if not known_diseases:
+            known_diseases = [str(h.get("disease", "")).strip() for h in patient_history if str(h.get("disease", "")).strip()]
 
         # Analyze disease frequency and patterns
         disease_stats = _analyze_disease_frequency(patient_history, known_diseases)
