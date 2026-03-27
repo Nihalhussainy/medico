@@ -1456,19 +1456,23 @@ class HealthRiskPredictor:
         # ═══ STEP 2: Check if Risk Prediction is Warranted ═══
         # Don't predict risks for patients with only one-time minor issues
         if not _should_predict_risk(disease_stats, vitals_analysis, history_rf, len(patient_history)):
-            return {
-                "risks": [],
-                "patient_age": current_age,
-                "patient_gender": gender,
-                "history_records_analyzed": len(patient_history),
-                "message": "No significant risk patterns detected. Medical history shows only minor/one-time conditions.",
-                "analysis_summary": {
-                    "conditions_analyzed": len(disease_stats),
-                    "recurring_conditions": sum(1 for s in disease_stats.values() if s["is_recurring"]),
-                    "chronic_conditions": sum(1 for s in disease_stats.values() if s["is_chronic"]),
-                    "risk_factors_count": len(history_rf),
-                }
+            # Fallback to legacy probability scoring so users still receive output.
+            fallback = self._predict_risks_legacy(
+                patient_history=patient_history,
+                current_age=current_age,
+                gender=gender,
+                blood_group=blood_group,
+                min_probability=0.07,
+                top_k=6,
+            )
+            fallback["message"] = "Returned via legacy fallback mode due low clinical-pattern signal."
+            fallback["analysis_summary"] = {
+                "conditions_analyzed": len(disease_stats),
+                "recurring_conditions": sum(1 for s in disease_stats.values() if s["is_recurring"]),
+                "chronic_conditions": sum(1 for s in disease_stats.values() if s["is_chronic"]),
+                "risk_factors_count": len(history_rf),
             }
+            return fallback
 
         # ═══ STEP 3: Prepare ML Features ═══
         agg = self._aggregate_history(patient_history, current_age, gender, blood_group)
@@ -1569,6 +1573,19 @@ class HealthRiskPredictor:
         risks.sort(key=lambda x: -x["probability"])
         risks = risks[:8]
 
+        # If intelligent filtering still yields empty set, use legacy fallback.
+        if not risks:
+            fallback = self._predict_risks_legacy(
+                patient_history=patient_history,
+                current_age=current_age,
+                gender=gender,
+                blood_group=blood_group,
+                min_probability=0.08,
+                top_k=6,
+            )
+            fallback["message"] = "Returned via legacy fallback mode due strict relevance filtering."
+            return fallback
+
         # ═══ STEP 5: Build Analysis Summary ═══
         analysis_summary = {
             "total_visits": len(patient_history),
@@ -1596,6 +1613,61 @@ class HealthRiskPredictor:
             "history_records_analyzed": len(patient_history),
             "analysis_summary": analysis_summary,
             "explanation_method": "Intelligent Clinical Analysis + ML + SHAP",
+        }
+
+    def _predict_risks_legacy(self, patient_history: list, current_age: int,
+                              gender: str, blood_group: str = "O+",
+                              min_probability: float = 0.05, top_k: int = 6) -> dict:
+        """Legacy-style fallback scoring to avoid empty result sets."""
+        agg = self._aggregate_history(patient_history, current_age, gender, blood_group)
+        if agg is None:
+            return {
+                "risks": [],
+                "patient_age": current_age,
+                "patient_gender": gender,
+                "history_records_analyzed": len(patient_history),
+                "explanation_method": "Legacy fallback (aggregate probability)",
+            }
+
+        X_scaled = self.scaler.transform([agg])
+        X_unscaled = np.array([agg])
+
+        risks = []
+        for disease, clf in self.models.items():
+            proba = clf.predict_proba(X_scaled)
+            risk_prob = proba[0][1] if len(proba[0]) > 1 else 0.0
+            if risk_prob < min_probability:
+                continue
+
+            level = "LOW"
+            if risk_prob > 0.4:
+                level = "HIGH"
+            elif risk_prob > 0.2:
+                level = "MODERATE"
+
+            precaution_info = RISK_PRECAUTIONS.get(disease, DEFAULT_PRECAUTION)
+            risks.append({
+                "disease": disease,
+                "probability": round(float(risk_prob) * 100, 1),
+                "model_probability": round(float(risk_prob) * 100, 1),
+                "clinical_relevance": None,
+                "risk_level": level,
+                "confidence": self._calculate_confidence(float(risk_prob)),
+                "reasoning": ["Legacy probability fallback"],
+                "top_factors": self._get_shap_factors(disease, X_unscaled, top_n=5),
+                "precautions": precaution_info["precautions"],
+                "advice": precaution_info["advice"],
+            })
+
+        risks.sort(key=lambda x: -x["probability"])
+        risks = risks[:top_k]
+
+        return {
+            "risks": risks,
+            "patient_age": current_age,
+            "patient_gender": gender,
+            "history_records_analyzed": len(patient_history),
+            "explanation_method": "Legacy fallback (aggregate probability)",
         }
 
     def _get_shap_factors(self, disease: str, X: np.ndarray, top_n: int = 5) -> list:
