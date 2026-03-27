@@ -33,6 +33,14 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("medico_user");
   };
 
+  const updateUser = (partialUser) => {
+    setUser((prev) => {
+      const nextUser = { ...(prev || {}), ...(partialUser || {}) };
+      localStorage.setItem("medico_user", JSON.stringify(nextUser));
+      return nextUser;
+    });
+  };
+
   const role = useMemo(() => {
     if (user?.role) return user.role;
     if (!token) return null;
@@ -44,7 +52,7 @@ export function AuthProvider({ children }) {
   }, [token, user]);
 
   return (
-    <AuthContext.Provider value={{ token, user, role, login, logout, register }}>
+    <AuthContext.Provider value={{ token, user, role, login, logout, register, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

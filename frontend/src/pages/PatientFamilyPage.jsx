@@ -16,6 +16,8 @@ const initialMember = {
   dateOfBirth: ""
 };
 
+const BLOOD_GROUP_OPTIONS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
 export default function PatientFamilyPage() {
   const toast = useToast();
   const confirm = useConfirm();
@@ -186,7 +188,12 @@ export default function PatientFamilyPage() {
                 <input className="input" name="relationship" placeholder="Relationship (e.g. Son)" value={formData.relationship} onChange={handleInputChange} />
                 <input className="input" name="phoneNumber" placeholder="Phone (optional)" value={formData.phoneNumber} onChange={handleInputChange} />
                 <input className="input" name="gender" placeholder="Gender" value={formData.gender} onChange={handleInputChange} />
-                <input className="input" name="bloodGroup" placeholder="Blood group" value={formData.bloodGroup} onChange={handleInputChange} />
+                <select className="input" name="bloodGroup" value={formData.bloodGroup} onChange={handleInputChange}>
+                  <option value="">Select blood group</option>
+                  {BLOOD_GROUP_OPTIONS.map((group) => (
+                    <option key={group} value={group}>{group}</option>
+                  ))}
+                </select>
               </div>
 
               <input className="input" name="dateOfBirth" type="date" value={formData.dateOfBirth} onChange={handleInputChange} />
