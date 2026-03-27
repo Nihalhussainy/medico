@@ -35,6 +35,8 @@ DISEASE_ALIASES = {
     "cold": "Common Cold",
     "cough and cold": "Common Cold",
     "flu": "Influenza",
+    "fever": "Fever (Viral)",
+    "viral fever": "Fever (Viral)",
     "sugar": "Type 2 Diabetes",
     "diabetes": "Type 2 Diabetes",
     "bp": "Hypertension",
@@ -122,11 +124,16 @@ def _fuzzy_match_disease(input_disease: str, known_diseases: list, threshold: in
         if _canonicalize_disease_name(disease) == input_canonical:
             return disease, 100
 
-    # Substring match
+    # Substring match - be careful with single words that can match multiple diseases
     for disease in known_diseases:
         disease_canonical = _canonicalize_disease_name(disease)
-        if input_canonical in disease_canonical or disease_canonical in input_canonical:
-            return disease, 85
+        # Only match if it's a meaningful substring (not just "fever" matching "dengue fever")
+        if input_canonical == disease_canonical:
+            return disease, 100  # Exact match after canonicalization
+        # For longer queries, allow substring matching
+        if len(input_canonical) > 3:  # Only for queries > 3 chars
+            if input_canonical in disease_canonical:
+                return disease, 85
 
     # Fuzzy match using rapidfuzz
     if rf_process is not None and rf_fuzz is not None:
@@ -239,26 +246,25 @@ def _analyze_disease_frequency(patient_history: list, known_diseases: list) -> d
             stats["severity_trend"] = 0
 
         # Clinical significance score (0-1)
-        # CRITICAL: Single occurrences should have VERY LOW significance
-        # Only recurring or chronic conditions should be clinically significant
+        # Balance: Single occurrences get LOW significance, recurring/chronic get HIGH
+        # But single occurrences should still allow relevant predictions at lower probability
 
         if stats["is_recurring"]:
-            # Recurring = count >= 2: high significance
+            # Recurring = count >= 2: HIGH significance
             freq_score = min(1.0, stats["count"] / 4)  # Scales: 0.5 at 2 visits, 1.0 at 4+
             chronic_bonus = 0.3 if stats["is_chronic"] else 0
             severity_bonus = (stats["latest_severity"] - 1) / 4  # 0-0.5
             trend_bonus = max(0, stats["severity_trend"]) / 3  # Getting worse = bad
             stats["clinical_significance"] = min(1.0, freq_score * 0.5 + chronic_bonus + severity_bonus + trend_bonus)
         elif stats["is_chronic"]:
-            # Chronic but first occurrence: moderate significance
-            stats["clinical_significance"] = 0.35 + (stats["latest_severity"] - 1) * 0.1
+            # Chronic but first occurrence: MODERATE-HIGH significance
+            stats["clinical_significance"] = 0.40 + (stats["latest_severity"] - 1) * 0.1
         else:
-            # Single occurrence, non-chronic: VERY LOW significance (0.05-0.15)
-            # Only severe single occurrences get slight consideration
-            if stats["latest_severity"] >= 3:  # SEVERE
-                stats["clinical_significance"] = 0.15
-            else:
-                stats["clinical_significance"] = 0.05  # Essentially filtered out
+            # Single occurrence, non-chronic: LOW but not zero significance
+            # Allows predictions but at reduced probability
+            base = 0.12  # Base significance for any single visit
+            severity_bonus = (stats["latest_severity"] - 1) * 0.08  # MILD=0, MOD=0.08, SEVERE=0.16
+            stats["clinical_significance"] = base + severity_bonus  # Range: 0.12 to 0.28
 
     return disease_stats
 
@@ -452,16 +458,20 @@ def _calculate_clinical_relevance(
 
         clinical_significance = stats["clinical_significance"]
 
-        # For one-time/acute conditions, keep only stronger known transitions at low weight.
-        if clinical_significance < 0.25:
-            if transition_prob < 0.12:
-                continue
-            weighted_transition = transition_prob * max(0.08, clinical_significance) * 0.55
-            reasoning.append(f"Recent diagnosis: {source_disease}")
+        # For single occurrences (lower significance), use transitions but with reduced weight
+        if not stats.get("is_recurring") and not stats.get("is_chronic"):
+            # Single occurrence: allow all transitions, weight by both transition strength AND condition significance
+            weighted_transition = transition_prob * clinical_significance * 0.8
+            if transition_prob >= 0.05:  # Show in reasoning if transition is meaningful
+                reasoning.append(f"Recent diagnosis: {source_disease}")
             relevance += weighted_transition
+
+            # BONUS: For strong transitions (>30%), boost relevance even more for single occurrences
+            if transition_prob > 0.30:
+                relevance += transition_prob * 0.15  # Extra boost for known strong progressions
             continue
 
-        # Weight by clinical significance of the source condition
+        # For recurring/chronic conditions: full weight with bonuses
         weighted_transition = transition_prob * clinical_significance
 
         # Bonus for recurring conditions
@@ -515,53 +525,24 @@ def _should_predict_risk(
     history_length: int,
 ) -> bool:
     """
-    Determine if we should make any risk predictions at all.
-    Returns False if the patient has minimal/one-time issues.
+    Determine if we should use the intelligent prediction path.
+    Returns True for most cases - only returns False for truly empty histories.
     """
     # Need at least 1 visit
     if history_length < 1:
         return False
 
-    # Check for any clinically significant conditions
-    # Threshold increased: only recurring/chronic/severe conditions qualify
-    has_significant = any(
-        stats["clinical_significance"] >= 0.30
-        for stats in disease_stats.values()
-    )
-
-    # Check for chronic conditions
-    has_chronic = any(stats["is_chronic"] for stats in disease_stats.values())
-
-    # Check for recurring conditions
-    has_recurring = any(stats["is_recurring"] for stats in disease_stats.values())
+    # If we have any disease stats, we should predict
+    if disease_stats:
+        return True
 
     # Check for significant vitals issues
-    has_vitals_issues = vitals_analysis.get("cardiovascular_risk_from_vitals", 0) > 0.3
+    has_vitals_issues = vitals_analysis.get("cardiovascular_risk_from_vitals", 0) > 0.2
 
-    # Detect meaningful non-cardiovascular vital abnormalities (e.g., fever patterns)
-    temp = vitals_analysis.get("temperature", {})
-    has_temp_issue = bool(
-        isinstance(temp, dict)
-        and temp.get("abnormality_score", 0) > 0.15
-        and temp.get("consistency", 0) > 0.35
-    )
+    # Check for any risk factors
+    has_risk_factors = len(risk_factors) >= 1
 
-    # Allow forecasting when multiple distinct conditions are present even if each is recent.
-    distinct_conditions = len(disease_stats)
-    has_multi_condition_pattern = history_length >= 3 and distinct_conditions >= 3
-
-    # Check for multiple risk factors
-    has_risk_factors = len(risk_factors) >= 2
-
-    return (
-        has_significant
-        or has_chronic
-        or has_recurring
-        or has_vitals_issues
-        or has_temp_issue
-        or has_risk_factors
-        or has_multi_condition_pattern
-    )
+    return has_vitals_issues or has_risk_factors
 
 
 MODEL_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "saved_models")
@@ -1517,22 +1498,25 @@ class HealthRiskPredictor:
             combined_prob = (0.4 * adjusted_model_prob) + (0.6 * clinical_relevance)
 
             # Minimum threshold for showing a prediction
-            min_threshold = 0.10
+            # Lowered from 0.08 to 0.06 to capture strong clinical transitions (e.g., Gastritis->GERD)
+            # even when ML model is weak on multi-condition aggregates
+            min_threshold = 0.06
 
-            # Require either strong clinical relevance OR strong model signal
-            if combined_prob >= min_threshold and clinical_relevance >= 0.08:
-                # Keep only predictions that have patient-history-linked evidence.
+            # Require either meaningful clinical relevance OR strong model signal
+            if combined_prob >= min_threshold and clinical_relevance >= 0.05:
+                # Check if prediction has history-linked evidence
                 has_history_linked_reason = any(
                     str(r).startswith("Recurring")
                     or str(r).startswith("Chronic")
                     or str(r).startswith("Risk factor")
-                    or str(r).startswith("Abnormal vital signs pattern")
+                    or str(r).startswith("Recent diagnosis")
+                    or str(r).startswith("Abnormal vital signs")
                     for r in (reasoning or [])
                 )
 
-                # For LOW risks, be strict: must be history-linked.
-                # For MOD/HIGH, allow strong model signal to pass.
-                if combined_prob < 0.25 and not has_history_linked_reason:
+                # For very low risks, require some history connection
+                # (unless clinical relevance is strong from transitions)
+                if combined_prob < 0.10 and clinical_relevance < 0.08 and not has_history_linked_reason:
                     continue
 
                 # Determine risk level with age-adjusted thresholds
