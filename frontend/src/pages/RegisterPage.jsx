@@ -58,8 +58,14 @@ export default function RegisterPage() {
         ...form,
         dateOfBirth: form.dateOfBirth || null
       });
-      toast.success("Registration successful! Your account has been created.");
-      toast.info("Please sign in to continue.");
+
+      if (form.role === "DOCTOR") {
+        toast.success("Doctor registration submitted successfully.");
+        toast.info("After admin verification, you can login using your credentials.");
+      } else {
+        toast.success("Registration successful! Your account has been created.");
+        toast.info("Please sign in to continue.");
+      }
       navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");

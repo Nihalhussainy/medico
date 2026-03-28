@@ -8,6 +8,7 @@ import BrandLogo from "./BrandLogo.jsx";
 const roleLinks = {
   ADMIN: [
     { to: "/admin", label: "Dashboard", icon: "grid" },
+    { to: "/admin/doctor-verifications", label: "Doctor Verification", icon: "shield" },
     { to: "/admin/blood-donation", label: "Blood Requests", icon: "heart" },
     { to: "/admin/analytics", label: "Analytics", icon: "chart" }
   ],
@@ -46,6 +47,12 @@ const icons = {
   user: (
     <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    </svg>
+  ),
+  shield: (
+    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3l7 4v5c0 5-3.5 8.5-7 9-3.5-.5-7-4-7-9V7l7-4z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4" />
     </svg>
   ),
   home: (

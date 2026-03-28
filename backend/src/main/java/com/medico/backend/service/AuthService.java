@@ -6,6 +6,7 @@ import com.medico.backend.dto.RegisterRequest;
 import com.medico.backend.dto.UserResponse;
 import com.medico.backend.entity.AuditAction;
 import com.medico.backend.entity.Doctor;
+import com.medico.backend.entity.DoctorVerificationStatus;
 import com.medico.backend.entity.Patient;
 import com.medico.backend.entity.Role;
 import com.medico.backend.entity.RoleName;
@@ -86,7 +87,7 @@ public class AuthService {
                 .phoneNumber(user.getPhoneNumber())
                 .build();
             patientRepository.save(patient);
-            return toUserResponse(user, patient.getId(), patient.getFirstName(), patient.getLastName());
+            return toUserResponse(user, patient.getId(), patient.getFirstName(), patient.getLastName(), null);
         }
 
         if (request.getRole() == RoleName.DOCTOR) {
@@ -98,12 +99,19 @@ public class AuthService {
                 .licenseNumber(required(request.getLicenseNumber(), "licenseNumber"))
                 .phoneNumber(user.getPhoneNumber())
                 .hospitalName(request.getHospitalName())
+                .verificationStatus(DoctorVerificationStatus.PENDING)
                 .build();
             doctorRepository.save(doctor);
-            return toUserResponse(user, doctor.getId(), doctor.getFirstName(), doctor.getLastName());
+            return toUserResponse(
+                user,
+                doctor.getId(),
+                doctor.getFirstName(),
+                doctor.getLastName(),
+                doctor.getVerificationStatus()
+            );
         }
 
-        return toUserResponse(user, null, null, null);
+        return toUserResponse(user, null, null, null, null);
     }
 
     public AuthResponse login(AuthRequest request, HttpServletRequest httpRequest) {
@@ -116,6 +124,27 @@ public class AuthService {
         }
         User user = userRepository.findByEmail(request.getEmail())
             .orElseThrow(() -> new BadRequestException("Invalid email or password"));
+
+        if (user.getRole().getName() == RoleName.DOCTOR) {
+            Doctor doctor = doctorRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new BadRequestException("Doctor profile not found"));
+
+            DoctorVerificationStatus status = doctor.getVerificationStatus();
+            if (status == DoctorVerificationStatus.PENDING) {
+                throw new BadRequestException("Your doctor account is under verification. You can login after admin approval.");
+            }
+            if (status == DoctorVerificationStatus.REJECTED) {
+                String note = doctor.getVerificationNote();
+                if (note != null && !note.isBlank()) {
+                    throw new BadRequestException("Doctor verification rejected: " + note);
+                }
+                throw new BadRequestException("Your doctor verification was rejected. Please contact support.");
+            }
+            if (status == DoctorVerificationStatus.SUSPENDED) {
+                throw new BadRequestException("Your doctor account is suspended. Please contact support.");
+            }
+        }
+
         String token = jwtTokenProvider.generateToken(user.getEmail(), user.getRole().getName());
         auditLogService.log(user, AuditAction.LOGIN, "User", user.getId().toString(), httpRequest.getRemoteAddr(), null);
         return AuthResponse.builder()
@@ -128,24 +157,37 @@ public class AuthService {
         if (user.getRole().getName() == RoleName.PATIENT) {
             Patient patient = patientRepository.findByUserId(user.getId()).orElse(null);
             if (patient != null) {
-                return toUserResponse(user, patient.getId(), patient.getFirstName(), patient.getLastName());
+                return toUserResponse(user, patient.getId(), patient.getFirstName(), patient.getLastName(), null);
             }
         }
         if (user.getRole().getName() == RoleName.DOCTOR) {
             Doctor doctor = doctorRepository.findByUserId(user.getId()).orElse(null);
             if (doctor != null) {
-                return toUserResponse(user, doctor.getId(), doctor.getFirstName(), doctor.getLastName());
+                return toUserResponse(
+                    user,
+                    doctor.getId(),
+                    doctor.getFirstName(),
+                    doctor.getLastName(),
+                    doctor.getVerificationStatus()
+                );
             }
         }
-        return toUserResponse(user, null, null, null);
+        return toUserResponse(user, null, null, null, null);
     }
 
-    private UserResponse toUserResponse(User user, Long profileId, String firstName, String lastName) {
+    private UserResponse toUserResponse(
+        User user,
+        Long profileId,
+        String firstName,
+        String lastName,
+        DoctorVerificationStatus doctorVerificationStatus
+    ) {
         return UserResponse.builder()
             .id(user.getId())
             .email(user.getEmail())
             .phoneNumber(user.getPhoneNumber())
             .role(user.getRole().getName())
+            .doctorVerificationStatus(doctorVerificationStatus)
             .profileId(profileId)
             .firstName(firstName)
             .lastName(lastName)

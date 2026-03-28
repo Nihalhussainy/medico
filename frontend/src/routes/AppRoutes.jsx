@@ -4,6 +4,7 @@ import LoginPage from "../pages/LoginPage.jsx";
 import RegisterPage from "../pages/RegisterPage.jsx";
 import AdminDashboard from "../pages/AdminDashboard.jsx";
 import AdminBloodDonationPage from "../pages/AdminBloodDonationPage.jsx";
+import AdminDoctorVerificationPage from "../pages/AdminDoctorVerificationPage.jsx";
 import AnalyticsDashboardPage from "../pages/AnalyticsDashboardPage.jsx";
 import DoctorDashboard from "../pages/DoctorDashboard.jsx";
 import DoctorProfilePage from "../pages/DoctorProfilePage.jsx";
@@ -57,6 +58,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute roles={["ADMIN"]}>
             <AnalyticsDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/doctor-verifications"
+        element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <AdminDoctorVerificationPage />
           </ProtectedRoute>
         }
       />

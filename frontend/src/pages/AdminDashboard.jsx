@@ -9,6 +9,7 @@ export default function AdminDashboard() {
   const { user } = useAuth();
   const [doctors, setDoctors] = useState([]);
   const [patients, setPatients] = useState([]);
+  const [pendingVerifications, setPendingVerifications] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -25,6 +26,11 @@ export default function AdminDashboard() {
       ]);
       setDoctors(doctorsResponse.data);
       setPatients(patientsResponse.data);
+
+      const pending = (doctorsResponse.data || []).filter(
+        (doctor) => doctor.verificationStatus === "PENDING"
+      ).length;
+      setPendingVerifications(pending);
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load admin overview");
     } finally {
@@ -61,7 +67,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-4">
         <div className="card fade-up-delay-1">
           <div className="flex items-center justify-between">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-600">
@@ -75,7 +81,21 @@ export default function AdminDashboard() {
           <p className="text-sm text-gray-500">Registered medical staff</p>
         </div>
 
-        <Link to="/admin/blood-donation" className="card card-hover group fade-up-delay-2">
+        <Link to="/admin/doctor-verifications" className="card card-hover group fade-up-delay-2">
+          <div className="flex items-center justify-between">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600">
+              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 3l7 4v5c0 5-3.5 8.5-7 9-3.5-.5-7-4-7-9V7l7-4z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4" />
+              </svg>
+            </div>
+            <span className="text-2xl font-semibold text-gray-900">{pendingVerifications}</span>
+          </div>
+          <p className="mt-3 font-medium text-gray-900">Doctor Verification</p>
+          <p className="text-sm text-gray-500">Pending approvals</p>
+        </Link>
+
+        <Link to="/admin/blood-donation" className="card card-hover group fade-up-delay-3">
           <div className="flex items-center justify-between">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50 text-red-600">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +110,7 @@ export default function AdminDashboard() {
           <p className="text-sm text-gray-500">Manage donation alerts</p>
         </Link>
 
-        <div className="card fade-up-delay-3">
+        <div className="card fade-up-delay-4">
           <div className="flex items-center justify-between">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-teal-50 text-teal-600">
               <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
