@@ -127,7 +127,7 @@ export default function RegisterPage() {
               <label className="label">First name</label>
               <input
                 className="input"
-                placeholder="John"
+                placeholder="Enter first name"
                 value={form.firstName}
                 onChange={update("firstName")}
                 required
@@ -137,7 +137,7 @@ export default function RegisterPage() {
               <label className="label">Last name</label>
               <input
                 className="input"
-                placeholder="Doe"
+                placeholder="Enter last name"
                 value={form.lastName}
                 onChange={update("lastName")}
                 required
@@ -150,7 +150,7 @@ export default function RegisterPage() {
               <label className="label">Email</label>
               <input
                 className="input"
-                placeholder="you@example.com"
+                placeholder="Enter your email"
                 type="email"
                 value={form.email}
                 onChange={update("email")}
