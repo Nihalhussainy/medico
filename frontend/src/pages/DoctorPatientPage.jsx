@@ -949,7 +949,7 @@ export default function DoctorPatientPage() {
                       : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-300 hover:bg-teal-50/50'
                   }`}
                 >
-                  {member.firstName} {member.lastName} ({[resolveMemberAge(member) != null ? `${resolveMemberAge(member)}y` : null, member.gender || null, member.relationship || "Family"].filter(Boolean).join(' · ')})
+                  {member.firstName} {member.lastName}{resolveMemberAge(member) != null ? ` (${resolveMemberAge(member)}y)` : ""}
                 </button>
               ))}
             </div>
