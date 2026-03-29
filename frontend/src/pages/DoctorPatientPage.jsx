@@ -46,6 +46,23 @@ const getFollowUpDate = (days) => {
   return date.toISOString().split('T')[0];
 };
 
+const calculateAgeFromDOB = (dateOfBirth) => {
+  if (!dateOfBirth) return null;
+  const dob = new Date(dateOfBirth);
+  if (Number.isNaN(dob.getTime())) return null;
+
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age -= 1;
+  }
+
+  return age >= 0 ? age : null;
+};
+
+const resolveMemberAge = (member) => member?.age ?? calculateAgeFromDOB(member?.dateOfBirth);
+
 const initialRecord = {
   title: "",
   description: "",
@@ -76,6 +93,7 @@ export default function DoctorPatientPage() {
   const [searchParams] = useSearchParams();
   const initialFamilyMemberId = searchParams.get('familyMemberId');
   const shouldOpenConsultation = searchParams.get('openConsultation') === '1';
+  const editRecordFromQuery = searchParams.get('editRecord');
   const { user } = useAuth();
   const toast = useToast();
   const confirm = useConfirm();
@@ -111,6 +129,7 @@ export default function DoctorPatientPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showClinicalNotes, setShowClinicalNotes] = useState(false);
   const [isLoadingData, setIsLoadingData] = useState(true);
+  const lastHandledEditRecordRef = useRef(null);
   const prescriptionInputRef = useRef(null);
   const labReportInputRef = useRef(null);
   const otherReportsInputRef = useRef(null);
@@ -411,6 +430,53 @@ export default function DoctorPatientPage() {
     }
     openCreateModal();
   }, [shouldOpenConsultation, doctorHospitalName]);
+
+  useEffect(() => {
+    if (!editRecordFromQuery) {
+      lastHandledEditRecordRef.current = null;
+      return;
+    }
+
+    if (lastHandledEditRecordRef.current === editRecordFromQuery) {
+      return;
+    }
+
+    if (!history.length) {
+      if (!isLoadingData) {
+        toast.error("Unable to open edit mode. Record not found.");
+        lastHandledEditRecordRef.current = editRecordFromQuery;
+      }
+      return;
+    }
+
+    const recordToEdit = history.find((record) => String(record.id) === String(editRecordFromQuery));
+    if (!recordToEdit) {
+      if (!isLoadingData) {
+        toast.error("Unable to open edit mode. Record not found.");
+        lastHandledEditRecordRef.current = editRecordFromQuery;
+      }
+      return;
+    }
+
+    setEditingRecordId(recordToEdit.id);
+    setShowClinicalNotes(Boolean(recordToEdit.description?.trim()));
+    setSelectedPerson(recordToEdit.familyMemberId ? { type: 'family', id: recordToEdit.familyMemberId } : { type: 'patient', id: null });
+    setRecordData({
+      title: recordToEdit.title || '',
+      description: recordToEdit.description || '',
+      hospitalName: doctorHospitalName || recordToEdit.hospitalName || '',
+      diagnosis: recordToEdit.diagnosis || '',
+      vitals: recordToEdit.vitals || '',
+      medications: parseMedicationsString(recordToEdit.medications),
+      allergies: recordToEdit.allergies || '',
+      followUpDate: recordToEdit.followUpDate || '',
+      recordDate: recordToEdit.recordDate || getTodayDate(),
+      medicineDuration: recordToEdit.medicineDuration || 30,
+      advice: recordToEdit.advice || ''
+    });
+    setShowCreateForm(true);
+    lastHandledEditRecordRef.current = editRecordFromQuery;
+  }, [editRecordFromQuery, history, isLoadingData, doctorHospitalName]);
 
   const handleDeleteRecord = async (record) => {
     const confirmed = await confirm(
@@ -789,7 +855,7 @@ export default function DoctorPatientPage() {
                 const isPatient = selectedPerson.type === 'patient';
                 const selectedMember = !isPatient ? familyMembers.find(m => String(m.id) === String(selectedPerson.id)) : null;
                 const displayName = isPatient ? (patient?.fullName || "Patient") : (selectedMember ? `${selectedMember.firstName} ${selectedMember.lastName}` : "Family Member");
-                const displayAge = isPatient ? patient?.age : selectedMember?.age;
+                const displayAge = isPatient ? patient?.age : resolveMemberAge(selectedMember);
                 const displayGender = isPatient ? patient?.gender : selectedMember?.gender;
                 const relationship = isPatient ? "Self" : (selectedMember?.relationship || "Family");
                 
@@ -883,7 +949,7 @@ export default function DoctorPatientPage() {
                       : 'bg-white border border-gray-200 text-gray-700 hover:border-teal-300 hover:bg-teal-50/50'
                   }`}
                 >
-                  {member.firstName} {member.lastName} {member.age ? `(${member.age}y · ${member.relationship})` : `(${member.relationship})`}
+                  {member.firstName} {member.lastName} ({[resolveMemberAge(member) != null ? `${resolveMemberAge(member)}y` : null, member.gender || null, member.relationship || "Family"].filter(Boolean).join(' · ')})
                 </button>
               ))}
             </div>

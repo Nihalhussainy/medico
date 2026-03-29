@@ -10,6 +10,23 @@ import Spinner from "../components/Spinner.jsx";
 import { deriveFamilyMembersFromRecords } from "../services/familyInsights.js";
 import { generatePrescriptionPDF } from "../services/pdfGenerator.js";
 
+const calculateAgeFromDOB = (dateOfBirth) => {
+  if (!dateOfBirth) return null;
+  const dob = new Date(dateOfBirth);
+  if (Number.isNaN(dob.getTime())) return null;
+
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age -= 1;
+  }
+
+  return age >= 0 ? age : null;
+};
+
+const resolveMemberAge = (member) => member?.age ?? calculateAgeFromDOB(member?.dateOfBirth);
+
 export default function DoctorPatientHistoryPage() {
   const toast = useToast();
   const confirm = useConfirm();
@@ -97,7 +114,7 @@ export default function DoctorPatientHistoryPage() {
     const member = familyMembers.find(m => String(m.id) === String(selectedPerson.id));
     return member ? {
       name: `${member.firstName} ${member.lastName}`,
-      age: member.age,
+      age: resolveMemberAge(member),
       gender: member.gender,
       relationship: member.relationship
     } : { name: 'Family Member', relationship: 'Family' };
@@ -146,7 +163,12 @@ export default function DoctorPatientHistoryPage() {
 
   const handleEditRecord = (record) => {
     // Navigate back to the main page with edit mode
-    navigate(`/doctor/patient/${patientPhoneNumber}?editRecord=${record.id}`);
+    const params = new URLSearchParams();
+    params.set('editRecord', String(record.id));
+    if (record.familyMemberId !== null && record.familyMemberId !== undefined) {
+      params.set('familyMemberId', String(record.familyMemberId));
+    }
+    navigate(`/doctor/patient/${patientPhoneNumber}?${params.toString()}`);
   };
 
   const handleDeleteRecord = async (record) => {
@@ -268,10 +290,10 @@ export default function DoctorPatientHistoryPage() {
                                 ? 'text-gray-300'
                                 : 'text-gray-500'
                             }`}>
-                              {member.age && `${member.age} yrs`}
-                              {member.age && member.gender && ' · '}
+                              {resolveMemberAge(member) != null && `${resolveMemberAge(member)} yrs`}
+                              {resolveMemberAge(member) != null && member.gender && ' · '}
                               {member.gender}
-                              {(member.age || member.gender) && ' · '}
+                              {(resolveMemberAge(member) != null || member.gender) && ' · '}
                               {member.relationship}
                             </p>
                           </div>
