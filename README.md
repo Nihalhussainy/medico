@@ -1,8 +1,13 @@
-<p align="center">
-  <img src="frontend/public/medico-logo.svg" alt="Medico Logo" width="120" height="120">
-</p>
+<div align="center">
 
-<h1 align="center">Medico</h1>
+<!-- Logo -->
+<img src="logo.svg" alt="Medico Logo" width="100" height="100">
+
+# MEDICO
+
+### Your Health, Our Priority
+
+</div>
 
 <p align="center">
   <strong>Centralized Cloud-Based Medical History Management System</strong>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" role="img" aria-label="Medico logo">
+  <defs>
+    <radialGradient id="hFill" cx="42%" cy="32%" r="62%" gradientUnits="objectBoundingBox">
+      <stop offset="0%" stop-color="#fecaca" />
+      <stop offset="28%" stop-color="#ef4444" />
+      <stop offset="58%" stop-color="#b91c1c" />
+      <stop offset="100%" stop-color="#7f1d1d" />
+    </radialGradient>
+  </defs>
+  <path d="M36 62C36 62 10 47 10 28.5C10 20.5 16.5 14 24.5 14C29.5 14 33.5 16.5 36 20C38.5 16.5 42.5 14 47.5 14C55.5 14 62 20.5 62 28.5C62 47 36 62 36 62Z" fill="url(#hFill)"/>
+  <path d="M14 35H22L25.5 29L30 40L34 30.5L37.5 35H58" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
