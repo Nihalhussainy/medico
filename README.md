@@ -1,7 +1,6 @@
 <div align="center">
 
 <!-- Logo -->
-<img src="logo.svg" alt="Medico Logo" width="100" height="100">
 
 # MEDICO
 
